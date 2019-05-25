@@ -8,7 +8,7 @@
   "content_scripts": [{
     "css": ["styles.css"],
     "js": ["content.js"],
-    "matches": ["https://www.reddit.com/*"]
+    "matches": ["https://www.reddit.com/*", "https://old.reddit.com/"]
   }],
 
   "browser_action": {
