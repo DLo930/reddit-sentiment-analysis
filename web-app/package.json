@@ -17,7 +17,8 @@
     "express": "^4.17.0",
     "paralleldots": "^3.2.4",
     "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react-dom": "^16.5.2",
+    "yarn": "^1.16.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
