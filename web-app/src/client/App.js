@@ -14,10 +14,10 @@ export default class App extends Component {
               <span id="u-addon" class="input-group-addon">/u/</span>
                 <input type="text" placeholder="Username" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="form-control username-input"/>
                 </div>
-                <div class = "button_gr">
-                <button type = "submit" class = "sub">Subreddit</button>
-              <button type = "submit" class = "com">User Comments</button>
-              <button type ="submit" class = "post">User Posts</button>
+                <div class = "button_gr1">
+                <button type = "submit" class = "button_gr sub">Subreddit</button>
+              <button type = "submit" class = "button_gr com">User Comments</button>
+              <button type ="submit" class = "button_gr post">User Posts</button>
               </div>
       </div>
     );
