@@ -20,11 +20,6 @@ fetch('https://apis.paralleldots.com/v4/emotion/', {
     'Content-Type': 'multipart/form-data'
   },
   body: form
-  JSON.stringify({
-    text: 'Hello, world!',
-    api_key: 'tgXXTl26MVLbrMgcoIsy8hGKNafAMutI1NdyXR4A9sU',
-    lang_code: 'en'
-  })
 })
   .then(body => {
     console.log(body);
