@@ -4,16 +4,16 @@ var snoowrap = require('snoowrap');
 
 
 export default class UserComs extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-          posts: [],
-          colors: []
-        };
-    }
+     constructor(props) {
+          super(props)
+          this.state = {
+            theUser: props.theUser,
+            posts: [],
+            colors: []
+          };
+      }
 
     componentDidMount() {
-      console.log("Enter Mount");
 
       const r = new snoowrap({
         userAgent: 'austin',
@@ -22,14 +22,11 @@ export default class UserComs extends React.Component {
         refreshToken: '58922884904-ltvIjQL0W4a_tFfVV_C0ZNTe7K4'
       })
 
-      console.log("access reddit api");
 
-
-      r.getUser('Spez').getComments().map(post => post.body).then(console.log);
+      r.getUser(this.state.theUser).getComments().map(post => post.body).then(console.log);
 
 
           //end didmount
-       console.log("exit did mount");
      }
 
 

@@ -3,17 +3,19 @@ import React from "react"
 var snoowrap = require('snoowrap');
 
 
+
 export default class Subreddit extends React.Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.state = {
+          theSub: props.theSub,
           posts: [],
           colors: []
         };
     }
 
+
     componentDidMount() {
-      console.log("Enter Mount");
 
       const r = new snoowrap({
         userAgent: 'austin',
@@ -22,10 +24,7 @@ export default class Subreddit extends React.Component {
         refreshToken: '58922884904-ltvIjQL0W4a_tFfVV_C0ZNTe7K4'
       })
 
-      console.log("access reddit api");
-
-
-      r.getSubreddit('nba').getHot().map(post => post.title)
+      r.getSubreddit(this.state.theSub).getHot().map(post => post.title)
         .then(textArray => {
           fetch('/test', {
             method: 'POST',
@@ -38,9 +37,7 @@ export default class Subreddit extends React.Component {
             });
           });
           //end didmount
-       console.log("exit did mount");
      }
-
 
     render() {
         return (
