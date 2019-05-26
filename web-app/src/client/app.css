@@ -25,31 +25,13 @@ input[type=checkbox]:focus {
   display: inline-block;
   text-align: center;
   display: block;
-  margin-right: auto;
-  margin-left: auto;
-  margin-right: 25%;
-  margin-left: 25%;
+  padding: 10%;
   font-size: 20px;
 }
 
-
-button.reddit{
-  background-image: image('reddit.png');
-  margin-bottom: auto;
-  margin-right: 25%;
+.button_gr{
+  display: inline-block;
+  margin-bottom: 38%;
   margin-left: 25%;
-  background-repeat: no-repeat;
-  display: block;
-}
-button.twitter{
-  margin-bottom: auto;
   margin-right: 25%;
-  margin-left: 25%;
-  display: block;
-}
-button.fb{
-  margin-bottom: auto;
-  margin-right: 25%;
-  margin-left: 25%;
-  display: block;
 }

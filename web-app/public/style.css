@@ -759,7 +759,5 @@ a:hover {
 
 button.reddit{
   background-image: image('reddit.png');
-  margin-bottom: 25%;
-  margin-right: 15%;
   background-repeat: no-repeat;
 }
