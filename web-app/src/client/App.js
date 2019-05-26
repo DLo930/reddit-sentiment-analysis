@@ -62,8 +62,7 @@ export default class App extends Component {
       <p class = "test">Reddit Analyser</p>
             <form>
               <div class="input-group input-group-lg input-group--username">
-                  <span id="u-addon" class="input-group-addon">/u/</span>
-                  <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Username" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="form-control username-input"/>
+                  <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Username or Subreddit Name" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="form-control username-input"/>
               </div>
               <div class = "button_gr1">
                 <button type = "submit" class = "button_gr sub" name="subred" onClick={this.handleSubmitSubred}>Subreddit</button>
