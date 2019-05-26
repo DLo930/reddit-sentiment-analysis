@@ -16,11 +16,14 @@
     "babel-polyfill": "^6.26.0",
     "express": "^4.17.1",
     "materialize-css": "^1.0.0-rc.2",
-    "paralleldots": "^3.2.4",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "snoowrap": "^1.15.2",
+<<<<<<< HEAD
     "start": "^5.1.0",
+=======
+    "watson-developer-cloud": "^4.0.1",
+>>>>>>> 902aa3dd0c642fbf56eafd02b248cac72fee0f96
     "yarn": "^1.16.0"
   },
   "devDependencies": {
