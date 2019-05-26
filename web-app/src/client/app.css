@@ -1,8 +1,38 @@
-h1 {
-  color: green;
+body {
+    background-color: #0f2862;
+    background-image: linear-gradient(326deg #1dbab4 0% #0f2862 74%);
 }
 
-body {
+input[type=checkbox] {
+    margin-right: 10px;
+    font-size: 30px;
+}
+
+input[type=checkbox]:focus {
+    outline: 0;
+}
+.input-group-addon{
+  background-color: purple;
   text-align: center;
-  margin: auto;
+}
+.test{
+  text-align: center;
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI',Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 48px;
+}
+.input-group{
+  display: inline-block;
+  text-align: center;
+  display: block;
+  padding: 5%;
+  font-size: 20px;
+}
+
+.button_gr{
+  position:relative;
+  display: inline-block;
+  margin-bottom: 80%;
+  margin-left: 43%;
 }
