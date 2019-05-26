@@ -16,8 +16,8 @@ app.use(express.static('dist'));
 
 function getColor(obj) {
   const k = obj.k;
-  console.log(k+" "+obj.strongestEmotion);
-  switch(obj.strongestEmotion) {
+  console.log(k+" "+obj.emotion);
+  switch(obj.emotion) {
     case 'Anger':
       return `#${((k*255) | 0).toString(16)}0000`;
     case 'Fear':
@@ -47,7 +47,7 @@ app.post("/getColors", (req, res) => {
       const arr = toneAnalysis.document_tone.tones;
       if(arr.length == 0) {
         res.send({
-          "color": "#000000"
+          "color": "#d3d3d3"
         });
       }
       var intensity = 0;

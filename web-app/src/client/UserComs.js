@@ -14,7 +14,6 @@ export default class UserComs extends React.Component {
       }
 
     componentDidMount() {
-
       const r = new snoowrap({
         userAgent: 'austin',
         clientId: 'BDrHDv25GKxYrw',
@@ -24,9 +23,6 @@ export default class UserComs extends React.Component {
 
 
       r.getUser(this.state.theUser).getComments().map(post => post.body).then(console.log);
-
-
-          //end didmount
      }
 
 
