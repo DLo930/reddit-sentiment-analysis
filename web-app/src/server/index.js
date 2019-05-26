@@ -16,7 +16,6 @@ app.use(express.static('dist'));
 
 function getColor(obj) {
   const k = obj.k;
-  console.log(k+" "+obj.emotion);
   switch(obj.emotion) {
     case 'Anger':
       return `#${((k*255) | 0).toString(16)}0000`;
@@ -55,8 +54,7 @@ app.post("/getColors", (req, res) => {
       for(var i = 0; i < arr.length; i++) {
         if(arr[i].score > intensity) {
           intensity = arr[i].score;
-          console.log(arr[i].tone_name);
-          strongestEmotion = arr[i].tone_name;  //not being updated :(
+          strongestEmotion = arr[i].tone_name;
         }
       }
       const color = getColor({

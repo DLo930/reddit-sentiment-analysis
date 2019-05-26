@@ -1,26 +1,17 @@
 import React from "react"
 
-var snoowrap = require('snoowrap');
-
-
+const snoowrap = require('snoowrap');
 
 export default class Subreddit extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
           theSub: props.theSub,
-          posts: [],
-          colors: []
+          color: "#d3d3d3",
+          posts: []
         };
         this.zip = this.zip.bind(this);
     }
-
-    zip(A, B) {
-      return A.map((e, i) => {
-        return [ e, B[i] ];
-      });
-    }
-
 
     componentDidMount() {
       const r = new snoowrap({
@@ -30,36 +21,46 @@ export default class Subreddit extends React.Component {
         refreshToken: '58922884904-ltvIjQL0W4a_tFfVV_C0ZNTe7K4'
       });
 
-      r.getSubreddit(this.state.theSub).getHot().map(post => {
-        fetch('/getColors', {
-          method: 'POST',
-          body: {
-            'text': post.title
+      var str = "";
+      r.getSubreddit(this.state.theSub).getHot()
+        .then(arr => {
+          var tmpArr = [];
+          for(var i = 0; i < arr.length; i++) {
+            tmpArr.push(arr[i].title);
+            str = str.concat(" "+arr[i].title);
           }
-        })
-          .then(color => {
-            var posts = this.state.posts.concat(post.title);
-            var colors = this.state.colors.concat(color);
-            this.setState({
-              posts: posts,
-              colors: colors
+          fetch('/getColors', {
+            method: 'POST',
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              'text': str
+            })
+          })
+            .then(res => {
+              console.log(res);
+              // console.log(res.color);
+              console.log(tmpArr);
+              this.setState({
+                color: res.color,
+                posts: tmpArr
+              });
             });
-          });
-        console.log(this.zip(this.state.posts, this.state.colors));
       });
-     }
+    }
 
     render() {
-        return (
-          <div>
-            {
-              this.zip(this.state.posts, this.state.colors).map(elem => {
-                <div style={{ color: elem[1] }}>
-                  <h3>{elem[0]}</h3>
-                </div>
-              })
-            }
-          </div>
-        )
+      var tmp = [];
+      for(var i = 0; i < this.state.posts.length; i++) {
+        tmp.push(<div>{this.state.posts[i]}</div>);
+      }
+      return (
+        <div>
+          <h3 style={{ color: this.state.color }}>Sentiment color</h3>
+          <div>{tmp}</div>
+        </div>
+      );
     }
 }
