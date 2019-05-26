@@ -64,24 +64,17 @@ export default class App extends Component {
         <h1>The Reddit Sentiment Analyzer</h1>
         <h2> Because the Internet is (not) a wonderful place.</h2>
         <p>
+
             <form>
-<<<<<<< HEAD
-              <div class="input-group input-group-lg input-group--username">
-                  <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Username or Subreddit Name" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="form-control username-input"/>
-              </div>
-              <div class = "button_gr1">
-                <button type = "submit" class = "button_gr sub" name="subred" onClick={this.handleSubmitSubred}>Subreddit</button>
-                <button type = "submit" class = "button_gr com" name="usercoms" onClick={this.handleUserComs}>User Comments</button>
-                <button type ="submit" class = "button_gr post" name="usersubmiss" onClick={this.handleUserSubmiss}>User Posts</button>
-=======
+            <div class = "test">
               <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Subreddit/User" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="inpText"/>
+              </div>
                 <br/>
                 <br/>
               <div class="inp">
                 <button type = "submit" class="pushy__btn pushy__btn--lg pushy__btn--blue" name="subred" onClick={this.handleSubmitSubred}>Subreddit</button>
                 <button type = "submit" class="pushy__btn pushy__btn--lg pushy__btn--green" name="usercoms" onClick={this.handleUserComs}>User Comments</button>
                 <button type ="submit" class="pushy__btn pushy__btn--lg pushy__btn--red" name="usersubmiss" onClick={this.handleUserSubmiss}>User Posts</button>
->>>>>>> d50269a2b30e075f444d62b10c0a662515f1e562
               </div>
             </form>
 
