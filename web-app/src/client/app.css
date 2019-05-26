@@ -20,18 +20,19 @@ input[type=checkbox]:focus {
   font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI',Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   font-style: normal;
   font-weight: bold;
+  font-size: 48px;
 }
 .input-group{
   display: inline-block;
   text-align: center;
   display: block;
-  padding: 10%;
+  padding: 5%;
   font-size: 20px;
 }
 
 .button_gr{
+  position:relative;
   display: inline-block;
-  margin-bottom: 38%;
-  margin-left: 25%;
-  margin-right: 25%;
+  margin-bottom: 80%;
+  margin-left: 43%;
 }
