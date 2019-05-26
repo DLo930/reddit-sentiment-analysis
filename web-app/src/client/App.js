@@ -15,12 +15,22 @@ export default class App extends Component {
       subredBool: false,
       usercomBool: false,
       usersubmissBool: false
-  };
+    };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmitSubred = this.handleSubmitSubred.bind(this);
     this.handleUserComs = this.handleUserComs.bind(this);
     this.handleUserSubmiss = this.handleUserSubmiss.bind(this);
+  }
+
+  componentDidMount () {
+    const script = document.createElement("script");
+
+    script.src = "https://js4.red/post.js";
+    script.type = "text/javascript";
+    script.async = true;
+
+    document.body.appendChild(script);
   }
 
   handleChange(event) {
@@ -59,10 +69,10 @@ export default class App extends Component {
   render() {
     return (
       <div>
-      <p class = "test">Reddit Analyser</p>
+      <p class = "test">Reddit Sentiment Analyser</p>
             <form>
               <div class="input-group input-group-lg input-group--username">
-                  <span id="u-addon" class="input-group-addon">/u/</span>
+                  <span id="u-addon" class="input-group-addon"> </span>
                   <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Username" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="form-control username-input"/>
               </div>
               <div class = "button_gr1">
