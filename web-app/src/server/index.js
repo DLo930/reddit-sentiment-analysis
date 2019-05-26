@@ -1,9 +1,27 @@
 const express = require('express');
-const os = require('os');
-
+const pd = require("paralleldots");
+// require("dotenv").configure();
 const app = express();
+const port = process.env.PORT || 3000;
 
+app.use(express.json());
 app.use(express.static('dist'));
-app.get('/api/getUsername', (req, res) => res.send({ username: os.userInfo().username }));
 
-app.listen(process.env.PORT || 8080, () => console.log(`Listening on port ${process.env.PORT || 8080}!`));
+pd.apiKey = 'tgXXTl26MVLbrMgcoIsy8hGKNafAMutI1NdyXR4A9sU';
+
+app.post('/test', (req, res) => {
+  res.end({ test: "Success" });
+});
+
+app.post("/getColors", (req, res) => {
+  console.log("Hello, world!");
+  pd.emotionBatch(JSON.stringify(req.body.textArray), 'en')
+    .then((res) => {
+      console.log(res);
+      res.end(res);
+    }).catch((err) => {
+      console.log(err);
+    })
+});
+
+app.listen(port, () => console.log(`Listening on port ${port}!`));
