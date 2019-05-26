@@ -1,28 +1,42 @@
 const express = require('express');
-const pd = require("paralleldots");
-// require("dotenv").configure();
+const fetch = require('node-fetch');
+
 const app = express();
 const port = process.env.PORT || 3000;
+
+const TAv3 = require('watson-developer-cloud/tone-analyzer/v3');
+const toneAnalyzer = new TAv3({
+  version: '2017-09-21',
+  iam_apikey: 'gpMRI7IdtqIsUhH6voCUBMbxYGDBMZCql08GxbBap6x2',
+  url: 'https://gateway-wdc.watsonplatform.net/tone-analyzer/api/'
+});
 
 app.use(express.json());
 app.use(express.static('dist'));
 
-pd.apiKey = 'tgXXTl26MVLbrMgcoIsy8hGKNafAMutI1NdyXR4A9sU';
-
-app.post('/test', (req, res) => {
-  res.end({ array: ["#FFFFFF"] });
-});
-
 // http://apis.paralleldots.com/text_docs/index.html#emotion
 app.post("/getColors", (req, res) => {
-  console.log("Hello, world!");
-  pd.emotionBatch(JSON.stringify(req.body.textArray), 'en')
-    .then((res) => {
-      console.log(res);
-      res.end(res);
-    }).catch((err) => {
-      console.log(err);
-    });
+  const params = {
+    "tone_input": { "text": req.body.text },
+    "content_type": 'text/plain',
+  };
+
+  toneAnalyzer.tone(params)
+    .then(toneAnalysis => {
+      if(toneAnalysis.document_tone.tones.length == 0) {
+        res.send({
+          "tone": "Neutral",
+          "score": 0
+        });
+      }
+      res.send({
+        "tone": toneAnalysis.document_tone.tones[0].tone_name,
+        "score": toneAnalysis.document_tone.tones[0].score
+      });
+    })
+      .catch(err => {
+        console.log(err);
+      });
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}!`));
