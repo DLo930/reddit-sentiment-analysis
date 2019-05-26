@@ -20,6 +20,7 @@
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "snoowrap": "^1.15.2",
+    "start": "^5.1.0",
     "yarn": "^1.16.0"
   },
   "devDependencies": {

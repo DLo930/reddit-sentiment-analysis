@@ -13,13 +13,12 @@ export default class App extends Component {
             <div class="input-group input-group-lg input-group--username">
               <span id="u-addon" class="input-group-addon">/u/</span>
                 <input type="text" placeholder="Username" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="form-control username-input"/>
-                  <span class="input-group-btn">
-                    <button type="button" class="btn btn-secondary">Analyse</button>
-                    </span>
                 </div>
-                <button type = "submit" class = "button_gr">Reddit</button>
-              <button type = "button" class = "button_ gr">Twitter</button>
-              <button type ="button" class = "button_ gr"> Facebook</button>
+                <div class = "button_gr">
+                <button type = "submit" class = "sub">Subreddit</button>
+              <button type = "submit" class = "com">User Comments</button>
+              <button type ="submit" class = "post">User Posts</button>
+              </div>
       </div>
     );
   }
