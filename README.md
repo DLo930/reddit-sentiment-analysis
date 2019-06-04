@@ -14,6 +14,6 @@ npm i
 ```
 yarn start
 ```
-Then, open up ```localhost:3000``` in your browser.
+Then, open up ```localhost:3000``` or the specified port in your browser.
 
 Enjoy!
