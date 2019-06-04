@@ -1,17 +1,16 @@
 import React from "react"
 
-var snoowrap = require('snoowrap');
-
+const snoowrap = require('snoowrap');
 
 export default class UserComs extends React.Component {
-     constructor(props) {
-          super(props)
-          this.state = {
-            theUser: props.theUser,
-            posts: [],
-            colors: []
-          };
-      }
+    constructor(props) {
+        super(props)
+        this.state = {
+          theUser: props.theUser,
+          color: "#d3d3d3",
+          posts: []
+        };
+    }
 
     componentDidMount() {
       const r = new snoowrap({
@@ -19,18 +18,51 @@ export default class UserComs extends React.Component {
         clientId: 'BDrHDv25GKxYrw',
         clientSecret: 'ZoVdKRLzwAFRbwSa9JWpLBz5E5M',
         refreshToken: '58922884904-ltvIjQL0W4a_tFfVV_C0ZNTe7K4'
-      })
+      });
 
-
-      r.getUser(this.state.theUser).getComments().map(post => post.body).then(console.log);
+      var str = "";
+      r.getUser(this.state.theUser).getComments()
+        .then(arr => {
+          var tmpArr = [];
+          for(var i = 0; i < arr.length; i++) {
+            tmpArr.push(arr[i].body);
+            str = str.concat(" "+arr[i].body);
+          }
+          (async () => {
+          const rawResp = await fetch('/getColors', {
+            method: 'POST',
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              text: str
+            })
+          });
+          const content = await rawResp.json();
+          this.setState({
+                color: content.resColor,
+                posts: tmpArr
+              });
+            })();
+      });
      }
 
-
     render() {
-        return (
-          <div>
-            <p> IM IN usercoms!</p>
-          </div>
-        )
+      var tmp = [];
+      for(var i = 0; i < this.state.posts.length; i++) {
+        tmp.push(this.state.posts[i]);
+      }
+      const liArr = []
+      for (const [index, value] of tmp.entries()) {
+         liArr.push(<li key={index}>{value}</li>)
+       }
+      return (
+        <div>
+          <p class="verdanaStyle">Sentiment Color: <strong>{document.body.style.background = this.state.color}</strong></p>
+          <u><p class="verdanaStyle">Analyzed Comments of <strong>u/{this.state.theUser}</strong>:</p></u>
+          <div class="elemLst">{liArr}</div>
+        </div>
+      );
     }
 }

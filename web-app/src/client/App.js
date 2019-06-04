@@ -58,21 +58,21 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <link rel="stylesheet" href="./css/pushy-buttons.css"/>
         <h1>The Reddit Sentiment Analyzer</h1>
         <h2>Because the Internet is (not) a wonderful place.</h2>
-        <p>
-          <form>
+        <form>
+        	<span class="input">
             <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Subreddit/User" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="inpText"/>
-            <br/>
-            <br/>
-            <div class="inp">
-              <button type = "submit" class="pushy__btn pushy__btn--lg pushy__btn--blue" name="subred" onClick={this.handleSubmitSubred}>Subreddit</button>
-              <button type = "submit" class="pushy__btn pushy__btn--lg pushy__btn--green" name="usercoms" onClick={this.handleUserComs}>User Comments</button>
-              <button type ="submit" class="pushy__btn pushy__btn--lg pushy__btn--red" name="usersubmiss" onClick={this.handleUserSubmiss}>User Posts</button>
-            </div>
-          </form>
-        </p>
+        		<span></span>
+        	</span>
+          <br/>
+          <br/>
+          <div class="inp">
+            <button type = "submit" class="pushy__btn pushy__btn--lg pushy__btn--blue" name="subred" onClick={this.handleSubmitSubred}>Subreddit</button>
+            <button type = "submit" class="pushy__btn pushy__btn--lg pushy__btn--green" name="usercoms" onClick={this.handleUserComs}>User Comments</button>
+            <button type ="submit" class="pushy__btn pushy__btn--lg pushy__btn--red" name="usersubmiss" onClick={this.handleUserSubmiss}>User Posts</button>
+          </div>
+        </form>
         {this.state.subredBool && <Subreddit theSub={this.state.searchVal} />}
         {this.state.usercomBool && <UserComs theUser={this.state.searchVal} />}
         {this.state.usersubmissBool && <UserSubmiss theUser={this.state.searchVal} />}

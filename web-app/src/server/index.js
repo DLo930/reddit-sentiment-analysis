@@ -36,6 +36,7 @@ function getColor(obj) {
 
 // http://apis.paralleldots.com/text_docs/index.html#emotion
 app.post("/getColors", (req, res) => {
+
   const params = {
     "tone_input": { "text": req.body.text },
     "content_type": 'text/plain',
@@ -46,7 +47,7 @@ app.post("/getColors", (req, res) => {
       const arr = toneAnalysis.document_tone.tones;
       if(arr.length == 0) {
         res.send({
-          "color": "#d3d3d3"
+          color: "#d3d3d3"
         });
       }
       var intensity = 0;
@@ -57,12 +58,13 @@ app.post("/getColors", (req, res) => {
           strongestEmotion = arr[i].tone_name;
         }
       }
-      const color = getColor({
+      const toneColor = getColor({
         k: intensity,
         emotion: strongestEmotion
       });
+      //console.log(toneColor);
       res.send({
-        "color": color
+        resColor: toneColor
       });
     });
 });

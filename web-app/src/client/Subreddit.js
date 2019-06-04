@@ -10,7 +10,6 @@ export default class Subreddit extends React.Component {
           color: "#d3d3d3",
           posts: []
         };
-        this.zip = this.zip.bind(this);
     }
 
     componentDidMount() {
@@ -29,37 +28,40 @@ export default class Subreddit extends React.Component {
             tmpArr.push(arr[i].title);
             str = str.concat(" "+arr[i].title);
           }
-          fetch('/getColors', {
+          (async () => {
+          const rawResp = await fetch('/getColors', {
             method: 'POST',
             headers: {
               "Accept": "application/json",
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              'text': str
+              text: str
             })
-          })
-            .then(res => {
-              console.log(res);
-              // console.log(res.color);
-              console.log(tmpArr);
-              this.setState({
-                color: res.color,
+          });
+          const content = await rawResp.json();
+          this.setState({
+                color: content.resColor,
                 posts: tmpArr
               });
-            });
+            })();
       });
     }
 
     render() {
       var tmp = [];
       for(var i = 0; i < this.state.posts.length; i++) {
-        tmp.push(<div>{this.state.posts[i]}</div>);
+        tmp.push(this.state.posts[i]);
       }
+      const liArr = []
+      for (const [index, value] of tmp.entries()) {
+         liArr.push(<li key={index}>{value}</li>)
+       }
       return (
         <div>
-          <h3 style={{ color: this.state.color }}>Sentiment color</h3>
-          <div>{tmp}</div>
+        <p class="verdanaStyle">Sentiment Color: <strong>{document.body.style.background = this.state.color}</strong></p>
+        <u><p class="verdanaStyle">Analyzed Submission Titles of <strong>r/{this.state.theSub}</strong>:</p></u>
+          <div class="elemLst">{liArr}</div>
         </div>
       );
     }
