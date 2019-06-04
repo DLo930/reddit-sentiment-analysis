@@ -60,6 +60,7 @@ export default class UserComs extends React.Component {
       return (
         <div>
           <p class="verdanaStyle">Sentiment Color: <strong>{document.body.style.background = this.state.color}</strong></p>
+          <p class="verdanaStyle">Anger: Red, Fear: Orange, Joy: Yellow, Sadness: Blue, Analytical: Magenta, Confident: Lime, Other: White</p>
           <u><p class="verdanaStyle">Analyzed Comments of <strong>u/{this.state.theUser}</strong>:</p></u>
           <div class="elemLst">{liArr}</div>
         </div>

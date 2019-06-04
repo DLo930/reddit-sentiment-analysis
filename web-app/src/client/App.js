@@ -29,7 +29,6 @@ export default class App extends Component {
   }
 
   handleSubmitSubred(event) {
-    alert('A subreddit was submitted: ' + this.state.value);
     event.preventDefault();
     this.setState({
       searchVal: this.state.value,
@@ -38,7 +37,6 @@ export default class App extends Component {
   }
 
   handleUserComs(event) {
-    alert('A user (for comments) was submitted: ' + this.state.value);
     event.preventDefault();
     this.setState({
       searchVal: this.state.value,
@@ -47,7 +45,6 @@ export default class App extends Component {
   }
 
   handleUserSubmiss(event) {
-    alert('A user (for submissions) was submitted: ' + this.state.value);
     event.preventDefault();
     this.setState({
       searchVal: this.state.value,

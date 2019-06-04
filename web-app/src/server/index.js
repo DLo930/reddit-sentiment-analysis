@@ -17,20 +17,20 @@ app.use(express.static('dist'));
 function getColor(obj) {
   const k = obj.k;
   switch(obj.emotion) {
-    case 'Anger':
+    case 'Anger': // red
       return `#${((k*255) | 0).toString(16)}0000`;
-    case 'Fear':
-      return `#${((k*255) | 0).toString(16)}${((k*140) | 0).toString(16)}00`;
-    case 'Joy':
+    case 'Fear': // orange
+      return `#${((k*255) | 0).toString(16)}${((k*165) | 0).toString(16)}00`;
+    case 'Joy': // yellow
       return `#${((k*255) | 0).toString(16)}${((k*255) | 0).toString(16)}00`;
-    case 'Sadness':
-      return `#${((k*148) | 0).toString(16)}00${((k*211) | 0).toString(16)}`;
-    case 'Analytical':
-      return `#${((k*51) | 0).toString(16)}00${((k*153) | 0).toString(16)}`;
-    case 'Confident':
+    case 'Sadness': // blue
       return `#0000${((k*255) | 0).toString(16)}`;
-    default:
+    case 'Analytical': // magenta
+      return `#${((k*255) | 0).toString(16)}00${((k*255) | 0).toString(16)}`;
+    case 'Confident': // lime
       return `#00${((k*255) | 0).toString(16)}00`;
+    default: // white
+      return `#${((k*255) | 0).toString(16)}${((k*255) | 0).toString(16)}${((k*255) | 0).toString(16)}`;
   }
 }
 
