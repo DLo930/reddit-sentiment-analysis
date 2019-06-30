@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "Reddit Sentiment Analysis Chrome Extension",
+  "name": "Reddit Sentiment Analysis",
   "version": "0.1.0",
   "description": "Enhance your Reddit experience by colorizing posts and
   comments by sentiment. The more vivid the color, the stronger the sentiment.
