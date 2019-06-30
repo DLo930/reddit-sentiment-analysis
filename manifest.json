@@ -1,9 +1,12 @@
 {
   "manifest_version": 2,
 
-  "name": "Modify CSS and HTML",
+  "name": "Reddit Sentiment Analysis Chrome Extension",
   "version": "0.1.0",
-  "description": "Lateral blog post demo extension",
+  "description": "Enhance your Reddit experience by colorizing posts and
+  comments by sentiment. The more vivid the color, the stronger the sentiment.
+  Anger: Red, Fear: Orange, Joy: Yellow, Sadness: Blue, Analytical: Magenta,
+  Confident: Lime, Other: White",
 
   "content_scripts": [{
     "css": ["styles.css"],
