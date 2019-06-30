@@ -20,6 +20,6 @@ To use the chrome extension, go to "chrome://extensions/" in your address bar.
 
 Turn on developer mode on the top right corner and click on "Load unpacked" in the top left corner. Load the reddit-sentiment-analysis folder from where you have cloned the file. The "Reddit Sentiment Analysis" chrome extension should appear and can be toggled on. 
 
-Navigate to anywhere on https://www.reddit.com/ or https://old.reddit.com/ and enjoy!
+Navigate to anywhere on https://www.reddit.com/ or https://old.reddit.com/!
 
 Enjoy!
