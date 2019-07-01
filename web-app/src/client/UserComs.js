@@ -60,7 +60,18 @@ export default class UserComs extends React.Component {
       return (
         <div>
           <p class="verdanaStyle">Sentiment Color: <strong>{document.body.style.background = this.state.color}</strong></p>
-          <p class="verdanaStyle">Anger: Red, Fear: Orange, Joy: Yellow, Sadness: Blue, Analytical: Magenta, Confident: Lime, Other: White</p>
+          <p class="verdanaStyle">
+            The more vivid the color, the stronger the sentiment.
+            <ul>
+              <li style={{color:"red", listStyleType:"none"}}>Anger: Red</li>
+              <li style={{color:"orange", listStyleType:"none"}}>Fear: Orange</li>
+              <li style={{color:"yellow", listStyleType:"none"}}>Joy: Yellow</li>
+              <li style={{color:"blue", listStyleType:"none"}}>Sadness: Blue</li>
+              <li style={{color:"magenta", listStyleType:"none"}}>Analytical: Magenta</li>
+              <li style={{color:"lime", listStyleType:"none"}}>Confident: Lime</li>
+              <li style={{color:"white", listStyleType:"none"}}>Other: White</li>
+            </ul>
+          </p>
           <u><p class="verdanaStyle">Analyzed Comments of <strong>u/{this.state.theUser}</strong>:</p></u>
           <div class="elemLst">{liArr}</div>
         </div>
