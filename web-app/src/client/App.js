@@ -58,10 +58,10 @@ export default class App extends Component {
         <h1>The Reddit Sentiment Analyzer</h1>
         <h2>Because the Internet is (not) a wonderful place.</h2>
         <form>
-        	<span class="input">
+          <span class="input">
             <input type="text" value={this.state.value} onChange={this.handleChange} placeholder="Subreddit/User" aria-describedby="u-addon" autocapitalize="off" autocorrect="off" class="inpText"/>
-        		<span></span>
-        	</span>
+            <span></span>
+          </span>
           <br/>
           <br/>
           <div class="inp">
