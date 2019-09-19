@@ -1,0 +1,3 @@
+int main() {
+  return 0xFFFFFFFF ^ 0x12345678;
+}

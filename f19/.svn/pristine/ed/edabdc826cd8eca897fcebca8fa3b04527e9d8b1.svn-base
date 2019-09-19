@@ -1,0 +1,227 @@
+#use <args>
+#use <string>
+
+int main() {
+  bool* pure = alloc(bool);
+  args_flag("-pure", pure);
+
+  args_t args = args_parse();
+  int argc = args->argc;
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+  stack_t S = stack_new();
+  dict_t Dempty = dict_new(alloc_array(string, 0), 0);
+
+  string[] A = alloc_array(string, 1);
+  A[0] = "@";
+  dict_t Done = dict_new(A, 1);
+
+  A = alloc_array(string, 10);
+  A[1] = "||";
+  A[2] = "&&";
+  A[3] = "< > != ==";
+  A[4] = "<< >>";
+  A[5] = "+ -";
+  A[6] = "* / %";
+  A[7] = "**";
+  dict_t Dexp = dict_new(A, 10);
+
+
+  if (string_equal(arg, "empty1")) {
+    if (!is_precstack(Dempty, S)) return 1;
+    if (!is_precstack(Done, S)) return 1;
+    if (!is_precstack(Dexp, S)) return 1;
+
+  } else if (string_equal(arg, "one1")) {
+    // Valid singleton stack
+
+    push(S, "@");
+    if (!is_precstack(Done, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("@", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "one2")) {
+    // Invalid singleton stack
+
+    push(S, "@");
+    if (is_precstack(Dempty, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("@", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+    push(S, "@");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("@", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "exp1")) {
+    // Correct example
+    push(S, "||");
+    push(S, "&&");
+    push(S, "!=");
+    push(S, "<<");
+    push(S, "-");
+    push(S, "/");
+    push(S, "**");
+    if (!is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("-", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("<<", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("!=", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("&&", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("||", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "exp2")) {
+    // Wrong order
+    push(S, "!=");
+    push(S, "||");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("||", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("!=", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "exp3")) {
+    // Duplicate in middle of stack
+    push(S, "||");
+    push(S, "&&");
+    push(S, "!=");
+    push(S, "<<");
+    push(S, "<<");
+    push(S, "-");
+    push(S, "/");
+    push(S, "**");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("-", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("<<", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("<<", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("!=", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("&&", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("||", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "exp4")) {
+    // Duplicate on bottom of stack
+    push(S, "||");
+    push(S, "||");
+    push(S, "&&");
+    push(S, "!=");
+    push(S, "<<");
+    push(S, "-");
+    push(S, "/");
+    push(S, "**");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("-", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("<<", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("!=", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("&&", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("||", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("||", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "exp5")) {
+    // Duplicate on top of stack
+    push(S, "||");
+    push(S, "&&");
+    push(S, "!=");
+    push(S, "<<");
+    push(S, "-");
+    push(S, "/");
+    push(S, "**");
+    push(S, "**");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("-", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("<<", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("!=", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("&&", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("||", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "exp6")) {
+    // Example from handout
+    push(S, "+");
+    push(S, "/");
+    push(S, "**");
+    if (!is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("+", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "bad1")) {
+    // Invalid character: bottom
+    push(S, "@");
+    push(S, "+");
+    push(S, "/");
+    push(S, "**");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("+", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("@", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "bad2")) {
+    // Invalid character: middle
+    push(S, "+");
+    push(S, "@");
+    push(S, "/");
+    push(S, "**");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("@", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("+", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else if (string_equal(arg, "bad3")) {
+    // Invalid character: top
+    push(S, "+");
+    push(S, "/");
+    push(S, "**");
+    push(S, "@");
+    if (is_precstack(Dexp, S)) return 1;
+    if (*pure) {
+      if (stack_empty(S) || !string_equal("@", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("**", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("/", pop(S))) return 1;
+      if (stack_empty(S) || !string_equal("+", pop(S))) return 1;
+      if (!stack_empty(S)) return 1;
+    }
+
+  } else {
+    error("Bad arg");
+  }
+
+
+  return 0;
+}

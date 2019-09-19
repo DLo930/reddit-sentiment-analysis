@@ -1,0 +1,182 @@
+\bgroup
+\newcommand{\ans}[1]{\uanswer{25em}{#1\hfill}}
+\newcommand{\n}{\textbackslash{n}}
+\part[2]\TAGS{c0vm}
+\label{g_bytecode}
+(Note that the bytecode continues on the following page.)
+\enlargethispage{2ex}
+\begin{lstlisting}[language=C0VM, basicstyle=\smallbasicstyle]
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 11             # string pool total size
+# string pool
+48 61 70 70 79 20 43 61 72 6E 69 76 61 6C 21 0A 00
+
+00 02             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 03             # number of local variables = 3
+00 11             # code length = 17 bytes
+14 00 00 # aldc 0          # [*\ans{s[0] = "Happy Carnival!\n"}*]
+B7 00 00 # invokenative 0  # [*\ans{print("Happy Carnival!\n")}*]
+57       # pop             # (ignore result)
+10 00    # bipush 0        # [*\ans{0}*]
+10 01    # bipush 1        # [*\ans{1}*]
+10 0A    # bipush 10       # [*\ans{10}*]
+B8 00 01 # invokestatic 1  # [*\ans{g(0, 1, 10)}*]
+B0       # return          #
+
+#<g>
+00 03             # number of arguments = 3
+00 03             # number of local variables = 3
+00 30             # code length = 48 bytes
+15 02    # vload 2         # [*\ans{n}*]
+10 00    # bipush 0        # [*\ans{0}*]
+9F 00 06 # if_cmpeq +6     # [*\ans{if (n == 0) goto {\tiny\ref{l:c0vm-cvl-00:then}}}*]
+A7 00 09 # goto +9         # [*\ans{goto {\tiny\ref{l:c0vm-cvl-01:else}}}*]
+15 00    # vload 0         # [*\ans{fn2}*][*\label{l:c0vm-cvl-00:then}*]
+B0       # return          #
+A7 00 03 # goto +3         # [*\ans{goto {\tiny\ref{l:c0vm-cvl-02:endif}}}*]
+15 02    # vload 2         # [*\ans{n}*][*\label{l:c0vm-cvl-01:else}*][*\label{l:c0vm-cvl-02:endif}*]
+10 01    # bipush 1        # [*\ans{1}*]
+9F 00 06 # if_cmpeq +6     # [*\ans{if (n == 1) goto {\tiny\ref{l:c0vm-cvl-03:then}}}*]
+A7 00 09 # goto +9         # [*\ans{goto {\tiny\ref{l:c0vm-cvl-04:else}}}*]
+15 01    # vload 1         # [*\ans{fn3}*][*\label{l:c0vm-cvl-03:then}*]
+B0       # return          #
+A7 00 03 # goto +3         # [*\ans{goto {\tiny\ref{l:c0vm-cvl-05:endif}}}*]
+15 01    # vload 1         # [*\ans{fn3}*][*\label{l:c0vm-cvl-04:else}*][*\label{l:c0vm-cvl-05:endif}*]
+15 00    # vload 0         # [*\ans{fn2}*]
+15 01    # vload 1         # [*\ans{fn3}*]
+60       # iadd            # [*\ans{(fn2 + fn3)}*]
+15 02    # vload 2         # [*\ans{n}*]
+10 01    # bipush 1        # [*\ans{1}*]
+64       # isub            # [*\ans{(n - 1)}*]
+B8 00 01 # invokestatic 1  # [*\ans{g(fn3, (fn2 + fn3), (n - 1))}*]
+B0       # return          #
+
+00 01             # native count
+# native pool
+00 01 00 06       # print
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+#use <conio>
+
+int g(int fn2, int fn3, int n) {
+   if (n == 0) return fn2;
+   if (n == 1) return fn3;
+   return g(fn3, fn2+fn3, n-1);
+}
+
+int main() {
+   print("Happy Carnival!\n");
+   return g(0, 1, 10);
+}
+\end{lstlisting}
+\else~\vspace{6in}\fi
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: c0vm
+
+Gradescope rubric:
+-0 pt WARNING: NEGATIVE GRADING
+-0.25pt main: incorrect string
+-0.25pt main: incorrect print statement
+-0.5pt main: incorrect call to function g
+-0.25pt g: incorrect if statement
+-0.25pt g: incorrect recursive call
+-0.25pt g: incorrect body in rest of if/else
+-0.5pt altogether: doesn't match structure of byte code in other ways
+
+Commentary:
+- If student writes equivalent program but in reduced/simplified form,
+  give half credit.
+- No points off for omitting the #use.
+
+#use <conio>
+
+int g(int fn2, int fn3, int n) {
+   if (n == 0) return fn2;
+   if (n == 1) return fn3;
+   return g(fn3, fn2+fn3, n-1);
+}
+
+int main() {
+   print("Happy Carnival!\n");
+   return g(0, 1, 10);
+}
+ENDRUBRIC
+\egroup
+
+
+\newpage
+\part[1]\TAGS{c0vm}
+This question has to do with the function \lstinline'g' in the bytecode
+given in part~(\ref{g_bytecode}) above.
+
+When execution reaches the instruction on line 52,
+there are three values on the operand stack; assume they are
+\lstinline'0x0000000D', \lstinline'0x00000015' and
+\lstinline'0x00000009', with the last being at the top of the stack.
+
+You will now trace back execution and determine the four operand stack states before each of lines 48--51 is
+executed.  The elements in your stack should be 32-bit hexadecimal
+numbers. The top of your stack should be on the right-hand
+side.  You may not need all the provided spaces
+
+\begin{framed}
+\newcommand{\ans}[1]{\uanswer{8em}{\tt #1}}
+
+Immediately before executing line 51: \lstinline[language=opsem]'isub'
+
+\bigskip
+\ans{0x0000000D}, \ans{0x00000015}, \ans{0x0000000A}, \ans{0x00000001}
+
+\bigskip
+\bigskip
+Immediately before executing line 50: \lstinline[language=opsem]'bipush 1'
+
+\bigskip
+\ans{0x0000000D}, \ans{0x00000015}, \ans{0x0000000A}, \ans{}
+
+\bigskip
+\bigskip
+Immediately before executing line 49: \lstinline[language=opsem]'vload 2'
+
+\bigskip
+\ans{0x0000000D}, \ans{0x00000015}, \ans{}, \ans{}
+
+\bigskip
+\bigskip
+Immediately before executing line 48: \lstinline[language=opsem]'iadd'
+
+\bigskip
+\ans{0x0000000D}, \ans{0x00000008}, \ans{0x0000000D}, \ans{}
+
+\bigskip
+\bigskip
+
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: c0vm
+
+Gradescope rubric:
++0.25pt Line 51:  0x0000000D 0x00000015 0x0000000A 0x00000001
++0.25pt Line 50:  0x0000000D 0x00000015 0x0000000A
++0.25pt Line 49:  0x0000000D 0x00000015
++0.25pt Line 48:  0x0000000D 0x00000008 0x0000000D
+
+Commentary:
+  1/12 pt for each answer overall rounded to the next 1/4, all or nothing
+ENDRUBRIC

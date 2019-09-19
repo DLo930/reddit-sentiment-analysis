@@ -1,0 +1,16 @@
+\part[0\half]\hfill\\
+\vspace{-5ex}
+\lstinputlisting{\code/overflow.c}
+\begin{framed}
+\ans[1.25in]{Possibility of overflow (undefined for signed integers).}
+\end{framed}
+
+\RUBRIC
+overflow
+
+Gradescope rubric:
++0.5pt Possibility of overflow (undefined for signed integers) - all or nothing
+
+Commentary:
+  Signed integer overflow is undefined in C
+ENDRUBRIC

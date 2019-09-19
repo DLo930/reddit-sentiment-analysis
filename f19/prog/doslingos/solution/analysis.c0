@@ -1,0 +1,121 @@
+// This program prints answers to all versions of the Doslingos analysis
+// question.  Pick the responses that are most appropriate.
+
+#use <args>
+#use <conio>
+
+struct singl_dist {
+  int singletons; // # singleton words
+  int distinct;   // # distinct words
+  int maxi;       // Index of most used word
+};
+
+struct singl_dist* words_with_frequency(int f, string[] D, int[] A, int L)
+//@ensures f > 0;
+//@ensures \length(D) == L && \length(A) == L;
+{
+  println("");
+  print("These words appeared ");
+  printint(f);
+  println(" times in the corpus:");
+
+  struct singl_dist *result = alloc(struct singl_dist);
+  result->singletons = 0;
+  result->distinct   = 0;
+  result->maxi       = 0;
+  int max = 0;
+  int prev = A[0] - 1;
+  for (int i = 0; i < L; i++)
+    //@loop_invariant 0 <= i;
+    {
+      if (A[i] > max) {
+        max = A[i];
+        result->maxi = i;
+      }
+
+      if (A[i] == f) {
+        println(D[i]);
+      }
+
+      if (A[i] == 1) {
+        result->singletons++;
+      }
+
+      if (A[i] != prev) {
+        result->distinct++;
+        prev = A[i];
+      }
+    }
+  return result;
+}
+
+
+int main () {
+  args_t args = args_parse();
+  bundle_t dict = read_words(args->argv[0]);
+  string[] D = string_bundle_array(dict);
+  int L = string_bundle_length(dict);
+  int[] A = alloc_array(int, L);
+
+  int x = count_vocab(D, A, L, args->argv[1], true);
+  sort_by_freq(D, A, L);
+
+  println("The four most common words in the corpus are:");
+  for (int i = 1; i <= 4; i++) {
+    print("  "); printint(i); print(". ");
+    print(D[L-i]);
+    print(" (appears "); printint(A[L-i]); println(" times)");
+  }
+
+  struct singl_dist *data;  // Adapt number of words as needed
+  data = words_with_frequency(128, D, A, L);
+  data = words_with_frequency(82, D, A, L);
+  int singletons = data->singletons;
+  int distinct   = data->distinct;
+  int maxi       = data->maxi;
+
+  int[] occmap = alloc_array(int, A[L-1]+1);
+  for (int i = 0; i < L; i++) {
+    occmap[A[i]]++;
+  }
+
+  int smalls = 0;
+  int inversions = 0;
+  for (int i = 0; i < A[L-1]; i++)
+    //@loop_invariant 0 <= i;
+    {
+      if (occmap[i] < occmap[i+1]) {
+        inversions++;
+      }
+
+      if (occmap[i] == 0) {
+        smalls++;
+        if (smalls == 1) {
+          println("");
+          print("There are no words with frequency "); printint(i); println("");
+        } else if (smalls == 2) {
+          print("or "); printint(i); println(" in the corpus.");
+        }
+      }
+    }
+
+  println("");
+  print("In this corpus, there are "); printint(inversions);
+  println(" times that a");
+  println("frequency f has strictly more words than frequency f+1.");
+
+  println("");
+  print("There are "); printint(singletons);
+  println(" singletons in the corpus.");
+
+  println("");
+  print("There are "); printint(distinct);
+  println(" distinct frequency counts in the corpus.");
+
+  println("");
+  print("This was the most-used word in the corpus: ");
+  print(D[maxi]); println("");
+  print("It was used "); printint(A[maxi]); println(" times.");
+
+  return 0;
+}

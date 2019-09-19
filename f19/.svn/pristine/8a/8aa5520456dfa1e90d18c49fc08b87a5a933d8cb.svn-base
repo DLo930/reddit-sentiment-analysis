@@ -1,0 +1,99 @@
+/*
+ * Ropes
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <conio>
+#use <string>
+#use <util>
+
+/************************************/
+/* Interface (leave this in place!) */
+/************************************/
+
+//typedef _______ rope_t;
+typedef struct rope_node* rope_t; //pointer to struct rope_node
+
+int rope_length(rope_t R);
+rope_t rope_new(string s);
+rope_t rope_join(rope_t R, rope_t S)
+  /*@requires rope_length(R) <= int_max() - rope_length(S); @*/ ;
+char   rope_charat(rope_t R, int i)
+  /*@requires 0 <= i && i < rope_length(R); @*/ ;
+rope_t rope_sub(rope_t R, int lo, int hi)
+  /*@requires 0 <= lo && lo <= hi && hi <= rope_length(R); @*/ ;
+void   rope_reduce(rope_t[] A, int n)
+  /*@requires n == \length(A); @*/ ;
+
+/***********************************/
+/* Implementation (edit this part) */
+/***********************************/
+
+typedef struct rope_node rope;
+struct rope_node {
+  int len;
+  rope* left;
+  rope* right;
+  string data;
+};
+
+int rope_length(rope_t R){
+  if (R == NULL){
+    return 0;
+  }
+  else return R->len;
+}
+
+int rope_size(rope* R){ //recursively find size of a rope
+  //to give us the R->len or confirm it
+  int count = 0;
+  if (R->right == NULL && R->left == NULL){
+    return string_length(R->data);
+  }
+  else if (R->left != NULL && R->right != NULL){
+    int x = rope_size(R->left);
+    int y = rope_size(R->right);
+    count = x + y;
+  }
+  return count;
+}
+
+bool is_rope(rope* R)
+{ 
+  if (R == NULL)
+  {
+    return true;
+  }
+  else if (R->left == NULL && R->right == NULL)
+  { //valid leaf rope
+    if (rope_length(R) <= 0)
+    { //has a non-empty string data field
+      return false;
+    }
+    if (string_length(R->data) <= 0)
+    {//again "has a non-empty string data field"
+      return false;
+    }
+    else if (R->len != string_length(R->data))
+    {//as a strictly positive len equal to the length of the
+      //string in the data field
+      return false;
+    }
+  }
+  else if (R->left != NULL && R->right !=NULL)
+  { //rope is a non-leaf if it has non-NULL left and right fields
+    if (R->left->len < 1 || R->right->len < 1) return false;
+    else if (R->len != R->left->len + R->right->len) return false; 
+    else if (!is_rope(R->left) || !is_rope(R->right))
+    {
+      return false;
+    }
+    else if (rope_size(R) != R->len) return false; //and if it has a len field equal to the sum of the len 
+    //fields of its children
+    else return true;
+  }
+  else return false;
+  return false;
+}
+

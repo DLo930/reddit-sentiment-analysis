@@ -1,0 +1,6 @@
+int main()
+{
+  int[] A = alloc_array(int,15);
+  A[15] = 122;
+  return 0;
+}

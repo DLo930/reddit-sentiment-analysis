@@ -1,0 +1,5 @@
+int main() {
+  char* p = alloc(char);
+  *p = 'c';
+  return *p == 'c' ? 0 : 1;
+}

@@ -1,0 +1,11 @@
+#use <conio>
+#use <string>
+
+int main () {
+  string s = "pfenning";
+  char a = string_charat(s,40);
+  char b = string_charat(s,-15);
+  if (a==b)
+    return 0;
+  return 1;
+}

@@ -1,0 +1,33 @@
+#use <conio>
+#use "sol-gapbuf.c0"
+#use "make-gapbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+
+  gapbuf G = make_gapbuf(8, "015|67");
+
+  //move the gap off the end
+  gapbuf_forward(G);
+  gapbuf_forward(G);
+  gapbuf_forward(G);
+  gapbuf_forward(G);
+
+  if(!(G->limit == 8 &&
+       G->gap_start == 5 &&
+       G->gap_end == 8 &&
+       G->buffer[0] == '0' &&
+       G->buffer[1] == '1' &&
+       G->buffer[2] == '5' &&
+       G->buffer[3] == '6' &&
+       G->buffer[4] == '7')){
+    passed = false;
+    // error("didn't handle moving off the edge forward");
+  }
+  
+  //report
+  if(passed) return 0; else return 1;
+}

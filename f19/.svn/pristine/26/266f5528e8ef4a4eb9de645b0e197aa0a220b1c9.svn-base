@@ -1,0 +1,40 @@
+\section*{Postfix expressions}
+
+You are used to using infix expressions where the operator is in
+between its two operands (e.g. \lstinline'3 + 4'). In postfix
+expressions, the operand follows (``post'') its two operands (e.g
+\lstinline'3 4 +'). Postfix expressions can be used as operands in
+other postfix expressions. Here are some examples:
+
+\begin{lstlisting}[basicstyle=\smallbasicstyle, belowskip=0pt]
+INFIX               POSTFIX
+1 + 2 * 3 - 4       1 2 3 * + 4 -
+(1 + 2) * 3 - 4     1 2 + 3 * 4 -
+1 + 2 * (3 - 4)     1 2 3 4 - * +
+\end{lstlisting}
+
+Note that order of operations determines what is converted from infix
+to postfix first. Also, postfix expressions never have parentheses.
+
+To evaluate a postfix expression, we can separate it into a queue of
+\emph{tokens} of operands and operators, and then use a stack to
+evaluate it.  For each token in the postfix expression, if it is an
+operand (e.g.  \lstinline'1'), it is pushed on the stack. If it is an
+operator, the top two operands are popped from the stack, combined
+using that operator, and the result is pushed back on the stack. Once
+all tokens are processed from the queue, the final result of the
+computation should be at the top of the stack.
+
+\begin{part}
+Convert the infix expression
+
+\lstinline'125 - 15 * (3 + 2) / (6 * 4 + 1)'
+
+to postfix by hand, and then trace the algorithm described above to compute the
+value of the postfix expression. The result should be the same as if you
+calculated the infix expression directly.
+\end{part}
+
+\begin{solution}
+\lstinline'125 15 3 2 + * 6 4 * 1 + / -'
+\end{solution}

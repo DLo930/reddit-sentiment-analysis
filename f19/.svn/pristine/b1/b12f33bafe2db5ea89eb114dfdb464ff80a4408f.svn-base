@@ -1,0 +1,329 @@
+#use <args>
+#use <string>
+#use <util>
+
+// 1 = signal for failure
+// 0 = signal for success
+
+// Debug
+void print_location(int row, int col) {
+  printint(row); print(":"); printint(col);
+}
+
+void print_move(int fr, int fc, int tr, int tc) {
+  print_location(fr, fc);
+  print(" -> ");
+  print_location(tr, tc);
+  println("");
+}
+
+bool test_valid_location(int from, int to) {
+  return (0 <= from && from < 8)
+      && (0 <= to && to < 8);
+}
+
+bool test_valid_move(int from_row, int from_col, int to_row, int to_col)
+//@requires test_valid_location(from_row, from_col);
+//@requires test_valid_location(to_row,   to_col);
+{
+  // Valid horizontal move
+  if (from_col == to_col && abs(from_row - to_row) == 2) return true;
+
+  // Valid vertical move
+  if (from_row == to_row && abs(from_col - to_col) == 2) return true;
+
+  return false;
+}
+
+bool test_equal_moves(our_sekret_move m, move M)
+//@requires our_sekret_is_move(m);
+{
+  return our_sekret_row_start(m) == row_start(M)
+      && our_sekret_col_start(m) == col_start(M)
+      && our_sekret_row_end(m)   == row_end(M)
+      && our_sekret_col_end(m)   == col_end(M);
+}
+
+board our_copy_board(board B) {
+  board b = alloc_array(int, 8*8);
+  for (int i = 0; i < 64; i++)
+    b[i] = B[i];
+  return b;
+}
+
+bool our_equal_boards(board B1, board B2) {
+  for (int i = 0; i < 8*8; i++)
+    if (B1[i] != B2[i]) return false;
+  return true;
+}
+
+bool test_valid_make_move(string fname,
+                          int from_row, int from_col, int to_row, int to_col)
+{
+  board b = alloc_array(int, 8*8);  // our board
+  read_board(fname, b, 64);
+
+  board B = our_copy_board(b);      // student board
+  move M = new_move(from_row, from_col, to_row, to_col);
+  make_move(B, M);
+
+  our_sekret_move m = our_sekret_new_move(from_row, from_col, to_row, to_col);
+  our_sekret_make_move(b, m);
+  if (!our_sekret_valid_move(b, m))
+    return false; // student accepted move, but it's invalid
+
+  return our_equal_boards(b, B);
+}
+
+bool test_valid_undo_move(string fname,
+                          int from_row, int from_col, int to_row, int to_col)
+{
+  board b = alloc_array(int, 8*8);  // our board
+  read_board(fname, b, 64);
+
+  board B = our_copy_board(b);      // student board
+  move M = new_move(from_row, from_col, to_row, to_col);
+  undo_move(B, M);
+
+  our_sekret_move m = our_sekret_new_move(from_row, from_col, to_row, to_col);
+  our_sekret_undo_move(b, m);
+  if (!our_sekret_valid_move(b, m))
+    return false; // student accepted move, but it's invalid
+
+  return our_equal_boards(b, B);
+}
+
+
+bool test_make_all_moves(string fname) {
+  board B_init = alloc_array(int, 8*8);
+  read_board(fname, B_init, 64);
+  stack_t S = stack_new();
+  our_sekret_all_moves(B_init, S);
+
+  while (!stack_empty(S)) {
+    our_sekret_move m = (our_sekret_move)pop(S);
+    int from_row = our_sekret_row_start(m);
+    int from_col = our_sekret_col_start(m);
+    int to_row   = our_sekret_row_end(m);
+    int to_col   = our_sekret_col_end(m);
+
+    board b = our_copy_board(B_init);   // our board
+    our_sekret_make_move(b, m);
+    board B = our_copy_board(B_init);   // student board
+    make_move(B, new_move(from_row, from_col, to_row, to_col));
+    if (!our_equal_boards(b, B))
+      return false;
+  }
+  return true;
+}
+
+bool test_undo_all_moves(string fname) {
+  board B_init = alloc_array(int, 8*8);
+  read_board(fname, B_init, 64);
+  stack_t S = stack_new();
+  our_sekret_all_moves(B_init, S);
+
+  while (!stack_empty(S)) {
+    our_sekret_move m = (our_sekret_move)pop(S);
+    int from_row = our_sekret_row_start(m);
+    int from_col = our_sekret_col_start(m);
+    int to_row   = our_sekret_row_end(m);
+    int to_col   = our_sekret_col_end(m);
+    board b = our_copy_board(B_init);
+
+    our_sekret_make_move(b, m);
+    undo_move(b, new_move(from_row, from_col, to_row, to_col));
+    if (!our_equal_boards(b, B_init))
+      return false;
+  }
+  return true;
+}
+
+bool test_all_moves(string fname) {
+  board B = alloc_array(int, 8*8);
+  read_board(fname, B, 64);
+
+  stack_t s = stack_new();    // Our moves
+  our_sekret_all_moves(B, s);
+
+  stack_t S = stack_new();    // Student moves
+  all_moves(B, S);
+
+  if (stack_size(s) != stack_size(S))  // early failure
+    return false;
+
+  while (!stack_empty(s)) {
+    our_sekret_move m = (our_sekret_move)pop(s);  // Get one of our moves
+
+    bool found = false;                           // Check if the student has it
+    stack_t tmp = stack_new();
+    while (!found && !stack_empty(S)) {
+      move M = (move)pop(S);
+      if (test_equal_moves(m, M)) {
+        found = true;
+        while (!stack_empty(tmp))
+          push(S, pop(tmp));
+        //@assert stack_empty(tmp);
+      }
+      else
+        push(tmp, (void*)M);
+    }
+    if (!found) return false;
+  }
+  return true;
+}
+
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  // new-move and destructors: bad locations
+         if (string_equal(arg, "bad-loc1")) {
+    move m = new_move(-1, 0, 5, 3);
+  } else if (string_equal(arg, "bad-loc2")) {
+    move m = new_move(10, 4, 0, 1);
+  } else if (string_equal(arg, "bad-loc3")) {
+    move m = new_move(1, -7, 5, 3);
+  } else if (string_equal(arg, "bad-loc4")) {
+    move m = new_move(2, 14, 0, 1);
+  } else if (string_equal(arg, "bad-loc5")) {
+    move m = new_move(1, 7, -5, 3);
+  } else if (string_equal(arg, "bad-loc6")) {
+    move m = new_move(2, 6, 9, 1);
+  } else if (string_equal(arg, "bad-loc7")) {
+    move m = new_move(1, 7, 5, -3);
+  } else if (string_equal(arg, "bad-loc8")) {
+    move m = new_move(2, 6, 6, 11);
+
+  // new-move and destructors: invalid jumps
+  } else if (string_equal(arg, "bad-jump1")) {
+    move m = new_move (3, 3, 3, 3);
+  } else if (string_equal(arg, "bad-jump2")) {
+    move m = new_move (4, 0, 4, 0);
+  } else if (string_equal(arg, "bad-jump3")) {
+    move m = new_move (1, 4, 1, 3);
+  } else if (string_equal(arg, "bad-jump4")) {
+    move m = new_move (2, 4, 2, 7);
+  } else if (string_equal(arg, "bad-jump5")) {
+    move m = new_move (3, 1, 3, 0);
+  } else if (string_equal(arg, "bad-jump6")) {
+    move m = new_move (4, 7, 4, 2);
+  } else if (string_equal(arg, "bad-jump7")) {
+    move m = new_move (3, 2, 2, 2);
+  } else if (string_equal(arg, "bad-jump8")) {
+    move m = new_move (3, 6, 7, 6);
+  } else if (string_equal(arg, "bad-jump9")) {
+    move m = new_move (6, 4, 7, 4);
+  } else if (string_equal(arg, "bad-jump10")) {
+    move m = new_move (5, 7, 0, 7);
+
+  // new-moves and destructors: all valid moves
+  } else if (string_equal(arg, "new-moves_good-moves")) {
+    // testing horizontal moves
+    for (int from_col = 0; from_col < 8; from_col++)
+      for (int from_row = 0; from_row < 6; from_row++) {
+        move m = new_move(from_row, from_col, from_row+2, from_col);
+        if (row_start(m) != from_row)   return 1;
+        if (col_start(m) != from_col)   return 1;
+        if (row_end(m)   != from_row+2) return 1;
+        if (col_end(m)   != from_col)   return 1;
+        m = new_move(from_row+2, from_col, from_row, from_col);
+        if (row_start(m) != from_row+2) return 1;
+        if (col_start(m) != from_col)   return 1;
+        if (row_end(m)   != from_row)   return 1;
+        if (col_end(m)   != from_col)   return 1;
+      }
+    // testing vertical moves
+    for (int from_row = 0; from_row < 8; from_row++)
+      for (int from_col = 0; from_col < 6; from_col++) {
+        move m = new_move(from_row, from_col, from_row, from_col+2);
+        if (row_start(m) != from_row)   return 1;
+        if (col_start(m) != from_col)   return 1;
+        if (row_end(m)   != from_row)   return 1;
+        if (col_end(m)   != from_col+2) return 1;
+
+        m = new_move(from_row, from_col+2, from_row, from_col);
+        if (row_start(m) != from_row)   return 1;
+        if (col_start(m) != from_col+2) return 1;
+        if (row_end(m)   != from_row)   return 1;
+        if (col_end(m)   != from_col)   return 1;
+      }
+
+  // make-move: invalid moves for given board
+  } else if (string_equal(arg, "make-invalid-move1")) {
+    if (test_valid_make_move("german.txt", 3,3, 5,3))               return 1;
+  } else if (string_equal(arg, "make-invalid-move2")) {
+    if (test_valid_make_move("german.txt", 0,1, 0,3))               return 1;
+  } else if (string_equal(arg, "make-invalid-move3")) {
+    if (test_valid_make_move("german.txt", 0,4, 0,2))               return 1;
+  } else if (string_equal(arg, "make-invalid-move4")) {
+    if (test_valid_make_move("german.txt", 0,2, 0,0))               return 1;
+  } else if (string_equal(arg, "make-invalid-move5")) {
+    if (test_valid_make_move("grade/symmetricCross.txt", 2,1, 2,3)) return 1;
+  } else if (string_equal(arg, "make-invalid-move6")) {
+    if (test_valid_make_move("grade/symmetricCross.txt", 2,2, 2,4)) return 1;
+  } else if (string_equal(arg, "make-invalid-move7")) {
+    if (test_valid_make_move("grade/symmetricCross.txt", 3,2, 3,4)) return 1;
+  } else if (string_equal(arg, "make-invalid-move8")) {
+    if (test_valid_make_move("grade/symmetricCross.txt", 2,1, 4,1)) return 1;
+  } else if (string_equal(arg, "make-invalid-move9")) {
+    if (test_valid_make_move("english.txt", 2,6, 2,4))              return 1;
+
+  // make-move: correct execution
+  } else if (string_equal(arg, "make-valid-move1")) {
+    if (!test_make_all_moves("german.txt"))               return 1;
+  } else if (string_equal(arg, "make-valid-move2")) {
+    if (!test_make_all_moves("english.txt"))              return 1;
+  } else if (string_equal(arg, "make-valid-move3")) {
+    if (!test_make_all_moves("grade/symmetricCross.txt")) return 1;
+
+  // undo-move: invalid moves for given board
+  } else if (string_equal(arg, "undo-invalid-move1")) {
+    if (test_valid_undo_move("german.txt", 3,3, 5,3))               return 1;
+  } else if (string_equal(arg, "undo-invalid-move2")) {
+    if (test_valid_undo_move("german.txt", 0,1, 0,3))               return 1;
+  } else if (string_equal(arg, "undo-invalid-move3")) {
+    if (test_valid_undo_move("german.txt", 0,4, 0,2))               return 1;
+  } else if (string_equal(arg, "undo-invalid-move4")) {
+    if (test_valid_undo_move("german.txt", 0,0, 0,2))               return 1;
+  } else if (string_equal(arg, "undo-invalid-move5")) {
+    if (test_valid_undo_move("grade/symmetricCross.txt", 2,1, 2,3)) return 1;
+  } else if (string_equal(arg, "undo-invalid-move6")) {
+    if (test_valid_undo_move("grade/symmetricCross.txt", 3,1, 3,3)) return 1;
+  } else if (string_equal(arg, "undo-invalid-move7")) {
+    if (test_valid_undo_move("grade/symmetricCross.txt", 3,2, 3,4)) return 1;
+  } else if (string_equal(arg, "undo-invalid-move8")) {
+    if (test_valid_undo_move("grade/symmetricCross.txt", 2,1, 4,1)) return 1;
+  } else if (string_equal(arg, "undo-invalid-move9")) {
+    if (test_valid_undo_move("english.txt", 3,6, 3,4))              return 1;
+
+  // undo-move: correct execution
+  } else if (string_equal(arg, "undo-valid-move1")) {
+    if (!test_undo_all_moves("german.txt"))               return 1;
+  } else if (string_equal(arg, "undo-valid-move2")) {
+    if (!test_undo_all_moves("english.txt"))              return 1;
+  } else if (string_equal(arg, "undo-valid-move3")) {
+    if (!test_undo_all_moves("grade/symmetricCross.txt")) return 1;
+
+  // all-moves
+  } else if (string_equal(arg, "all-moves-german")) {
+    if (!test_all_moves("german.txt"))               return 1;
+  } else if (string_equal(arg, "all-moves-english")) {
+    if (!test_all_moves("english.txt"))              return 1;
+  } else if (string_equal(arg, "all-moves-solved")) {
+    if (!test_all_moves("grade/1a.txt"))             return 1;
+  } else if (string_equal(arg, "all-moves-none")) {
+    if (!test_all_moves("grade/1k.txt"))             return 1;
+  } else if (string_equal(arg, "all-moves-some")) {
+    if (!test_all_moves("grade/1g.txt"))             return 1;
+  } else if (string_equal(arg, "all-moves-many")) {
+    if (!test_all_moves("grade/symmetricCross.txt")) return 1;
+
+  } else {
+    error("No test with this name");
+  }
+
+  return 0;
+}

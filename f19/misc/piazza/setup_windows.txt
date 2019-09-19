@@ -1,0 +1,25 @@
+TITLE: Laptop Setup for Windows
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+If you have a Windows computer, follow these steps to set it up to connect to the Andrew system. If you need help, come to one of the setup sessions this week.
+For Mac, see @[TBD].
+For Linux, see @[TBD].
+
+1) Download and install <a href="http://mobaxterm.mobatek.net/download-home-edition.html" target="_blank">MobaXterm Home Edition</a> (Installer edition), then restart your computer.
+
+2) Open MobaXterm and click the "Session" button in the top left corner of the window.
+
+3) Select "SSH" as the session type.
+
+4) Enter "unix.andrew.cmu.edu" as the Remote host, click the checkbox for "Specify username", and enter your andrew id in the field.
+
+5) Click "Ok" to connect via SSH, and enter your password when prompted. You may opt to save your password.
+
+6) Check to make sure that X forwarding is working properly by running this command:
+<pre>display ~rjsimmon/public/couch.jpg &amp;</pre>
+After a few seconds (be patient!), you should see a window appear with a picture of a couch. If that works, you're all set up! In the future, double-click the "unix.andrew.cmu.edu" session in the Saved sessions menu whenever you want to connect.
+
+If you're getting errors or having trouble, ask a TA at a setup session.
+

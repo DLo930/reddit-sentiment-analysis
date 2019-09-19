@@ -1,0 +1,74 @@
+\part[1]~\vspace*{-2ex}
+\begin{lstlisting}[numbers=left]
+int f(int n) {
+    int x = 0;
+    while (n >= 2) {[*\label{l:safe-assert3-lg}*]
+        x += 1;
+        if (n % 2 == 1) {
+            n = 3*n + 1;
+        } else {
+            n = n/2;
+        }
+    }
+    //@assert n <= 2;   /*** Assertion A ***/[*\label{l:safe-assert3A}*]
+    //@assert x >= 0;   /*** Assertion B ***/[*\label{l:safe-assert3B}*]
+    return x;
+}
+\end{lstlisting}
+
+\vfill
+\begin{framed}
+\medskip
+\lstinline'Assertion A' is: \uanswer{26.2em}{SUPPORTED}
+
+\medskip
+\aLine{\texttt{n < 2}}{line~\ref{l:safe-assert3-lg}}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \ans{can}/\noans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{n <= 2}}{math}
+\end{framed}
+
+\RUBRIC
+Part 3A
+
+Gradescope rubric:
++ 0.2 pts SUPPORTED
++ 0.15 pts n < 2 by line 3 (negation of the loop guard)
++ 0.15 pts Therefore n <= 2
+
+Commentary:
+Assertion A is SUPPORTED
+  - The negation of the loop guard gives n < 2, which implies n <= 2
+ENDRUBRIC
+
+\vfill
+\begin{framed}
+\medskip
+\lstinline'Assertion B' is: \uanswer{26.2em}{UNSUPPORTED}
+
+\medskip
+\aLine{\texttt{x} is modifed by the loop}{}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \noans{can}/\ans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{x >= 0}}{line~\ref{l:safe-assert3B}}
+\end{framed}
+
+\RUBRIC
+Part 3B
+
+Gradescope rubric:
++ 0.2 UNSUPPORTED
++ 0.3 x is modified by the loop and there are no loop invariants: logical reasoning gives no information about it.
+
+Commentary:
+Assertion B is UNSUPPORTED
+  - Because x is modified by the loop and unmentioned by the loop
+    guard and the (trivial) loop invariant, we don't know anything
+    about x after the loop body runs.
+ENDRUBRIC

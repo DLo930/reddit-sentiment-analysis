@@ -1,0 +1,145 @@
+Homework 4: Expected output
+----------------------------
+
+Here is the expected output from compiling the text editor with:
+
+    cc0 -d -x text-editor-test.c0 > expected.out
+
+Note that in this representation, the point node is wrapped in _ (underscores). Also, take note of the following lines:
+
+    Line 12 - there is only one node in the list
+    Line 73 - the point node is the second node
+
+Here's the expected output:
+
+   
+     START <--> _[................]_ <--> END
+'a': START <--> _a[...............]_ <--> END
+'b': START <--> _ab[..............]_ <--> END
+'c': START <--> _abc[.............]_ <--> END
+<= : START <--> _ab[.............]c_ <--> END
+del: START <--> _a[..............]c_ <--> END
+del: START <--> _[...............]c_ <--> END
+del: START <--> _[...............]c_ <--> END
+<= : START <--> _[...............]c_ <--> END
+=> : START <--> _c[...............]_ <--> END
+=> : START <--> _c[...............]_ <--> END
+del: START <--> _[................]_ <--> END
+del: START <--> _[................]_ <--> END
+'a': START <--> _a[...............]_ <--> END
+'b': START <--> _ab[..............]_ <--> END
+'c': START <--> _abc[.............]_ <--> END
+'d': START <--> _abcd[............]_ <--> END
+'e': START <--> _abcde[...........]_ <--> END
+'f': START <--> _abcdef[..........]_ <--> END
+'g': START <--> _abcdefg[.........]_ <--> END
+'h': START <--> _abcdefgh[........]_ <--> END
+'A': START <--> _abcdefghA[.......]_ <--> END
+'B': START <--> _abcdefghAB[......]_ <--> END
+'C': START <--> _abcdefghABC[.....]_ <--> END
+'D': START <--> _abcdefghABCD[....]_ <--> END
+'E': START <--> _abcdefghABCDE[...]_ <--> END
+'F': START <--> _abcdefghABCDEF[..]_ <--> END
+'G': START <--> _abcdefghABCDEFG[.]_ <--> END
+'H': START <--> _abcdefghABCDEFGH[]_ <--> END
+=> : START <--> _abcdefghABCDEFGH[]_ <--> END
+<= : START <--> _abcdefghABCDEFG[]H_ <--> END
+<= : START <--> _abcdefghABCDEF[]GH_ <--> END
+<= : START <--> _abcdefghABCDE[]FGH_ <--> END
+<= : START <--> _abcdefghABCD[]EFGH_ <--> END
+<= : START <--> _abcdefghABC[]DEFGH_ <--> END
+<= : START <--> _abcdefghAB[]CDEFGH_ <--> END
+<= : START <--> _abcdefghA[]BCDEFGH_ <--> END
+<= : START <--> _abcdefgh[]ABCDEFGH_ <--> END
+<= : START <--> _abcdefg[]hABCDEFGH_ <--> END
+<= : START <--> _abcdef[]ghABCDEFGH_ <--> END
+<= : START <--> _abcde[]fghABCDEFGH_ <--> END
+<= : START <--> _abcd[]efghABCDEFGH_ <--> END
+<= : START <--> _abc[]defghABCDEFGH_ <--> END
+<= : START <--> _ab[]cdefghABCDEFGH_ <--> END
+<= : START <--> _a[]bcdefghABCDEFGH_ <--> END
+<= : START <--> _[]abcdefghABCDEFGH_ <--> END
+<= : START <--> _[]abcdefghABCDEFGH_ <--> END
+<= : START <--> _[]abcdefghABCDEFGH_ <--> END
+<= : START <--> _[]abcdefghABCDEFGH_ <--> END
+<= : START <--> _[]abcdefghABCDEFGH_ <--> END
+=> : START <--> _a[]bcdefghABCDEFGH_ <--> END
+=> : START <--> _ab[]cdefghABCDEFGH_ <--> END
+=> : START <--> _abc[]defghABCDEFGH_ <--> END
+'1': START <--> _abc1[.......]defgh_ <--> [........]ABCDEFGH <--> END
+'2': START <--> _abc12[......]defgh_ <--> [........]ABCDEFGH <--> END
+'3': START <--> _abc123[.....]defgh_ <--> [........]ABCDEFGH <--> END
+'4': START <--> _abc1234[....]defgh_ <--> [........]ABCDEFGH <--> END
+'5': START <--> _abc12345[...]defgh_ <--> [........]ABCDEFGH <--> END
+'6': START <--> _abc123456[..]defgh_ <--> [........]ABCDEFGH <--> END
+'7': START <--> _abc1234567[.]defgh_ <--> [........]ABCDEFGH <--> END
+'8': START <--> _abc12345678[]defgh_ <--> [........]ABCDEFGH <--> END
+'#': START <--> abc12345[........] <--> _678#[.......]defgh_ <--> [........]ABCDEFGH <--> END
+'W': START <--> abc12345[........] <--> _678#W[......]defgh_ <--> [........]ABCDEFGH <--> END
+'X': START <--> abc12345[........] <--> _678#WX[.....]defgh_ <--> [........]ABCDEFGH <--> END
+'Y': START <--> abc12345[........] <--> _678#WXY[....]defgh_ <--> [........]ABCDEFGH <--> END
+'Z': START <--> abc12345[........] <--> _678#WXYZ[...]defgh_ <--> [........]ABCDEFGH <--> END
+<= : START <--> abc12345[........] <--> _678#WXY[...]Zdefgh_ <--> [........]ABCDEFGH <--> END
+<= : START <--> abc12345[........] <--> _678#WX[...]YZdefgh_ <--> [........]ABCDEFGH <--> END
+<= : START <--> abc12345[........] <--> _678#W[...]XYZdefgh_ <--> [........]ABCDEFGH <--> END
+<= : START <--> abc12345[........] <--> _678#[...]WXYZdefgh_ <--> [........]ABCDEFGH <--> END
+'w': START <--> abc12345[........] <--> _678#w[..]WXYZdefgh_ <--> [........]ABCDEFGH <--> END
+'x': START <--> abc12345[........] <--> _678#wx[.]WXYZdefgh_ <--> [........]ABCDEFGH <--> END
+'y': START <--> abc12345[........] <--> _678#wxy[]WXYZdefgh_ <--> [........]ABCDEFGH <--> END
+'z': START <--> abc12345[........] <--> _678#wxyz[.......]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+'#': START <--> abc12345[........] <--> _678#wxyz#[......]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _678#wxyz[.......]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _678#wxy[........]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _678#wx[.........]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _678#w[..........]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _678#[...........]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _678[............]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _67[.............]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _6[..............]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> abc12345[........] <--> _[...............]W_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _abc1234[.........]_ <--> [...............]W <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+=> : START <--> abc1234[.........] <--> _W[...............]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _abc1234[.........]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _abc123[..........]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _abc12[...........]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _abc1[............]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _abc[.............]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _ab[..............]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _a[...............]_ <--> [........]XYZdefgh <--> [........]ABCDEFGH <--> END
+del: START <--> _[........]XYZdefgh_ <--> [........]ABCDEFGH <--> END
+del: START <--> _[........]XYZdefgh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _X[........]YZdefgh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XY[........]Zdefgh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XYZ[........]defgh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XYZd[........]efgh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XYZde[........]fgh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XYZdef[........]gh_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XYZdefg[........]h_ <--> [........]ABCDEFGH <--> END
+=> : START <--> _XYZdefgh[........]_ <--> [........]ABCDEFGH <--> END
+=> : START <--> XYZdefgh[........] <--> _A[........]BCDEFGH_ <--> END
+=> : START <--> XYZdefgh[........] <--> _AB[........]CDEFGH_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABC[........]DEFGH_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABCD[........]EFGH_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABCDE[........]FGH_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABCDEF[........]GH_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABCDEFG[........]H_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABCDEFGH[........]_ <--> END
+=> : START <--> XYZdefgh[........] <--> _ABCDEFGH[........]_ <--> END
+del: START <--> XYZdefgh[........] <--> _ABCDEFG[.........]_ <--> END
+del: START <--> XYZdefgh[........] <--> _ABCDEF[..........]_ <--> END
+del: START <--> XYZdefgh[........] <--> _ABCDE[...........]_ <--> END
+del: START <--> XYZdefgh[........] <--> _ABCD[............]_ <--> END
+del: START <--> XYZdefgh[........] <--> _ABC[.............]_ <--> END
+del: START <--> XYZdefgh[........] <--> _AB[..............]_ <--> END
+del: START <--> XYZdefgh[........] <--> _A[...............]_ <--> END
+del: START <--> _XYZdefgh[........]_ <--> END
+del: START <--> _XYZdefg[.........]_ <--> END
+del: START <--> _XYZdef[..........]_ <--> END
+del: START <--> _XYZde[...........]_ <--> END
+del: START <--> _XYZd[............]_ <--> END
+del: START <--> _XYZ[.............]_ <--> END
+del: START <--> _XY[..............]_ <--> END
+del: START <--> _X[...............]_ <--> END
+del: START <--> _[................]_ <--> END
+del: START <--> _[................]_ <--> END
+0

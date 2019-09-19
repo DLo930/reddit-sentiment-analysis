@@ -1,0 +1,242 @@
+\clearpage
+\bgroup
+\newcommand{\elem}
+%{string} % before F18
+%{char} % F18
+{bool} % S19
+
+\Question{Stacks, Queues, and  Interfaces}
+
+\begin{parts}
+\part[1]\TAGS{interface, stack}
+Consider the following interface for \lstinline'stack_t' that stores
+elements of type \texttt{\elem}:
+
+\begin{lstlisting}
+/* Stack Interface */
+// typedef ______* stack_t;
+
+bool stack_empty(stack_t S)  /* O(1), check if stack empty */
+/*@requires S != NULL; @*/;
+
+stack_t stack_new()          /* O(1), create new empty stack */
+/*@ensures \result != NULL; @*/
+/*@ensures stack_empty(\result); @*/;
+
+void push(stack_t S, [*\elem*] x) /* O(1), add item on top of stack */
+/*@requires S != NULL; @*/;
+
+[*\elem*] pop(stack_t S)          /* O(1), remove item from top */
+/*@requires S != NULL; @*/
+/*@requires !stack_empty(S); @*/
+\end{lstlisting}
+
+Write a \underline{client} function \lstinline'stack_bottom(stack_t S)' that
+returns the bottom element of the given stack, assuming the stack is
+not empty.  The final stack should be identical to the initial stack.
+For this task, use only the interface since, as a client, you do
+not know how this data structure is implemented.  Do not use any stack
+functions that are not in the interface (including specification
+functions like \lstinline'is_stack' since these belong to the
+implementation).
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+[*\elem*] stack_bottom(stack_t S)
+//@requires S != NULL;
+//@requires !stack_empty(S);
+{
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  stack_t T = stack_new();
+  [*\elem*] bottom;
+  while (!stack_empty(S)) {
+    bottom = pop(S);
+    push(T, bottom);
+  }
+  while (!stack_empty(T)) {
+    push(S, pop(T));
+  }
+  return bottom;
+\end{lstlisting}
+\else~\vspace{2.1in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: interface, stack
+
+Gradescope rubric:
++0pt EITHER --- iterative solution:
++0.5pts Allocates a new temporary stack
++0.25pts Loop that reverses onto temp stack, another loop that flips back
++0.25pts Correctly grabs, restores, and returns the bottom element.
++0pt OR --- recursive solution:
++0.5pts Check for empty stack before making recursive call
++0.5pts Correctly grabs, restores, and returns the bottom element.
+-0.5pts Interface violation
+
+Commentary:
+- replace the type ELEM with the actual type for this semester
+ELEM stack_bottom(stack_t S)
+//@requires S != NULL;
+//@requires !stack_empty(S);
+{
+  stack_t T = stack_new();
+  ELEM bottom;
+  while (!stack_empty(S)) {
+      bottom = pop(S);
+      push(T, bottom);
+    }
+  while (!stack_empty(T)) {
+    push(S, pop(T));
+  }
+  return bottom;
+}
+
+(recursive solution)
+ELEM stack_bottom(stack_t S)
+//@requires S != NULL;
+//@requires !stack_empty(S);
+{
+  ELEM s = pop(S);
+  if (!stack_empty(S))
+   s = stack_bottom(S);
+  push(S, s);
+  return s;
+}
+
+  - No points if they violate the interface
+  - 1 point for allocating a new stack
+  - 1/2 point for loop that reverses onto temp stack and
+  another that restores the original stack
+  - 1/2 point for getting bottom element correctly (there are several correct possibilities)
+ENDRUBRIC
+
+
+\newpage
+\part[1\half]\TAGS{interface, queue}
+Below is the queue interface from lecture (with elements of type
+\texttt{\elem}).
+\begin{quote}
+\begin{lstlisting}
+// typedef ______* queue_t;
+
+bool queue_empty(queue_t Q)         /* O(1) */
+/*@requires Q != NULL; @*/;
+
+queue_t queue_new()                 /* O(1) */
+/*@ensures \result != NULL; @*/
+/*@ensures queue_empty(\result); @*/;
+
+void enq(queue_t Q, [*\elem*] e)         /* O(1) */
+/*@requires Q != NULL; @*/;
+
+[*\elem*] deq(queue_t Q)                 /* O(1) */
+/*@requires Q != NULL; @*/
+/*@requires !queue_empty(Q); @*/ ;
+\end{lstlisting}
+\end{quote}
+
+The following is a client function \lstinline'queue_size' that is intended
+to compute the size of the queue while leaving the queue unchanged.
+
+\begin{quote}
+\begin{lstlisting}[firstnumber=50]
+int queue_size(queue_t Q)
+//@requires Q != NULL;
+//@ensures \result >= 0;
+{
+  int size = 0;
+  queue_t C = Q;
+  while (!queue_empty(Q)) {
+    enq(C, deq(Q));
+    size++;
+  }
+  while (!queue_empty(C)) enq(Q, deq(C));
+  return size;
+}
+\end{lstlisting}
+\end{quote}
+
+\enlargethispage{5ex}
+Explain why the function \lstinline'queue_size' does not work and give a
+corrected version below:
+\begin{framed}
+(Explanation)
+
+\medskip
+\ifprintanswers{\color{\answerColor}
+\lstinline'C' is an alias for \lstinline'Q'. The first loop will not
+terminate, since every element removed from \lstinline'Q' is
+immediately enqueued on \lstinline'Q'.
+}\else~\vspace{1.2in}\fi
+\end{framed}
+\newpage
+\begin{framed} (Correct code)
+\begin{quote}
+\begin{lstlisting}[firstnumber=50, belowskip=0pt]
+int queue_size(queue_t Q)
+//@requires Q != NULL;
+//@ensures \result >= 0;
+{
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  int size = 0;
+  queue_t C = queue_new();
+  while (!queue_empty(Q)) {
+    enq(C, deq(Q));
+    size++;
+  }
+  while (!queue_empty(C)) enq(Q, deq(C));
+  return size;
+\end{lstlisting}
+\else~\vspace{6.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+}
+\end{lstlisting}
+\end{quote}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: interface, queue
+
+Gradescope rubric:
++0.5pt Explanation
++1pt Code revision
+
+Commentary:
+Explanation: C is an alias for Q. The first loop will not terminate,
+since every element removed from Q is immediately enqueued on Q.
+
+int queue_size(queue_t Q)
+//@requires Q != NULL;
+//@ensures \result >= 0;
+{
+  int size = 0;
+  queue_t C = queue_new();
+  while (!queue_empty(Q)) {
+    enq(C, deq(Q));
+    size++;
+  }
+  while (!queue_empty(C)) enq(Q, deq(C));
+  return size;
+}
+
+   - 1/2 point for explanation; they must mention at least one of the
+     two points above (alias and/or infinite loop)
+
+   - 1 point for code: they must initialize C using queue_new();
+     they shouldn't change anything else. No penalty for correctly
+     computing size with the second loop instead of the first.
+ENDRUBRIC
+
+\end{parts}
+
+\egroup

@@ -1,0 +1,47 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 26             # string pool total size
+# string pool
+72 65 63 75 72 73 69 6F 6E 34 2E 63 30 3A 32 2E 33 2D 32 2E 31 37 3A 20 61 73 73 65 72 74 20 66 61 69 6C 65 64 00  # "recursion4.c0:2.3-2.17: assert failed"
+
+00 02             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 01             # number of local variables = 1
+00 06             # code length = 6 bytes
+10 0F    # bipush 15       # 15
+B8 00 01 # invokestatic 1  # countdown(15)
+B0       # return          # 
+
+
+#<countdown>
+00 01             # number of arguments = 1
+00 01             # number of local variables = 1
+00 1E             # code length = 30 bytes
+15 00    # vload 0         # n
+10 00    # bipush 0        # 0
+A3 00 06 # if_icmpgt +6    # if (n > 0) goto <00:cond_true>
+A7 00 08 # goto +8         # goto <01:cond_false>
+# <00:cond_true>
+10 01    # bipush 1        # true
+A7 00 05 # goto +5         # goto <02:cond_end>
+# <01:cond_false>
+10 00    # bipush 0        # false
+# <02:cond_end>
+14 00 00 # aldc 0          # s[0] = "recursion4.c0:2.3-2.17: assert failed"
+CF       # assert          # assert(n > 0) [failure message on stack]
+15 00    # vload 0         # n
+10 01    # bipush 1        # 1
+64       # isub            # (n - 1)
+B8 00 01 # invokestatic 1  # countdown((n - 1))
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

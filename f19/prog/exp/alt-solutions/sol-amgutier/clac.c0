@@ -1,0 +1,75 @@
+#use <util>
+
+int safe_pop(istack_t S)
+//@requires S != NULL;
+{
+  if (istack_empty(S))
+    error("Trying to pop from empty stack");
+
+  return ipop(S);
+}
+
+// fast power function from lecture
+int fast_pow(int x, int y) {
+  if (y == 0) return 1;
+
+  int r = 1;
+  while (y > 1) {
+    if (y % 2 == 1) {
+      r = x * r;
+    }
+    x = x * x;
+    y = y / 2;
+  }
+
+  return r * x;
+}
+
+void eval(istack_t S, queue_t Q)
+//@requires S != NULL && Q != NULL;
+//@ensures queue_empty(Q);
+{
+  while (!queue_empty(Q)) {
+    string tok = deq(Q);
+
+    if (string_equal(tok, "**")) {
+      int y = safe_pop(S);
+      int x = safe_pop(S);
+
+      if (y < 0)
+        error("Exponent must be positive");
+      
+      ipush(S, fast_pow(x, y));
+    } else if (string_equal(tok, "*")) {
+      int y = safe_pop(S);
+      int x = safe_pop(S);
+      
+      ipush(S, x * y);
+    } else if (string_equal(tok, "/")) {
+      int y = safe_pop(S);
+      int x = safe_pop(S);
+
+      if (y == 0 || (x == int_min() && y == -1))
+        error("Cannot divide by 0");
+      
+      ipush(S, x / y);
+    } else if (string_equal(tok, "+")) {
+      int y = safe_pop(S);
+      int x = safe_pop(S);
+      
+      ipush(S, x + y);
+    } else if (string_equal(tok, "-")) {
+      int y = safe_pop(S);
+      int x = safe_pop(S);
+      
+      ipush(S, x - y);
+    } else {
+      // try and parse tok as an integer
+      int* x = parse_int(tok, 10);
+      if (x == NULL)
+        error(string_join("Unknown token: ", tok));
+
+      ipush(S, *x);
+    }
+  }
+}

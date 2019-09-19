@@ -1,0 +1,28 @@
+#use <conio>
+#use "sol-gapbuf.c0"
+#use "make-gapbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  gapbuf G = make_gapbuf(8, "01|567");
+
+  //delete
+  gapbuf_delete(G);
+
+  if(!(G->limit == 8 &&
+       G->gap_start == 1 &&
+       G->gap_end == 5 &&
+       G->buffer[0] == '0' &&
+       G->buffer[5] == '5' &&
+       G->buffer[6] == '6' &&
+       G->buffer[7] == '7')){
+    passed = false;
+    // error("failed to delete");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

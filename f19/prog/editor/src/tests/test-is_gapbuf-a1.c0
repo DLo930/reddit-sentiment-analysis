@@ -1,0 +1,5 @@
+//EXPECT ANNOTATION FAILURE
+int main() {
+  assert(is_gapbuf(NULL));
+  return 0;
+}

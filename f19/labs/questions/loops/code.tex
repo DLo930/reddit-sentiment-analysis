@@ -1,0 +1,98 @@
+\section*{Improving an already existing algorithm}
+The TAs have been tasked by Iliano to write some \lstinline'c0' code
+which takes an array of integers and sees how many consecutive pairs
+of equal numbers there are in the array. They were given the following
+examples:
+$$
+\begin{array}{ll}
+   \begin{array}{|c|c|c|c|c|c|c|}\hline1&5&4&4&2&1&1\\\hline\end{array}
+ & \text{has 2 consecutive pairs: (4,4) and (1,1)}
+\\[2ex]
+   \begin{array}{|c|c|c|c|c|c|c|}\hline2&1&1&1&1&2&0\\\hline\end{array}
+ & \text{has 3 consecutive pairs: (1,1) three times}
+\\[2ex]
+   \begin{array}{|c|c|c|c|c|c|c|}\hline6&4&5&4&5&4&5\\\hline\end{array}
+ & \text{has 0 consecutive pairs}
+\end{array}
+$$
+The best solution the TAs could come up with involved an inefficient
+algorithm using two \lstinline'for' loops, one within the other. As
+you will see later on in the course, this makes their code run very
+slowly for large arrays. They are pretty sure it can be done with just
+one loop, but they need your help!
+
+\begin{part}\TAGS{array, complexity, correctness, loop-invariant, safety}
+  They've put their algorithm inside a function aptly named
+  \lstinline'num_consecutive_trash(A, n)'. You can assume that it is
+  correct (they wrote good test cases). One thing to note is that
+  \lstinline'n' can be less than the length of \lstinline'A' if you
+  just want to check the first \lstinline'n' items of \lstinline'A'
+  for pairs.
+
+  Now, using \lstinline'num_consecutive_trash' as a specification
+  function, complete the loop definition for the faster algorithm in the
+  function below, including the bounds on \lstinline'i' as well as any
+  loop invariants needed.  Again, use one invariant for
+  safety and one for correctness.
+\begin{lstlisting}[numbers=left, belowskip=0pt]
+int num_consecutive_ints(int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@ensures \result == num_consecutive_trash(A, n);
+{
+  int count = 0;
+  for (int i = [*\shortanswerline{~1~}*]; i < [*\shortanswerline{~n~}*]; i++)
+  //@loop_invariant [*\answerline{0 < i \&\& i <= n}*];
+  //@loop_invariant [*\answerline{count == num\_consecutive\_trash(A, i)}*];
+  {
+    [*\dots*]
+  }
+  return [*\answerline{count}*];
+}
+\end{lstlisting}
+\end{part}
+
+\begin{part}\TAGS{testing}
+Now open up \lstinline'consecutive.c0' and fill in the loop body
+there.  Remember, use the loop invariants to guide the code you
+write.  When ready, test your implementation as described next.
+
+\textbf{Note:} use the provided \lstinline'to_arr' function to help
+with your testing. It takes an integer and converts it to an array of
+integers based on the number's digits.
+
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle]
+  % coin -d consecutive.c0
+  --> num_consecutive_ints(to_arr(1544211), 7);
+  2 (int)
+  --> num_consecutive_ints(to_arr(2111120), 7);
+  3 (int)
+  --> num_consecutive_ints(to_arr(6454545), 7);
+  0 (int)
+\end{lstlisting}
+
+You can test your code by running %
+\lstinline[language={[coin]C}]'cc0 -d -x consecutive.c0 test-consecutive.c0'\\
+Make sure your code passes this test to get credit!
+
+\twoPT
+
+\begin{solution}
+\begin{lstlisting}[numbers=left]
+int num_consecutive_ints(int[] A, int n)
+//@requires n <= \length(A);
+//@ensures \result == num_consecutive_trash(A, n);
+{
+	int count = 0;
+	for (int i = 1; i < n; i++)
+	//@loop_invariant 0 < i && i <= n;
+	//@loop_invariant count == num_consecutive_trash(A, i);
+	{
+		if (A[i] == A[i-1]) {
+			count++;
+		}
+	}
+	return count;
+}
+\end{lstlisting}
+\end{solution}
+\end{part}

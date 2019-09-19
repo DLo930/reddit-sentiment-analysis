@@ -1,0 +1,141 @@
+#use <args>
+#use <conio>
+#use <string>
+
+bool test_common_prefix(string s1, string s2) {
+  int l1 = string_length(s1);
+  int l2 = string_length(s2);
+  int len = l1 < l2 ? l1 : l2;
+  
+  int res = common_prefix(s1, s2);
+  //printint(res); println("");
+
+  return 0 <= res && res <= len 
+    && string_equal(string_sub(s1, 0, res), string_sub(s2, 0, res))
+    && (res == len || string_charat(s1, res) != string_charat(s2, res));
+}
+
+bool test_same_start_end(string s) {
+  string res = same_start_end(s);
+
+  //print("Testing "); printint(string_length(s)); 
+  //print(" \""); print(s); println("\"");
+
+  // Inlined is_substring
+  int len = string_length(res);
+  int offset = string_length(s) - len;
+  bool substring = false;
+  while (offset >= 0) 
+  //@loop_invariant offset <= string_length(s) - string_length(res);
+  {
+    if (string_equal(res, string_sub(s, offset, offset+len)))
+      substring = true;
+    offset--;
+  }
+
+  if (!substring) return false;
+  if (string_length(s) < 128) return true;
+  return string_charat(res, 0) == string_charat(res, len-1);
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc < 1) error("Wrong number of tests");
+  string arg = args->argv[0];
+  
+  if (string_equal(arg, "common_prefix_given")) {
+    if (!test_common_prefix("", "")) return 1;
+    if (!test_common_prefix("", "abc")) return 1;
+    if (!test_common_prefix("abc", "")) return 1;
+    if (!test_common_prefix("abc", "def")) return 1;
+    if (!test_common_prefix("abc", "aa")) return 1;
+    if (!test_common_prefix("abc", "adef")) return 1;
+    if (!test_common_prefix("abc", "abe")) return 1;
+    if (!test_common_prefix("abc", "abed")) return 1;
+    if (!test_common_prefix("abc", "abc")) return 1;
+    if (!test_common_prefix("abc", "abcd")) return 1;
+    if (!test_common_prefix("abcd", "accdd")) return 1;
+    if (!test_common_prefix("abcd", "abefg")) return 1;    
+    if (!test_common_prefix("abcd", "abecd")) return 1;
+
+  } else if (string_equal(arg, "common_prefix_exhaustive")) {
+    for (int i = 0; i < 10; i++) {
+      for (int j = 0; j < 10; j++) {
+        for (int k = 0; k < i; k++) {
+          char[] A = alloc_array(char, i+1);
+          char[] B = alloc_array(char, j+1);
+          for (int x = 0; x < i; x++) A[x] = char_chr(x+97);
+          for (int x = 0; x < j; x++) B[x] = char_chr(x+97);
+          A[k] = 'z';
+          
+          string s1 = string_from_chararray(A);
+          string s2 = string_from_chararray(B);
+          
+          //print("Common prefix of \""); print(s1); 
+          //print("\" and \""); print(s2); print("\"... ");
+          if (!test_common_prefix(s1, s2)) return 1;
+        }
+      }
+    }
+
+  } else if (string_equal(arg, "non_repeating_character")) {
+    if (args->argc < 2) error("Wrong number of tests");
+    string s = args->argv[1];
+    int res = find_nonrepeating_position(s);
+    if (!(0 <= res && res < string_length(s) - 1)) return 1;
+    if (!(string_charat(s, res) == string_charat(s, 0))) return 1;
+    if (!(string_charat(s, res+1) != string_charat(s, 0))) return 1;
+
+  } else if (string_equal(arg, "same_start_end")) {
+
+    // Spot tests
+    if (!test_same_start_end("")) return 1;
+    if (!test_same_start_end("a")) return 1;
+    if (!test_same_start_end("ab")) return 1;
+    if (!test_same_start_end("aa")) return 1;
+    if (!test_same_start_end("aba")) return 1;
+    if (!test_same_start_end("abba")) return 1;
+    if (!test_same_start_end("abca")) return 1;
+    if (!test_same_start_end("abac")) return 1;
+    if (!test_same_start_end("abcb")) return 1;
+    if (!test_same_start_end("abcba")) return 1;
+    if (!test_same_start_end("abcbb")) return 1;
+   
+    char[] tests = alloc_array(char, 8);
+    tests[0] = char_chr(1);
+    tests[1] = char_chr(2);
+    tests[2] = char_chr(3);
+    tests[3] = char_chr(60);
+    tests[4] = char_chr(100);
+    tests[5] = char_chr(125);
+    tests[6] = char_chr(126);
+    tests[7] = char_chr(127);
+
+    char[] sad = alloc_array(char, 128);
+    for (int x = 0; x < 127; x++) sad[x] = char_chr(x+1);
+    if (!test_same_start_end(string_from_chararray(sad))) return 1;
+
+    for (int i = 0; i < 127; i++) {
+      for (int j = 0; j < 8; j++) {
+        char[] A = alloc_array(char, 129);
+        for (int x = 0; x < 128; x++) {
+          if (x < i) A[x] = char_chr(x+1);
+          else if (x == i) A[x] = tests[j];
+          else A[x] = char_chr(x);
+        }
+
+        string s = string_from_chararray(A);
+        if (!test_same_start_end(s)) return 1;
+      }
+    }
+
+    char[] happy = alloc_array(char, 501);
+    for (int x = 0; x < 500; x++) happy[x] = tests[x % 8];
+    if (!test_same_start_end(string_from_chararray(happy))) return 1;
+
+  } else {
+    error("Invalid argument");
+  }
+
+  return 0;
+}

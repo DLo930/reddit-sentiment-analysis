@@ -1,0 +1,127 @@
+\clearpage
+\Question{Another Sort}
+\bgroup
+\renewcommand{\v}  % To catch blind copy and paste from previous semesters
+%{s}
+{k}
+%{c}
+%{count}
+
+Consider the following function that sorts the integers in an array, using
+\lstinline'swap' and \lstinline'is_sorted' from \lstinline'arrayutil.c0'.
+
+\begin{lstlisting}[numbers=left]
+void sort(int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@ensures is_sorted(A, 0, n);
+{
+  for (int i = 0; i < n; i++)
+  //@loop_invariant 0 <= i && i <= n;
+  //@loop_invariant le_segs(A, 0, n-i, A, n-i, n);
+  //@loop_invariant is_sorted(A, __________, __________);
+  {
+    int [*\v*] = 0;
+    for (int j = 0; j < n-i-1; j++)
+    //@loop_invariant 0 <= j && j <= n-i-1;
+    //@loop_invariant ge_seg(A[j], A, 0, j);
+    //@loop_invariant [*\textcolor{\contractColor}{\v}*] > 0 || ([*\textcolor{\contractColor}{\v}*] == 0 && is_sorted(A, 0, j));
+    {
+      if (A[j] > A[j+1]) {
+        swap(A, j, j+1);  // function that swaps A[j] and A[j+1]
+        [*\v*] = [*\v*] + 1;
+      }
+    }
+    if ([*\v*] == 0) return;
+  }
+}
+\end{lstlisting}
+
+
+\begin{parts}
+\part[0\half]\TAGS{loop-invariant, sorting}
+Complete the missing loop invariant on line 8.
+
+\begin{lstlisting}[frame=single, numbers=left, firstnumber=6, numberblanklines=false]
+
+
+//@loop_invariant is_sorted(A, [*\uanswer{9em}{n-i}*], [*\uanswer{9em}{n}*]);
+\end{lstlisting}
+
+\RUBRIC
+Part (a)
+TAGS: loop-invariant, sorting
+
+Gradescope rubric:
++ 0.25 pts First box (lower bound): n-i
++ 0.25 pts Second box (upper bound): n
+
+Commentary:
+. no partial credit
+ENDRUBRIC
+
+\part[1]\TAGS{complexity}
+The asymptotic complexity of this function depends on the number of
+comparisons made between pairs of array elements. Let $T(n)$ be the
+worst-case number of such comparisons made when \lstinline'sort(A, n)'
+is called. Give a \emph{closed form} expression for $T(n)$ --- a
+simple, non-recursive mathematical expression that doesn't use $\sum$
+or similar. Then express $T(n)$ in big-O notation in its simplest,
+tightest form.
+
+\begin{framed}
+\bigskip
+$T(n) \;=\; \uanswer{30em}{$n(n-1)/2$}$
+
+\medskip\bigskip
+$T(n) \;\in\; O(\uanswer{28.5em}{$n^2$})$
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: complexity
+
+Gradescope rubric:
++ 0.5 pts First blank: T(n) = n(n-1)/2
++ 0.5 pts Second blank: T(n) in O(n^2)
+
+Commentary:
+No partial credit
+. 1/2 point: T(n) = n(n-1)/2       n(n+1)/2 is wrong
+. 1/2 point: T(n) in O(n^2)        O(n^3) or O(n^2 + n) is wrong
+ENDRUBRIC
+
+
+\input{worst-details}  % Not in S'16
+
+
+\part[1]\TAGS{big-o}
+Using big-$O$ notation, what is the \textbf{best} case asymptotic
+complexity of this sort as a function of $n$? Under what condition
+does the best case occur?
+
+\begin{framed}
+\bigskip
+The best case asymptotic complexity of this sort is
+$O(\uanswer{10.1em}{$n$})$.
+
+\medskip\bigskip
+This occurs when \uanswer{25.6em}{the array is sorted}.
+\end{framed}
+
+\RUBRIC
+Part (d)
+TAGS: big-o
+
+Gradescope rubric:
++ 0.5 pts Best case complexity of this sort is O(n)
++ 0.5 pts Best case occurs when the array is sorted.
+
+Commentary:
+. 1/2 point: O(n)
+. 1/2 point: occurs when the array is sorted, no swaps are made in
+  the first pass. Anything reasonable that implies that no swaps are
+  needed/array sorted is fine.
+ENDRUBRIC
+
+\end{parts}
+\egroup

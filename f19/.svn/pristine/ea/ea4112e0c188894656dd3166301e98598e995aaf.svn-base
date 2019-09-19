@@ -1,0 +1,59 @@
+\newpage
+\checkpoint*{\TAGS{array, correctness, safety}}
+
+Implement the function \lstinline'uba_resize(uba* A)' for this version
+of unbounded arrays which resizes the array \lstinline'A' as described
+above. Give appropriate preconditions and postconditions, and make
+sure that your contracts guard against overflow.
+% Your implementation
+% should handle the case where the size of A is very small.
+(You should not need all the lines provided.)
+
+\begin{lstlisting}[numbers=left, name="uba_header", aboveskip=0pt, belowskip=0pt, lineskip=1.3ex]
+void uba_resize(uba* A)
+//@requires [*\answerline{\hspace{20em}}*];
+//@requires [*\answerline{\hspace{20em}}*];
+//@ensures [*\answerline{\hspace{20em}}*];
+{
+   if ([*\shortanswerline{\hspace{10.4em}}*]) return; // No resizing needed
+   assert([*\shortanswerline{\hspace{11em}}*]);   // Failure: can't handle bigger!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+\end{lstlisting}
+
+\vspace{-24.2em}
+\begin{solution}
+\begin{lstlisting}
+void uba_resize(uba* A)
+//@requires A != NULL && 0 <= A->size && A->size <= A->limit;
+//@requires 2 <= A-> limit && \length(A->data) == A->limit;
+//@ensures is_uba(A);
+{
+  if (A->size < A->limit) return;   // No resizing needed
+  assert(A->limit <= (int_max()/3)*2);   // Failure: can't handle bigger!
+  int newlimit = A->limit + (A->limit)/2;
+  string[] newdata = alloc_array(string, newlimit);
+  for (int i = 0; i < A->size; i++)
+  //@loop_invariant 0 <= i && i <= A->size;
+  {
+      newdata[i] = A->data[i];
+  }
+  A->limit = newlimit;
+  A->data = newdata;
+}
+\end{lstlisting}
+\end{solution}

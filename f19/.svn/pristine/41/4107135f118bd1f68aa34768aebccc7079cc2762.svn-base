@@ -1,0 +1,15 @@
+#use <conio>
+/* tests nonsquare image */
+
+pixel[] reflect(pixel[] image, int height, int width);
+int main() {
+    int[] inpixels;
+    int[] resultpixels;
+
+    inpixels = alloc_array(int, 30);
+  
+    resultpixels = reflect(inpixels, 5, 7);
+
+	println("EXPECTED ANNOTATION FAILURE");
+    return 0;
+}

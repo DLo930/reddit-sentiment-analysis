@@ -1,0 +1,46 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 00             # string pool total size
+# string pool
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 02             # number of local variables = 2
+00 2C             # code length = 44 bytes
+BB 10    # new 16          # alloc(struct list_node)
+36 00    # vstore 0        # i = alloc(struct list_node);
+BB 10    # new 16          # alloc(struct list_node)
+36 01    # vstore 1        # j = alloc(struct list_node);
+15 00    # vload 0         # i
+62 00    # aaddf 0         # &i->data
+10 01    # bipush 1        # 1
+4E       # imstore         # i->data = 1;
+15 00    # vload 0         # i
+62 08    # aaddf 8         # &i->next
+15 01    # vload 1         # j
+4F       # amstore         # i->next = j;
+15 01    # vload 1         # j
+62 00    # aaddf 0         # &j->data
+10 03    # bipush 3        # 3
+4E       # imstore         # j->data = 3;
+15 00    # vload 0         # i
+62 00    # aaddf 0         # &i->data
+2E       # imload          # i->data
+15 00    # vload 0         # i
+62 08    # aaddf 8         # &i->next
+2F       # amload          # i->next
+62 00    # aaddf 0         # &i->next->data
+2E       # imload          # i->next->data
+60       # iadd            # (i->data + i->next->data)
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

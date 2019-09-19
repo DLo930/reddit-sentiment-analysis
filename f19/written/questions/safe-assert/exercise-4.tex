@@ -1,0 +1,68 @@
+\part[1]~\vspace*{-2ex}
+\begin{lstlisting}[numbers=left]
+int f(int a, int b)
+//@requires 0 <= a;
+{
+  int i = 0;
+  int accum = 1;
+  while (i < a)[*\label{l:safe-assert4-lg}*]
+  //@loop_invariant accum == POW(b, i);[*\label{l:safe-assert4-LI}*]
+  {
+    //@assert i <= a;                      /*** Assertion A ***/[*\label{l:safe-assert4A}*]
+    accum = accum * b;
+    i = i + 1;
+  }
+  //@assert accum == POW(b, a);            /*** Assertion B ***/[*\label{l:safe-assert4B}*]
+  return accum;
+}
+\end{lstlisting}
+
+\vfill
+\begin{framed}
+\medskip
+\lstinline'Assertion A' is: \uanswer{26.2em}{SUPPORTED}
+
+\medskip
+\aLine{\texttt{i < a}}{line~\ref{l:safe-assert4-lg}}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \ans{can}/\noans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{i <= a}}{math}
+\end{framed}
+
+\RUBRIC
+Part 4A
+
+Gradescope rubric:  TODO
+
+Commentary:
+Assertion A is SUPPORTED
+  by the loop guard condition.
+ENDRUBRIC
+
+\vfill
+\begin{framed}
+\medskip
+\lstinline'Assertion B' is: \uanswer{26.2em}{UNSUPPORTED}
+
+\medskip
+\aLine{\texttt{accum == POW(b, i)}}{line~\ref{l:safe-assert4-LI}}
+\aLine{\texttt{i >= a}}{line~\ref{l:safe-assert4-lg}}
+\aLine{but we don't know that \texttt{i <= a}}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \noans{can}/\ans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{accum == POW(b, a)}}{line~\ref{l:safe-assert4B}}
+\end{framed}
+
+\RUBRIC
+Part 4B
+
+Gradescope rubric:  TODO
+
+Commentary:
+Assertion B is UNSUPPORTED,
+   as we only know that i >= a at the end of the loop.
+ENDRUBRIC

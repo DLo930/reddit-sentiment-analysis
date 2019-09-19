@@ -1,0 +1,37 @@
+---
+general:
+  name: lightsout
+  description: ''
+  display_name: Lights Out
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: lightsout-handout.tgz
+  writeup: lightsout-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: 10
+  has_svn: false
+  category_name: Programming
+problems:
+- name: bitvectors
+  description: ''
+  max_score: 8.0
+  optional: false
+- name: hashtable
+  description: ''
+  max_score: 6.0
+  optional: false
+- name: lightsout
+  description: ''
+  max_score: 11.0
+  optional: false
+autograder:
+  autograde_timeout: 300
+  autograde_image: rhel.img
+  release_score: true
+scoreboard:
+  banner: ''
+  colspec: '{"scoreboard": [ {"hdr":"Tasks Complete"}, {"hdr":"Challenge boards solved"},
+    {"hdr":"Total time", "asc":1} ] }'

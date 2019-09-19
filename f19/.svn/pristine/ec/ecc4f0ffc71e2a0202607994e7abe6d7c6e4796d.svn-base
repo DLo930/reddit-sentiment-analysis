@@ -1,0 +1,225 @@
+LAST: function contracts
+TODAY: correctness
+- safety: showing that pre-conditions are met
+- correctness: showing that function achieves post-conditions when input meet pre-conditions
+- loop invariants as abstraction of workings of loop
+- correctness of a function with one loop
+  . INIT + PRES: show that candidate loop invariants are indeed LI
+  . EXIT: LI + negation of loop guard imply post-conditions
+  . TERM: termination
+NEXT: int's
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] correctness
+[5] point-to vs. operational reasoning
+[5] proving the correctness of a function with one loop
+[5] proving loop invariants -- INIT + PRES
+[5] proving the postcondition -- EXIT
+[5] contract-based debugging
+[5] termination -- TERM
+[2] large inputs
+
+Review/Preview
+==============
+- Preconditions (@requires):
+  . caller has obligation of making sure they are satisfied
+  . SAFETY
+- Postconditions (@ensures):
+  . implementer has obligation of making sure they are satisfied
+    . assuming the preconditions are satisfied (otherwise function won't run)
+  . CORRECTNESS
+- Loop invariants help us make sure we understand our code by identifying quantities
+  that remain constant through the execution of a loop
+     //@loop_invariant e >= 0;
+     //@loop_invariant POW(b, e) * r == POW(x, y);
+- LI is checked just before the loop guard
+  . if loop runs 1 time, LI is checked ... 2 times
+    if loop runs 7 times, LI is checked ... 8 times
+    if loop runs 0 times, LI is checked ... 1 time
+  . may not hold in the middle of the body
+- Incorrect invariants will fail when run with the -d flag
+  . spell out our understanding of the code
+  . that's a powerful form of debugging
+- But LI can do a lot more: help us prove that a function is correct ...
+  . for any valid input
+
+How to prove that a function is correct?
+========================================
+- a function call satisfies its contract if pre- and post-conditions are true
+- a function is CORRECT if the postcondition holds for any input that satisfies the preconditions
+  . the preconditions imply the postconditions
+- we show correctness by REASONING through its code
+  . in general, too many inputs to test
+  . we need to produce a PROOF
+- when //@ensures \result == ..., correctness means the function returns the right result
+  . often we will have looser postconditions: for us,
+    . correctness = preconditions imply postconditions
+- correctness is fairly easy to show in the absence of loops
+   . e.g.,
+       int f(int x, int y)
+       //@requires y >= 0;
+       //@ensures \result == x;
+       {
+         int e = x;
+         int b = y;
+         int r = 1;
+         if (b < 0) return 42;   // ADD LATER
+         return r * e;
+       }
+- loops make reasoning through code complicated
+   . loop invariants give us a simple way to do this reasoning
+   . LI summarize what we need to know about the loop
+ - In this class, we will only reason about functions with a single loop
+   . [Question for the end of the class] how could you use the
+     same method if a function has several loops?
+
+How to prove a function with one loop correct
+=============================================
+- You can try to just think through the whole function in one flash
+  of insight (perhaps there's a student who already did)!
+- However full of insight-flashes you are, we want to use LOGICAL
+  REASONING to make your reasoning more powerful and memorable.
+- Key idea: we use loop invariants to summarize what we know about the loop
+  and avoid thinking about the code in the loop
+  . just like contracts summarize a function without the need to know how it is
+    implemented
+- Key limitation: when you're reasoning inside the loop, you don't
+  know which iteration of the loop it is.  In fact, you pretend you
+  don't even know that you got there by way of loop iterations!  All
+  you have to go on is the loop invariant.
+- In reality it's fine for us to switch between very careful, logical
+  reasoning based on loop invariants and operational reasoning.
+  In this class, we're trying to heavily expose you to
+  logical reasoning, and we'll expect you to use it.
+
+- Logical reasoning for a function with one loop:
+  1. Prove that the loop invariant is valid
+     a. (INIT) that it is always initially true
+     b. (PRES) that it is preserved by an arbitrary iteration of the loop
+  2. (EXIT) Prove that the combination of the loop invariant and the
+     _negation_ of the loop guard imply the postcondition
+  3. (TERM) Prove the function terminates
+  [applied to example out of order for effect]
+
+Proving the loop invariants
+===========================
+- INIT and PRES tend to go together, since together they involve "validating"
+  the loop invariant -- proving that it's a real loop invariant
+- To show that something is a valid loop invariant, we need to know that it is
+    1) true initially and
+    2) preserved by an arbitrary iteration of the loop
+- Let's think about (1) for both loop invariants
+  - e >= 0 initially?
+    . we can point to the assignment e = y
+      and the precondition y >= 0
+  - POW(b, e) * r == POW(x, y) initially?
+    . we can point to the assignments b = x, e = y, and r = 1;
+    . then by math POW(x, y) * 1 == POW(x, y)
+
+- Let's think about (2) now:
+  . given that e >= 0 before the loop, we have to prove that e >= 0 after the loop
+  . isn't that e >= 0 implies e >= 0?
+    . that just obvious
+  . Well, no:
+    . in the first "e >= 0",
+      . e stands for the value of e before the loop guard is checked the first time (call it e)
+    . in the second "e >= 0",
+    . e stands for the value of e before the loop guard is checked the next time (call it e')
+  . we know e >= 0, and we have to prove e' >= 0.
+    . e' is e/2 (we point to the assignment to show this)
+    . a non-negative quantity divided by 2 is always non-negative
+
+- We can prove the second loop invariant independently
+  (often we can either prove loop invariants together or separately)
+
+  To show: Given b^e * r == x^y, prove b'^e' * r' == x^y
+
+  Assume b^e * r == x^y  (assumption)
+  we have two cases because of the if:
+  case 1: if e is even, then it's equal to 2n, e' = n
+    . b' = b*b (give line)
+    . e' = n   (give line)
+    . r' = r   (give line)
+
+    . (b')^(e') * r' == (b*b)^n * r      (substitution of known facts)
+                     == b^2^n * r        (math)
+                     == b^(2n) * r       (math)
+                     == b^e * r          (how we defined e = 2n)
+                     == x^y              (assumption, i.e, given loop invariant)
+
+  case 2: if e is odd, then it's equal to 2n+1, e' = n
+    . b' = b*b (give line)
+    . e' = n   (give line)
+    . r' = b*r (give line)
+
+    . (b')^(e') * r' == (b*b)^n * (b*r)  (substitution of known facts)
+                     == b^(2n) * b * r   (math)
+                     == b^(2n+1) * r     (math)
+                     == b^e * r          (how we defined e = 2n+1)
+                     == x^y              (assumption, i.e, given loop invariant)
+
+Proving the postcondition
+=========================
+- What do we know after the loop terminates?
+- We know e <= 1 (loop guard)
+- We know e >= 0 (loop invariant)
+- So what do we know about e? (that it's equal to 0 or 1)
+  . if e = 1, then x^y = r * b^e = r*b -- that's what f returns
+  . if e = 0, then x^y = r * b^e = r   -- that's NOT what f returns
+- This is the bug: the function returns the wrong thing if e is 0
+- Operationally, why is e possibly 0?
+  . if the loop doesn't run at all (y = 0 initially)
+- Some bad ideas about how to fix the bug [let student come up with them]
+  . add a special case for y=0 somewhere
+    -> special cases lead to terrible, unmanintainable code: avoid them whenever possible
+  . change precondition! y > 0
+    -> forces the client to have special cases in their code!
+  . forget about it and use POW instead
+    -> not as efficient (point to example runs from last time)
+- Fix the bug by saying e > 0, our loop invariant reasoning never relied on the loop guard
+    return r;
+- Really common pattern: loop invariant pins in one direction, loop
+  guard pins in another, so after the loop we know exactly what some
+  value is (in this case, we know e == 0)
+  . record it as an assertion
+      //@assert e == 0;
+
+Termination
+===========
+- After fixing f, INIT + PRES + EXIT prove that it will NEVER RETURN THE WRONG THING
+- Does it mean that it will always return the RIGHT thing?
+  . no: it may never return anything!
+      int f(int x, int y)
+      //@requires y >= 0;
+      //@ensures POW(x, y) == \result;
+      {
+        int b = x;
+        int e = y;
+        int r = 1;
+        while (e > 0)
+        //@loop_invariant e >= 0;
+        //@loop_invariant POW(b, e) * r == POW(x, y);
+        { }  // Loop body deleted!
+        //@assert e == 0;
+        return r;
+      }
+  . INIT and EXIT as before; PRES is trivial
+- All termination arguments in this class have the form "on an
+  arbitrary iteration of the loop, the quantity ___ gets strictly
+  {larger, smaller} but it can't ever get {larger, smaller} than ___
+- Here: e gets strictly smaller because e > 0 for the loop to start
+- e >= 0 by loop invariant
+
+The story continues
+===================
+ - Now we have a function that we have proved computes x^y
+ - Let's try it on larger numbers
+     --> f(7,20);
+     --> f(2,30);
+ - This is probably 2^32: 2^10 is about 1000, so 2^30 is about a billion
+     --> f(2,31);
+ - This is, it seems, wrong! In fact it should be positive 2 billion
+     --> f(2,32);
+ - What??
+ - Unfortunately, we have to wait until next lecture!

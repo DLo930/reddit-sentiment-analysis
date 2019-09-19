@@ -1,0 +1,148 @@
+\section*{Modified binary search trees}
+
+In this lab, we'll translate a simplified binary search tree
+implementation into a C interface and C implementation. This interface
+for binary search trees is more set-like than the one we discussed in
+class: we're not allowed to add an element if an equivalent element is
+already in the set, and instead of lookup returning the stored
+element, it just returns true or false.
+
+You can compile the existing code with
+\lstinline[language={[coin]C}]'% cc0 -d -x bst.c1 bst-test.c1'
+
+
+\section*{Translating to C}
+
+The first tasks will just get you running C code.
+
+\begin{part}\TAGS{interface, proprocessor}
+  Take the interface portion of bst.c1 and put it in a file
+  \lstinline'bst.h'. The first lines in this file should be
+
+\begin{lstlisting}
+#include <stdbool.h>
+#ifndef __BST_H__
+#define __BST_H__
+\end{lstlisting}
+
+and the last line should be
+
+\begin{lstlisting}
+#endif
+\end{lstlisting}
+
+\begin{solution}
+  TODO
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{preprocessor}
+  Take the implementation of \lstinline'bst.c1' and put it in a file
+  \lstinline'bst.c'. In order to include the allocation library,
+  C0-style contracts, and the BST interface, this file should begin
+  with these lines:
+
+\begin{lstlisting}
+#include "lib/xalloc.h"
+#include "lib/contracts.h"
+#include <stdlib.h>
+#include "bst.h"
+\end{lstlisting}
+
+\begin{solution}
+  TODO
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{preprocessor, testing}
+  Translate the test code in \lstinline'bst-test.c1' as a file
+  \lstinline'bst-test.c'.  Because this code uses assert statements,
+  standard input/output, allocation, and the BST interface, you'll
+  need to begin the file with these lines:
+
+\begin{lstlisting}
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "lib/xalloc.h"
+#include "lib/contracts.h"
+#include "bst.h"
+\end{lstlisting}
+
+\begin{solution}
+  TODO
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c-memory, correctness}
+  Correctly handle allocation: in both \lstinline'bst.c' and
+  \lstinline'bst-test.c', change code like \lstinline'alloc(list)' or
+  \lstinline'alloc(int)' to the comparable C code
+  \lstinline'xmalloc(sizeof(list))' or
+  \lstinline'xmalloc(sizeof(int))'.  In \lstinline'bst-test.c', you'll
+  also need to change the \lstinline'print' to \lstinline'printf'.
+
+\begin{solution}
+  TODO
+\end{solution}
+\end{part}
+
+You can now compile your code by using the provided Makefile:
+
+\begin{lstlisting}[language={[coin]C}]
+% make
+% ./bst-test-d
+Test passed!
+% ./bst-test
+Test passed!
+\end{lstlisting}
+
+The file \lstinline'bst-test-d' was compiled with contracts, and
+\lstinline'bst-test' was compiled without them. This is easier than
+what you'd need to write without the Makefile:
+\begin{lstlisting}[language={[coin]C}, deletecomment={[s]{/*}{*/}}]
+% gcc -Wall -Wextra -Werror -Wshadow -std=c99 -pedantic -g -DDEBUG
+    -o bst-test-d lib/*.c bst.c
+% gcc -Wall -Wextra -Werror -Wshadow -std=c99 -pedantic -g
+    -o bst-test lib/*.c bst.c
+\end{lstlisting}
+
+%% \begin{part}\TAGS{preprocessor, c-memory}
+%% See what happens in each of the following instances:
+%% \begin{itemize}
+%% \item
+%% When you don't have the line including \lstinline'<stdbool.h>' in \lstinline'bst.h'.
+%% \item
+%% When you forget to include \lstinline'sizeof()' and just say \lstinline'xmalloc(int)'
+%% or something similar.
+%% \item
+%% \end{itemize}
+%% \begin{solution}
+%%   TODO
+%% \end{solution}
+%% \end{part}
+
+\begin{part}\TAGS{correctness, safety}
+  Translate the preconditions and postconditions from the C1 code into
+  C macro-language \lstinline'REQUIRES' and \lstinline'ENSURES'
+  statements. In C, \lstinline'REQUIRES' statements come at the
+  beginning of a function but after the opening curly-brace, and
+  \lstinline'ENSURES' statements come at the end, right before the
+  \lstinline'return'. Instead of using \lstinline'\result', we just
+  use the expression that is about to be returned.
+
+\begin{solution}
+  TODO
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{testing}
+  Modify your test cases to add an element to the BST when that
+  element already exists in the set. Make sure that you get a
+  precondition violation using \lstinline'bst-test-d', but that the
+  code just runs with \lstinline'bst-test'. (Then remove that test.)
+
+\begin{solution}
+  TODO
+\end{solution}
+\end{part}

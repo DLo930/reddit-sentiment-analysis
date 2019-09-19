@@ -1,0 +1,12 @@
+#use <conio>
+
+int g(int fn2, int fn3, int n) {
+   if (n == 0) return fn2;
+   if (n == 1) return fn3;
+   return g(fn3, fn2+fn3, n-1);
+}
+
+int main() {
+   print("Happy Carnival!\n");
+   return g(0, 1, 10);
+}

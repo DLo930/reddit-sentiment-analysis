@@ -1,0 +1,68 @@
+\part[0\half]\TAGS{interface, pq}
+\bgroup
+\newcommand{\heapversion}
+{heap1} % F19 S18
+% {heap2} % F19
+% {heap3} % S19
+% {heap4} % N19
+
+
+Assume a priority queue is stored in an array as discussed in class.
+Using the min-heap pictured below, show where each element is stored in
+the array.  You may not need to use all of the array positions shown
+below.
+\begin{center}
+\includegraphics[scale=0.8]{\img/\heapversion.png}
+\end{center}
+
+\begin{framed}
+\newcommand{\n}[1]{\multicolumn{1}{c}{\footnotesize #1}}
+\newcommand{\sep}{1.1em}
+\newcommand{\ans}[4]{\rule[-2.5ex]{0em}{7ex}%
+  \answer{\sep}{%
+  \ifdefstring{\heapversion}{heap1}{#1}{%
+  \ifdefstring{\heapversion}{heap2}{#2}{%
+  \ifdefstring{\heapversion}{heap3}{#3}{#4}}}}}
+\renewcommand{\arraystretch}{1.5}
+
+\begin{tabular}{|*{16}{p{\sep}|}}
+   \n{0} & \n{1} & \n{2}  & \n{3}  & \n{4}  & \n{5}  & \n{6}  & \n{7}
+ & \n{8} & \n{9} & \n{10} & \n{11} & \n{12} & \n{13} & \n{14} & \n{15}
+\\\hline
+   \ans{X}{X}{X}{X}
+ & \ans{2}{2}{5}{3}
+ & \ans{4}{4}{9}{9}
+ & \ans{3}{3}{7}{8}
+ & \ans{9}{9}{19}{19}
+ & \ans{7}{7}{15}{12}
+ & \ans{8}{8}{17}{17}
+ & \ans{6}{6}{13}{18}
+ & \ans{17}{17}{35}{25}
+ & \ans{}{12}{25}{21}
+ & \ans{}{}{}{}
+ & \ans{}{}{}{}
+ & \ans{}{}{}{}
+ & \ans{}{}{}{}
+ & \ans{}{}{}{}
+ & \ans{}{}{}{}
+\\[0.5ex]\hline
+\end{tabular}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: interface, pq
+
+Gradescope rubric:
++0.5pt  X, 5, 9, 7, 19, 15, 17, 13, 35, 25
+
+Commentary:
+version 1: X, 2, 4, 3,  9,  7,  8,  6, 17
+version 2: X, 2, 4, 3,  9,  7,  8,  6, 17, 12.
+version 3: X, 5, 9, 7, 19, 15, 17, 13, 35, 25.
+version 4: X, 3, 9, 8, 19, 12, 17, 18, 25, 21
+
+  Give half credit for obvious typos.
+ENDRUBRIC
+
+\egroup

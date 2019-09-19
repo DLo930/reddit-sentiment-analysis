@@ -1,0 +1,78 @@
+#use <parse>
+#use <util>
+
+/* Error indicates an error (division by zero, int_min/-1,
+ * negative exponent, not enough tokens on the stack, or unrecognized
+ * token) */
+
+int POP(istack_t S) 
+//@requires S != NULL;
+{
+  if (istack_empty(S)) error("Not enough tokens on stack");
+  return ipop(S);
+}
+
+// Power spec from lecture 
+int POW(int x, int y) 
+//@requires y >= 0;
+{
+  if (y == 0) return 1;
+  return POW(x, y-1) * x;
+}
+
+// Power function from lecture
+int fastpow(int x, int y) 
+//@requires y >= 0;
+//@ensures \result == POW(x, y);
+{
+  int b = x;
+  int e = y;
+  int r = 1;
+  while (e > 0) 
+  //@loop_invariant e >= 0;
+  //@loop_invariant POW(x, y) == r * POW(b, e);
+  {
+    if (e % 2 == 1) {
+      r = b * r;
+    }
+    b = b * b;
+    e = e / 2;
+  }
+  return r;
+}
+
+void eval(istack_t S, queue_t Q) 
+//@requires Q != NULL && S != NULL;
+{
+  while (!queue_empty(Q)) {
+    string tok = deq(Q);
+    if (string_equal(tok, "+")) {
+      int y = POP(S);
+      int x = POP(S);
+      ipush(S, x+y);
+    } else if (string_equal(tok, "-")) {
+      int y = POP(S);
+      int x = POP(S);
+      ipush(S, x-y);
+    } else if (string_equal(tok, "*")) {
+      int y = POP(S);
+      int x = POP(S);
+      ipush(S, x*y);
+    } else if (string_equal(tok, "/")) {
+      int y = POP(S);
+      int x = POP(S);
+      if (y == 0) error("Division by zero");
+      if (y == -1 && x == int_min()) error("Underflow in division");
+      ipush(S, x/y);
+    } else if (string_equal(tok, "**")) {
+      int y = POP(S);
+      int x = POP(S);
+      if (y < 0) error("Negative exponent exponent");
+      ipush(S, fastpow(x,y));
+    } else {
+      int* i = parse_int(tok, 10);
+      if (i == NULL) error(string_join("Unrecognized token: ", tok));
+      ipush(S, *i);
+    }
+  }
+}

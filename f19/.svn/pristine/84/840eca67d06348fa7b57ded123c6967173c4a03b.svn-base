@@ -1,0 +1,9 @@
+#use <conio>
+
+int main()
+{
+  char* c = alloc(char);
+  *c = 't';
+  printchar(*c);
+  return 0;
+}

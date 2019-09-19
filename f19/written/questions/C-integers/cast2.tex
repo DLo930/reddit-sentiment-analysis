@@ -1,0 +1,89 @@
+\part[2]\TAGS{c-numbers, implementation-defined}
+Suppose that we are working with the usual 2's complement
+implementation of unsigned and signed \lstinline'char' (8 bits, one
+byte), \lstinline'short' (16 bits, two bytes) and \lstinline'int' (32
+bits, four bytes).
+
+We begin with the following declarations:
+\begin{quote}
+\begin{lstlisting}[aboveskip=2pt, belowskip=2pt]
+  short w = -15;
+  unsigned short x = 65524;
+  unsigned short y = 9;
+  int z = -65523;
+\end{lstlisting}
+\end{quote}
+
+Fill in the table below. In the third column, always use two hex
+digits to represent a \lstinline'char', four hex digits to represent a
+\lstinline'short', and eight hex digits to represent an
+\lstinline'int'.  You might find these numbers useful: $2^8 = 256$,
+$2^{16} = 65536$ and $2^{32} = 4294967296$.
+
+Most, but not all, of these answers can be derived from the lecture
+notes.  If you can't find an answer from the lecture notes, you can
+look at online C references or just compile some code.
+
+\medskip
+\begin{center}
+\newcommand{\ans}[1]{\answer{8em}{\tt #1}}
+\renewcommand{\arraystretch}{2}
+\begin{tabular}{@{}| l | p{11.3em} | p{11.3em} |@{}}
+  \hline
+  {\bf C expression} & {\bf Decimal value} & {\bf Hexadecimal}
+\\[0.5ex]\hline
+  \lstinline'w'                  & \lstinline'-15'    & \lstinline'0xFFF1'
+\\[0.5ex]\hline
+  \lstinline'(unsigned short) w' & \lstinline'65521'  & \lstinline'0xFFF1'
+\\[0.5ex]\hline
+  \lstinline'(int) w'            & \lstinline'-15'    & \ans{0xFFFFFFF1}
+\\[0.5ex]\hline
+  \lstinline'x'                  & \lstinline'65524'  & \lstinline'0xFFF4'
+\\[0.5ex]\hline
+  \lstinline'(int) x'            & \ans{65524}        & \ans{0x0000FFF4}
+\\[0.5ex]\hline
+  \lstinline'(int)(short) x'     & \ans{-12}          & \ans{0xFFFFFFF4}
+\\[0.5ex]\hline
+  \lstinline'y'                  & \lstinline'9'      & \ans{0x0009}
+\\[0.5ex]\hline
+  \lstinline'(int)(short)y'      & \ans{9}            & \ans{0x00000009}
+\\[0.5ex]\hline
+  \lstinline'z'                  & \lstinline'-65523' & \ans{0xFFFF000D}
+\\[0.5ex]\hline
+  \lstinline'(unsigned int) z'   & \ans{4294901773}   & \ans{0xFFFF000D}
+\\[0.5ex]\hline
+\end{tabular}
+\end{center}
+
+\RUBRIC
+Part (a)
+TAGS: c-numbers, implementation-defined
+
+Gradescope rubric: (negative grading)
+-0.0pt  Negative scoring question - incorrect answers are highlighted
+-0.25pt Missing leading 0's anywhere
+-0.25pt One incorrect answer (except missing leading 0's)
+-0.5pt  Two more incorrect answers (except missing leading 0's)
+-0.5pt  Two more incorrect answers (except missing leading 0's)
+-0.5pt  Two more incorrect answers (except missing leading 0's)
+-0.25pt One last incorrect answer  (except missing leading 0's)
+
+Commentary:
+Use Gradescope ``draw a box'' widget to highlight incorrect answers,
+then apply rubric
+
+This makes more sense as negative grading: 1/4 a point off for each
+incorrect blank until all points lost. Only take off 1/4 point once
+for omitting leading zeroes.
+
+w                      -15            0xFFF1     (Given 1,2)
+(unsigned short) w     65521          0xFFF1     (Given 1,2)
+(int) w                -15            0xFFFFFFF1 (Given 1)
+x                      65524          0xFFF4     (Given 1,2)
+(int) x                65524          0x0000FFF4  <-- the one you just compile
+(int)(short) x         -12            0xFFFFFFF4
+y                      9              0x0009     (Given 1)
+(int)(short) y         9              0x00000009
+z                      -65523         0xFFFF000D (Given 1)
+(unsigned int) z       4294901773     0xFFFF000D
+ENDRUBRIC

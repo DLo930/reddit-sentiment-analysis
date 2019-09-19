@@ -1,0 +1,519 @@
+LAST: Transition to C
+TODAY:
+- execution models
+- the C0VM
+  . understanding C0VM bytecode
+    . expressions, local variables, pools, conditionals
+  . bytecode as data structure
+  . runtime data structures
+NEXT: Graphs
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] interpreter/compiler as execution models and trade-offs
+[5] two-stage execution models: intermediate languages, VMs, bytecode
+[3] various execution models for C0
+[5] bytecode generation and layout of bytecode file
+[5] instructions and opcodes
+[5] bytecode for arithmetic instructions
+[5] runtime data structures
+[5] local variables
+[4] large numerical values and functions
+[4] bytecode as data structure
+[3] conditional branches
+[1] other constructs
+
+Goals
+=====
+- get insight of how programs are executed
+  . exploration of different execution models
+- give example of the kind of problems C is really good for
+- overview of key concepts for next programming hw (C0VM)
+  . capstone project for this class
+  . also a lab, a recitation, and a written hw on C0VM
+
+How are programs executed? [make this relatively quick -- 20-25 minutes]
+==========================
+- ultimately, instructions running on the processor chip [written ### below]
+
+      foo.c0 -------------------------------> ###
+
+- how to go from C0 program to instructions executed on the processor?
+  . so far, via interpreter or compiler
+
+How an INTERPRETER works
+========================
+- abstractly, coin reads each line in a C0 program and executes it
+  . simulates it on hardware
+               _______________________________
+               | C0 instr <-              coin|
+   foo.c0 ---->|  |        |  interpreter     |----> ###
+               |  ----------                  |
+               --------------------------------
+  . to (re)run the program, we need the source program and the interpreter
+- other languages that are typically interpreted: shell scripts, make, (Python), ...
+
+How a COMPILER works
+====================
+- abstractly, cc0 translates a C0 program into MACHINE CODE (executable)
+  . (in reality, relocatable object code)
+  . machine code runs directly on the hardware (with help from the OS)
+               _______________
+               |          cc0|
+   foo.c0 ---->| compiler    |----> a.out ----> ###
+               |             |
+               ---------------
+  . to (re)run the program, all we need is the executable
+    . only if on same processor and same OS
+- other languages that are typically compiled: C, ...
+
+Compilation vs. interpretation
+==============================
+          Compilation                     Interpretation
+  --------------------------------------------------------------------------------
+  Pros  . very fast code                . interactive
+        . executable is all you need    . can screen execution
+  --------------------------------------------------------------------------------
+  Cons  . lengthy recompilation         . execution is slower
+        . no checks                     . interpreter needed for executing program
+        . not portable
+  --------------------------------------------------------------------------------
+- also, one needs to write the compiler/interpreter in the first place
+  . lots of work for a boutique language like C0
+  . and repeat this work for each architecture we want coin/cc0 to run on
+    . each processor has its own instruction set
+      . and OS that runs on it further complicates things
+
+Two-stage execution
+===================
+- get the best of both worlds:
+  . compile high-level language (e.g., C0) to a lower-level INTERMEDIATE LANGUAGE
+  . execute intermediate language in a lightweight interpreter called a VIRTUAL MACHINE
+               ____________              _______________________
+               |          |              |  instr <-           |
+   source ---->| compiler |----> IL ---->|  |      |  virtual  |----> ###
+               |          |              |  --------  machine  |
+               ------------              -----------------------
+- intermediate language is much simpler than the source language
+  . easy to write VM for a target architecture
+  . VM can be fast because instructions are simple
+  . an intermediate language where each instruction fits in a byte is called a BYTECODE
+- writing the compiler part is usually hard
+  . done once and for all, especially if written in source language itself
+    . bootstapping
+  . include optimizations
+- writing the VM is (relatively) easy
+  . a 15-122 undergrad can do it in 2 weeks
+- implementations of most modern languages use this two-stage approach
+  . a Python file is first compiled to Python bytecode and then executed in the Python VM
+    . Python bytecode is typically a data structure in memory, not a file
+  . PHP, JavaScript and many others (including C via Clang)
+    . are compiled to a common bytecode called the LLVM IR (Internal Representation)
+    . and then executed in the LLVM
+- historical notes
+  . Pascal (1970) was the first widespread PL to use an intermediate language
+    . goal was to simplify overall compiler design and improve portability
+  . Java (1995) made it popular
+    . Java program is compiled to Java bytecode (.class file) and executed by the JVM
+    . goal was to support mobile code in the nascent Web
+      . web browser downloaded an applet (.class file), checked it, and executed it in the JVM
+      . bytecode (.class file)
+        . was compact (minimizes download time/cost)
+        . ran (kind of) fast (even on a bare-bone computer)
+        . could not be trusted
+        . could be checked statically for unsafe operations (Java bytecode is typed)
+        . could be screened at run-time for unsafe operations (security concerns)
+
+C0, the real story
+==================
+- cc0 secretly compiles a C0 program to C99 and then runs gcc to produce executable
+  . why?
+    . easy (sort of, had to fight undefined behavior in C)
+    . fast: gcc compiler is really good
+    . portable: there's a gcc compiler for everything
+  . more sophisticated than by-hand compilation in queues/strbuf hw
+- compiler course (15-411) teaches how to do a direct compilation
+- coin secretly compiles C0 program to bytecode data structure in memory and then runs VM
+- cc0 (with -b) can compile C0 program to bytecode file (.bc0) and then run it in the C0VM
+  . implementing the C0VM is your last (2) programming assignment(s)!
+  . this lecture: C0 bytecode, basic organization and a few examples
+  . next lab: reading C0 bytecode
+  . next recitation: how functions work
+
+   foo.c0
+     |     _______________________________________
+     |     |  __________             _______   cc0|
+     |---->|->| cc0 -s |--> foo.c -->| gcc |----->|----> a.out ----> ###
+     |     |  ----------             -------      |
+     |     ----------------------------------------
+     |     ___________________
+     |---->| 15-411 compiler |----> a.out ----> ###
+     |     -------------------
+     |     _____________________________________________
+     |     |                        ______________ coin|
+     |     |  ____________          |  instr <-  |     |
+     |---->|->| compiler |--> DS -->|  |      |  |     |----> ###
+     |     |  ------------          |  --------  |     |
+     |     |                        --------------     |
+     |     ---------------------------------------------
+     |                                  __________________
+     |     __________                   |  instr <-      |
+     |---->| cc0 -b |----> foo.bc0 ---->|  |      | C0VM |----> ###
+           ----------                   |  --------      |
+                                        ------------------
+
+[Moving forward:
+ - show examples that highlight bytecode translation of specific C0 constructs
+   . source file: exN.c0
+   . bytecode file: exN.bc0
+ - keep a list of runtime data structures and extend it each time a new one is introduced
+ - show how to read semantics of C0VM instructions
+   . reference file c0vm-ref.txt
+ - show data structure that represents a bytecode file in memory
+   . header file c0vm.h
+]
+
+[ex1.c0] Bytecode files
+=======================
+- let's look at the result of compiling a very simple C program [ex1.c0]
+      int main() {
+        return (3+4)*5/2;
+      }
+- bytecode is produced by running
+      # cc0 -b ex1.c0
+- let's open resulting BYTECODE FILE, ex1.bc0 [open in any mode that displays #... as comments]
+      --------------------------------------------------------
+      C0 C0 FF EE       # magic number
+      00 13             # version 9, arch = 1 (64 bits)
+
+      00 00             # int pool count
+      # int pool
+
+      00 00             # string pool total size
+      # string pool
+
+      00 01             # function count
+      # function_pool
+
+      #<main>
+      00 00             # number of arguments = 0
+      00 00             # number of local variables = 0
+      00 0C             # code length = 12 bytes
+      10 03    # bipush 3        # 3
+      10 04    # bipush 4        # 4
+      60       # iadd            # (3 + 4)
+      10 05    # bipush 5        # 5
+      68       # imul            # ((3 + 4) * 5)
+      10 02    # bipush 2        # 2
+      6C       # idiv            # (((3 + 4) * 5) / 2)
+      B0       # return          #
+
+      00 00             # native count
+      # native pool
+      --------------------------------------------------------
+- it's a TEXT file
+  . this is for our convenience, so that we can read it and learn what it does
+  . a more machine-efficient representation would be raw binary, like Java .class files
+- on the left are the (ASCII representation of) bytes in hexadecimal
+- everything after a # is a comment that helps us understand the bytes to its left
+  . spaces and new lines are there for readability
+- the actual bytecode is the concatenation of all the bytes on the left:
+  C0 C0 FF EE 00 13 00 00 00 00 00 01 00 00 00 00 00 0C 10 03 10 04 60 10 05 68 10 02 6C B0 00 00
+  . actually
+      C0C0FFEE001300000000000100000000000C100310046010056810026CB00000
+  . it would be easy to write a function that reads the binary version (not hex)
+    and feeds it to the C0VM
+
+[ex1.bc0] Bytecode instructions and arithmetic instructions
+===========================================================
+- let's skip to just past #<main> (we will come back to the rest later)
+      10 03    # bipush 3        # 3
+      10 04    # bipush 4        # 4
+      60       # iadd            # (3 + 4)
+      10 05    # bipush 5        # 5
+      68       # imul            # ((3 + 4) * 5)
+      10 02    # bipush 2        # 2
+      6C       # idiv            # (((3 + 4) * 5) / 2)
+      B0       # return          #
+- have you seen something like the middle column before?
+  . this is very similar to the Clac expression for (3+4)*5/2:
+      3 4 + 5 * 2 /
+  . in clac, each token was a string and the whole expression was stored in a queue, so really
+      "3" "4" "+" "5" "*" "2" "/"
+    . this is inefficient:
+      . each string is really a pointer (8 bytes) to a NUL-terminated char array (2 bytes here)
+        . 70 bytes total here
+      . plus whatever it takes to implement the queue
+  . if we represent it as one happy string,
+      "34+5*2/"
+    we can't tell if "34" is one number or two
+- C0VM bytecode turns every token into an INSTRUCTION
+  . "3" becomes the instruction "bipush 3": when executed, it pushes the number 3 onto the stack
+    . "bipush" is the OPERATION performed by the instruction
+    . "3" is the VALUE it operates on -- the argument of the operation
+  . "+" becomes the instruction "iadd", that adds the two topmost elements on the stack
+  . an instruction is an operation possibly followed by an argument
+- each operation is encoded as 1 byte (that's why it's called bytecode) called its OPCODE
+  . (0x)10 is the opcode of bipush
+  . 60 is the opcode of iadd
+- some operations take an argument
+  . bipush takes a 1-byte value interpreted as a signed integer to push on the stack
+    . here 03
+    . bipush can only push values in the range [-128, 127] on the stack
+  . iadd does not take an argument
+- what an instruction does is described by rules similar to Clac [show in c0vm-ref.txt]
+      0x10 bipush <b>    S -> S, b:w32          (x = (w32)b, sign extended)
+  . bipush takes a single byte b and pushes it on the stack S as a 32-bit unsigned integer
+      0x60 iadd          S, x:w32, y:w32 -> S, x+y:w32
+  . iadd replaces the two topmost values on the stack, x and y, with their sum, x+y
+  . rules describe how instruction affects the stack (and other data structures we'll see later)
+- once an instruction has been executed, we move on to the next
+  . what it is depends on the instruction we are executing --- some instructions have arguments!
+  . we use the PROGRAM COUNTER to keep track of the position of where we are in the bytecode
+    [demonstrate on the byte string ...0000C10031004601005681... above]
+    . after bipush, increment PC by 2
+    . after iadd, increment PC by 1
+    . incrementing PC by the wrong value will get you lost in the bytecode
+      . this will manifest as really weird bugs
+- the remaining instructions in this example are similar
+  . return is part of how functions are handled in C0VM
+    . for now, it expects a single value on the stack and returns it to the caller
+      0xB0 return   ., v -> .   (return v to caller)
+- run-time artifacts so far
+  . the OPERAND STACK S
+  . the program counter PC
+  . the bytecode itself (we'll get back to it later)
+
+[ex2.bc0] Local variables
+=========================
+- let's look at how the following function (midpoint of an array segment) is compiled
+      int mid(int lo, int hi) {
+        int mid = lo + (hi - lo)/2;
+        return mid;
+      }
+  . novelty is that this function takes parameters and declares a local variable
+- resulting bytecode
+      --------------------------------------------------------
+      #<mid>
+      00 02             # number of arguments = 2
+      00 03             # number of local variables = 3
+      00 10             # code length = 16 bytes
+      15 00    # vload 0         # lo
+      15 01    # vload 1         # hi
+      15 00    # vload 0         # lo
+      64       # isub            # (hi - lo)
+      10 02    # bipush 2        # 2
+      6C       # idiv            # ((hi - lo) / 2)
+      60       # iadd            # (lo + ((hi - lo) / 2))
+      36 02    # vstore 2        # mid = (lo + ((hi - lo) / 2));
+      15 02    # vload 2         # mid
+      B0       # return          #
+      --------------------------------------------------------
+- the first line tells us the number of arguments (2)
+- the second lines tells us the number of local variables (3)
+  . it is common to count/use arguments as local variables
+- (the 3rd line is the number of bytes in the bytecode of the function)
+- local variables are held in a new run-time data structure: the array V of local variables
+- two new instructions
+      0x15 vload <i>      S -> S, v        v = V[i]
+      0x36 vstore <i>     S, v -> S        V[i] = v
+  . <i> is 1 byte -- a function can have up to 256 arguments/local variables
+- arguments are pre-loaded in V
+- go through bytecode
+  . observe that last vstore 2 and vload 2 could be optimized away
+    . a good compiler would do this
+    . but goal here is to stay close to source program
+
+[ex3.bc0] Large numerical constants and functions
+=================================================
+- next case study: a piece of the linear congruential generator
+      int next_rand(int last) {
+        return last * 1664525 + 1013904223;
+      }
+
+      int main() {
+        return next_rand(0xdeadbeef);
+      }
+- novelty #1: large numerical constants
+  . how would you handle them? [audience participation]
+    . typical ideas:
+      . special instruction that takes a 4-byte argument
+      . decompose them into bipush's, shift's and or's
+    . C0VM solution: store them in a special segment of the bytecode file, the INT POOL
+      --------------------------------------------------------
+      C0 C0 FF EE       # magic number
+      00 13             # version 9, arch = 1 (64 bits)
+
+      00 03             # int pool count
+      # int pool
+      00 19 66 0D
+      3C 6E F3 5F
+      DE AD BE EF
+
+      00 00             # string pool total size
+      # string pool
+
+      00 02             # function count
+      # function_pool
+
+      #<main>
+      00 00             # number of arguments = 0
+      00 01             # number of local variables = 1
+      00 07             # code length = 7 bytes
+      13 00 02 # ildc 2          # c[2] = -559038737
+      B8 00 01 # invokestatic 1  # next_rand(-559038737)
+      B0       # return          #
+
+
+      #<next_rand>
+      00 01             # number of arguments = 1
+      00 01             # number of local variables = 1
+      00 0B             # code length = 11 bytes
+      15 00    # vload 0         # last
+      13 00 00 # ildc 0          # c[0] = 1664525
+      68       # imul            # (last * 1664525)
+      13 00 01 # ildc 1          # c[1] = 1013904223
+      60       # iadd            # ((last * 1664525) + 1013904223)
+      B0       # return          #
+
+      00 00             # native count
+      # native pool
+      --------------------------------------------------------
+  . large numerical constants accessed by new instruction
+      0x13 ildc <c1,c2>  S -> S, x:w32     (x = int_pool[(c1<<8)|c2])
+    . ildc takes a 2-byte argument as an offset into the int pool
+      . (c1<<8)|c2 turns these two bytes into one 2-byte unsigned int used as offset
+      . there can be at most 2^16 large numerical constants in a program
+    . ildc 0 pushes the first (index 0) value onto the stack
+  . this applies only to numerical constants in the program
+    . computed numbers live on the stack (and other data structures)
+- novelty #2: function calls
+  . functions live in another segment of bytecode called the FUNCTION POOL
+    . by convention, main is always the first (at index 0)
+  . instruction to call a function
+      0xB8 invokestatic <c1,c2> S, v1, v2, ..., vn -> S, v
+                                (function_pool[c1<<8|c2] => g, g(v1,...,vn) = v)
+    . topmost stack values are used as arguments in the call
+    . after function returns, return value replaces them on the stack
+    . a lot more is needed to make this happen (managing V, S, PC)
+      . explored in recitation (or see lecture notes or C0VM writeup)
+
+[c0vm.h] Bytecode as data structure
+===================================
+- bytecode file consists of a number of segments
+      -----------------
+      | header        |  <= see below
+      -----------------
+      | int pool      |  <= where integer literals are stored
+      -----------------
+      | string pool   |  <= where string literals are stored
+      -----------------
+      | function pool |  <= where function bytecode is stored
+      -----------------
+      | native pool   |  <= where address of C0 library is stored
+      -----------------
+  . header contains
+    . magic number C0 C0 FF EE -- quick way to reject file that is not C0 bytecode file
+    . bytecode version (currently 9) and architecture (64 bit)
+  . each other segment starts with the number of items in the segment
+- for convenience, we read the bytecode into a struct (struct bc0_file)
+  . gives direct access to the segments and their elements
+  [before displaying, ask for type of various pieces]
+  . c0vm.h
+      --------------------------------------------------------
+      struct bc0_file {
+        uint32_t magic;
+        uint16_t version;
+
+        /* integer constant pool */
+        uint16_t int_count;
+        int32_t *int_pool;     // \length(int_pool) == int_count
+
+        /* string literal pool */
+        /* stores all strings consecutively with NUL terminators */
+        uint16_t string_count;
+        char *string_pool;     // \length(string_pool) == string_count
+
+        /* function pool */
+        uint16_t function_count;
+        struct function_info *function_pool; // \length(function_pool) == function_count
+
+        /* native function tables */
+        uint16_t native_count;
+        struct native_info *native_pool; // \length(native_pool) == native_count
+      };
+      --------------------------------------------------------
+  . for example int_pool is an array of int32_t of length int_count
+- elements of the function pool are themselves structs with parts shown earlier
+      --------------------------------------------------------
+      struct function_info {
+        uint16_t num_args;
+        uint16_t num_vars;
+        uint16_t code_length;
+        ubyte *code;            // \length(code) == code_length
+      };
+      --------------------------------------------------------
+  . what is a ubyte?  #define'd to uint8_t
+- while we are at it, let's talk about what goes into operand stack
+  . 32-bit integers (w32 in instruction rules)
+  . and ... pointers (* in instruction rules), which are 8-byte = 64-bit values
+  . to accommodate both, we introduce
+    . an abstraction c0_value type (just a union of the two), and
+    . coercion functions int2val, val2int, ptr2val and val2ptr
+    . really, just to make your life easier so that C0VM raises an error if you mess up
+
+[ex4.bc0] Jumps
+===============
+- next example contains a loop
+      int main() {
+        int sum = 0;
+        for (int i = 1; i < 100; i += 2)
+          //@loop_invariant 0 <= i && i <= 100;
+          sum += i;
+        return sum;
+      }
+- bytecode does not contain if and loop instructions
+- it contains CONDITIONAL BRANCH instructions
+      --------------------------------------------------------
+      #<main>
+      00 00             # number of arguments = 0
+      00 02             # number of local variables = 2
+      00 26             # code length = 38 bytes
+      10 00    # bipush 0        # 0
+      36 00    # vstore 0        # sum = 0;
+      10 01    # bipush 1        # 1
+      36 01    # vstore 1        # i = 1;
+      # <00:loop>
+      15 01    # vload 1         # i
+      10 64    # bipush 100      # 100
+      A1 00 06 # if_icmplt +6    # if (i < 100) goto <01:body>
+      A7 00 14 # goto +20        # goto <02:exit>
+      # <01:body>
+      15 00    # vload 0         # sum
+      15 01    # vload 1         # i
+      60       # iadd            #
+      36 00    # vstore 0        # sum += i;
+      15 01    # vload 1         # i
+      10 02    # bipush 2        # 2
+      60       # iadd            #
+      36 01    # vstore 1        # i += 2;
+      A7 FF E8 # goto -24        # goto <00:loop>
+      # <02:exit>
+      15 00    # vload 0         # sum
+      B0       # return          #
+      --------------------------------------------------------
+  . if_icmplt +6 says
+    . pop topmost operands x and y of the stack
+    . if x < y, go 6 bytes forward in bytecode
+    . otherwise, go to next instruction (3 bytes forward)
+        0xA1 if_icmplt <o1,o2> S, x:w32, y:w32 -> S (pc = pc+(o1<<8|o2) if x < y)
+  . goto -24 says go 24 bytes backward in bytecode
+        0xA7 goto <o1,o2>      S -> S               (pc = pc+(o1<<8|o2))
+- offsets are signed 16-byte numbers
+  . they count BYTES, not instructions
+
+Other examples [not done in class]
+==============
+- ex5.bc0: structs and memory allocation
+- ex6.bc0: arrays
+- ex7.bc0: strings and native functions

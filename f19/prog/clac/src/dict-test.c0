@@ -1,0 +1,16 @@
+// Compile as cc0 -d lib/*.c0 dict.c0 dict-test.c0
+
+int main() {
+  queue_t Q1 = queue_new();
+  queue_t Q2 = queue_new();
+
+  dict_t D = dict_new();
+  assert(dict_lookup(D, "abc") == NULL);
+
+  dict_insert(D, "abc", Q1);
+  assert(dict_lookup(D, "abc") == Q1);
+
+  dict_insert(D, "abc", Q2);
+  assert(dict_lookup(D, "abc") == Q2);
+  return 0;
+}

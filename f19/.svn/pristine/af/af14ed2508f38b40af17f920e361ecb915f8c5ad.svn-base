@@ -1,0 +1,96 @@
+#use <args>
+#use <string>
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  rope_t r;
+
+  if (string_equal(arg, "new")) {
+    r = rope_new("");
+    if (r != NULL) return 1;
+    
+    r = rope_new("1");
+    if (r == NULL) return 1;
+    if (r->len != 1) return 1;
+    if (r->left != NULL) return 1;
+    if (r->right != NULL) return 1;
+    if (!string_equal(r->data, "1")) return 1;
+
+    r = rope_new("abcdefghijklmnopqrstuvwxyz");
+    if (r == NULL) return 1;
+    if (r->len != 26) return 1;
+    if (r->left != NULL) return 1;
+    if (r->right != NULL) return 1;
+    if (!string_equal(r->data, "abcdefghijklmnopqrstuvwxyz")) return 1;
+
+    r = rope_new("aaaaaaaaaaaaaaaaaaaaaaaaaa");
+    if (r == NULL) return 1;
+    if (r->len != 26) return 1;
+    if (r->left != NULL) return 1;
+    if (r->right != NULL) return 1;
+    if (!string_equal(r->data, "aaaaaaaaaaaaaaaaaaaaaaaaaa")) return 1;
+
+  } else if (string_equal(arg, "length")) {
+    if (15 != rope_length(hbd())) return 1;
+    if (7 != rope_length(totally())) return 1;
+    if (9 != rope_length(efficient())) return 1;
+    if (0 != rope_length(NULL)) return 1;
+    
+    for (int i = 1; i < 10; i++) { 
+      if (i != rope_length(balist(32, 32 + i))) return 1;
+      if (i != rope_length(rightist(32, 32 + i))) return 1;
+      if (i != rope_length(leftist(32, 32 + i))) return 1;
+    }
+
+  } else if (string_equal(arg, "huge")) {
+    r = biggie();
+    rope_t s = biggie();
+    rope_t q = rope_new("Helloworld");
+    if (1006632960 != rope_length(r)) return 1;
+    if (1006632960 != rope_length(s)) return 2;
+    rope_t t = rope_join(r, q);
+    if (1006632970 != rope_length(t)) return 3;
+    t = rope_join(t, s);
+    if (2013265930 != rope_length(t)) return 4;
+    t = rope_join(q, t);
+    if (2013265940 != rope_length(t)) return 5;
+
+  } else if (string_equal(arg, "join")) {
+    rope_t t = totally();
+    rope_t tl = t->left;
+    rope_t tr = t->right;
+
+    rope_t e = efficient();
+    rope_t el = e->left;
+    rope_t er = e->right;
+
+    r = rope_join(t, NULL);
+    if (r != t) return 1;
+    r = rope_join(NULL, t);
+    if (r != t) return 1;
+    r = rope_join(NULL, NULL);
+    if (r != NULL) return 1;
+
+    r = rope_join(t, e);
+    if (r->len != 16) return 1;
+    if (r->left != t) return 1;
+    if (r->right != e) return 1;
+    if (t->left != tl) return 1;
+    if (t->right != tr) return 1;
+    if (e->left != el) return 1;
+    if (e->right != er) return 1;
+
+    r = rope_join(r, t);
+    if (r->len != 23) return 1;
+    if (r->left->left != r->right) return 1;
+
+  } else {
+    error("Bad arg");
+  }
+
+  
+  return 0;
+}

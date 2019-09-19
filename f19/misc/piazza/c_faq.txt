@@ -1,0 +1,53 @@
+TITLE: FAQs: Common Issues in C Programming
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+Hi all,
+
+As some of you might have experienced, C can be a bit different from some of the languages you're used to programming in. Here are some common questions that are asked on Piazza and in office hours. We'll update this as the semester progresses.
+
+(1) <em>My code mysteriously segfaults somewhere and I've added contracts everywhere to ensure that what I'm dereferencing is not</em> <tt>NULL</tt><em>, and I still don't know where/why this segfaults</em>.
+
+If you know that what you're dereferencing is not NULL, but a segfault still occurs, it's because the address you're trying to dereference is invalid. This can occur when your address is garbled, which can happen if you rely on something that is unspecified or you have an overflow bug somewhere and you've overwritten some memory that your program relies on -- an example of this is ex3.c from lab 11/13. Other explanations are that you're trying to do something weird with memory that you're really not supposed to, such as freeing memory not allocated on the heap. An example of this is when some of you tried to free a string literal in huffman.
+
+There are 3 good ways of approaching segfaults: (1) <tt>gdb</tt>, (2) <tt>valgrind</tt>, and (3) printing out memory addresses. Usually some combination of these will point out your bug.
+
+One way to determine where your code segfaults is try to run it through a debugger, such as <tt>gdb</tt>:
+<pre>-bash-4.2$ gdb ./&lt; MY EXECUTABLE -- do not add additional flags here &gt;
+[ blah blah blah ]
+(gdb) run &lt; FLAGS - add any additional flags if you have any here &gt;
+[ observe segfault ]
+(gdb) bt
+[ see where segfault occurs ]</pre>
+Here, <tt>bt</tt> stands for backtrace, which in this context allows you to see where you are in your code when your segfault occurs. You will learn much more about <tt>gdb</tt> if you take 213.
+
+Another way to go approach this is to run your code through <tt>valgrind</tt>. <tt>valgrind</tt> might be able to give insight as to what your memory error is. For example, if you see an invalid read or an invalid write message, then you're probably accessing memory that you're not supposed to -- this often involves accessing freed memory or going out of bounds on an array (in huffman, some of you observed this when you constructed a string that was not <tt>NUL</tt>-terminated).
+
+Something else you can do if you know where the segfault occurs is to print out the address you're trying to dereference. Example:
+<pre>  printf("address %p\n", &lt;pointer variable&gt;);</pre>
+Note about interpreting addresses: If you see random something that doesn't look like a valid address, then chances are that's what's causing your problem. If you're working on x86-64, addresses to be aware of include those less than or very close to 0x400000 or greater than 0x7FFFFFFFFFFF (that's 11 F's or in binary, 47 1's in total). If your address is greater than 0x7FFFFFFFFFFF, then you probably have a garbled address. Very big addresses (close to 0x7FFFFFFFFFFF) are usually stack addresses, and those just above 0x400000 are typically addresses in read-only memory established at compile time, such as function addresses and string literals. Heap addresses are somewhere in the middle, but tend to be closer to the lower end of address space.
+
+Here's an example of buggy code that could cause a segfault because it relies on undefined behavior:
+<pre>typedef char* string_t;
+...
+  string_t *s = xmalloc(sizeof(string_t) * 5); // malloc an array of 5 strings
+  s[1] = "giant";
+  s[4] = "panda";
+  for (size_t i = 0; i &lt; 5; i++) {
+    if (s[i] != NULL) printf("%s\n", s[i]); // segfault bug here: malloc does not initialize memory to 0's, so the check (s[i] != NULL) is useless!
+  }
+...</pre>
+
+(2) <em>My code behaves inconsistently between runs </em>or<em> my code works locally but not on Autolab.</em>
+
+This often occurs when some aspect of your program relies on undefined behavior. Among other things, make sure that you're initializing variables and specifying the contents of memory that you've malloc'ed.
+
+(3) <em>I have a memory error.</em> &lt;describe memory error here&gt;
+
+Cases:
+<ul><li>Memory leak: use <tt>valgrind</tt>. Good flags to try out are <tt>-v</tt> and <tt>--leak-check=full</tt>. Common bugs are that you have a struct or an array that contains pointers, but you only free the struct/array and not the underlying memory.</li><li>Invalid read or invalid write. You're probably accessing memory that you're not supposed to. This is usually caused by accessing freed memory or going out of bounds on an array. Or you could be attempting to write to read-only memory (the note about interpreting addresses in part (1) could be helpful here).</li><li>Segfault: see (1).</li><li>Invalid free: make sure that you haven't already freed this memory, and make sure that you're actually freeing allocated heap memory (the above note about interpreting addresses from (1) might be helpful here too).</li><li>Conditional jump or move depends on uninitialized values: this is caused by code like the example above, where you read from memory that was directly returned from (x)malloc without being initialized.</li></ul>
+
+(4) <em>I see a message with</em> <tt>(void *)0</tt>. <em>What does this mean?</em>
+
+<tt>(void *)0</tt> is just <tt>NULL</tt>.

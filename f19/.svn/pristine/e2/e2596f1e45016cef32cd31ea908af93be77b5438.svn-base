@@ -1,0 +1,41 @@
+\section*{Testing for the images assignment}
+
+\textbf{Setup:}
+In this activity, you will write some unit tests for a few of the
+image processing functions in the current homework assignment.
+The code you'll need for this assignment is the
+\lstinline'images-handout' directory for the images programming
+assignment. (Download this code if you haven't already.) You should
+write your code in a new file, \lstinline'images-test.c0', in this
+directory.
+
+%%% Match the programming homework
+%\input{rotatemask}
+\input{reflectblur}
+
+If you have not started writing your own images implementation yet, you can
+make sure your test cases compile before submitting to Autolab by running
+
+\begin{lstlisting}[language={[coin]C}]
+% cc0 /afs/andrew/course/15/122/misc/lab-images/stubs.c0 images-test.c0
+\end{lstlisting}
+
+You should also submit \lstinline'images-test.c0' (just that file, not a
+\lstinline'.tgz' file) to the ungraded Autolab autograder created for this lab.
+This is the one called ``Lab0\TheNumber''.  In the autograder, we will
+run your tests against three kinds of implementations:
+\begin{enumerate}
+\item%
+  A correct implementation, which must pass all your tests.
+\item%
+  Some implementations that fail a contract when given certain
+  (reasonable) inputs. We call such bugs \emph{contract failures}.
+\item%
+  Some implementations that will satisfy all the reasonable
+  postconditions we might expect you to write, but which nevertheless
+  do obviously wrong things.  We call such bugs \emph{contract
+    exploits}.
+\end{enumerate}
+The autograder for the images assignment will also accept your
+\lstinline'images-test.c0' file and record the number of buggy
+implementations you catch on the scoreboard!

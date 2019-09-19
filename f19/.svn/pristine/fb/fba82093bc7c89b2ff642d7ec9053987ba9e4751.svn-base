@@ -1,0 +1,31 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 55             # string pool total size
+# string pool
+54 68 69 73 20 69 73 20 61 6E 20 65 72 72 6F 72 20 6D 65 73 73 61 67 65 00  # "This is an error message"
+54 68 69 73 20 69 73 20 61 6E 6F 74 68 65 72 20 65 72 72 6F 72 20 6D 65 73 73 61 67 65 00  # "This is another error message"
+54 68 69 73 20 69 73 20 61 20 66 69 6E 61 6C 20 65 72 72 6F 72 20 6D 65 73 73 61 67 65 00  # "This is a final error message"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 03             # number of local variables = 3
+00 12             # code length = 18 bytes
+14 00 00 # aldc 0          # s[0] = "This is an error message"
+36 00    # vstore 0        # s1 = "This is an error message";
+14 00 19 # aldc 25         # s[25] = "This is another error message"
+36 01    # vstore 1        # s2 = "This is another error message";
+14 00 37 # aldc 55         # s[55] = "This is a final error message"
+36 02    # vstore 2        # s3 = "This is a final error message";
+15 01    # vload 1         # s2
+BF       # athrow          # error s2
+
+00 00             # native count
+# native pool
+

@@ -1,0 +1,10 @@
+int main() {
+  int i1 = 1;
+  string s1 = "This is an error message";
+  int i2 = 10 * i1 + 5;
+  string s2 = "This is another error message";
+  int i3 = 100 * i2 + 12;
+  string s3 = "This is a final error message";
+  int i4 = 15122;
+  error(s3);
+}

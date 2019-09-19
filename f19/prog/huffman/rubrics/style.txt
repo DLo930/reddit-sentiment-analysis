@@ -1,0 +1,39 @@
+The only file that we are style grading is huffman.c.
+Deductions should be focused on the code in build_htree and is_htree (since
+everything else is bonus), but feel free to leave comments about the bonus code
+as well.
+
+Style points start and 0 and go negative after deductions.
+
+As a rule of thumb, it should be the case that 
+   (huffman.c autograder score - style deductions >= 0).
+This means that people who didn't do huffman.c shouldn't get any style deductions.
+If there is an unsuccesful huffman.c (e.g. doesn't get any score on Autolab) but still has
+enough code to style grade, still do the style grading, but don't take off too many
+points (i.e. more than their huffman.c score).
+
+Generic Style Deductions:
+
+* -1 point: leaving in lots of commented-out code, dozens and dozens
+            of commented-out printfs
+* -1 point: basic formatting issues
+* -1 point: bad comments/no comments
+
+Contracts:
+
+* -1 to -2 points for non/improper use of REQUIRES and ENSURES contracts.
+
+  In particular, functions with multiple returns need ENSURES in front of each
+  return.
+  ENSURES should only be used right before a return and REQUIRES should only be
+  used at the beginning of a function.  ASSERT should be used everywhere else.
+  To not lose any points, build_htree should require is_freqtable and ensure
+  is_htree.
+  Do not deduct if they don't have contracts in their bonus functions
+  (htree_to_codetable, codetable_free and encode).
+
+Interfaces:
+
+  Grader compilation does not catch breaking the C heap interface.
+
+* -1 to -2 points, depending on severity.

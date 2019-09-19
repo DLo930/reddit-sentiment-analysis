@@ -1,0 +1,70 @@
+\section*{Priority queue client and library interface%
+\TAGS{interface, pq}}
+
+We use heaps to efficiently implement the \emph{priority queue}
+interface.
+
+\begin{lstlisting}
+/* Client interface */
+// typedef _______ elem;
+typedef void* elem;
+
+// f(x,y) returns true if e1 has STRICTLY higher priority than e2
+typedef bool has_higher_priority_fn(elem e1, elem e2);
+
+/* Library interface */
+//typedef ______* pq_t;
+
+bool pq_empty(pq_t H);
+bool pq_full(pq_t H);
+pq_t pq_new(int capacity, has_higher_priority_fn* priority)
+  /*@requires capacity > 0 && priority != NULL; @*/
+  /*@ensures pq_empty(\result); @*/ ;
+
+void pq_add(pq_t H, elem x)
+  /*@requires !pq_full(H); @*/ ;
+
+elem pq_rem(pq_t H) // Removes highest priority element
+  /*@requires !pq_empty(H); @*/
+\end{lstlisting}
+
+\enlargethispage{3ex}
+\checkpoint*{\TAGS{pq}}
+
+If the client's \lstinline'elem' type is picked to be
+\lstinline'void*', will this client interface cause
+\lstinline'pq_new(20, &higher_priority)' to return a min-heap, a
+max-heap, or something else?
+
+\begin{lstlisting}[numbers=left]
+bool higher_priority(void* x, void* y)
+//@requires x != NULL && \hastag(int*, x);
+//@requires y != NULL && \hastag(int*, y);
+{
+  return *(int*)x > *(int*)y;
+}
+\end{lstlisting}
+
+\begin{solution}
+  Max-heap: higher values have higher priorities.
+\end{solution}
+
+
+\checkpoint*{\TAGS{function-pointer, pq}}
+
+Write a function (of type \lstinline'has_higher_priority_fn') that ensures
+that, in a priority queue of (pointers to) strings, the \emph{longest}
+strings always gets returned first. The \lstinline'string_length'
+function may be helpful.
+
+\begin{solution}
+\begin{lstlisting}
+bool higher_priority(void* x, void* y)
+//@requires x != NULL && \hastag(string*, x);
+//@requires y != NULL && \hastag(string*, y);
+{
+  string* s1 = (string*)x;
+  string* s2 = (string*)y;
+  return string_length(*s1) > string_length(*s2);
+}\end{lstlisting}
+\end{solution}

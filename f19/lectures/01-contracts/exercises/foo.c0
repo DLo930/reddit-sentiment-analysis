@@ -1,0 +1,22 @@
+// Specification function!
+int POW(int b, int e)
+//@requires e >= 0;
+{
+  if (e == 0) return 1;
+  return POW(b, e-1) * b;
+}
+
+
+int foo(int x)
+//@requires x >= 0;
+//@ensures \result == POW(2,x) - 1;
+{
+  int p = 0;
+  for (int i = 0; i < x; i++)
+  //@loop_invariant 0 <= i && i <= x;
+  //@loop_invariant p == POW(2,i) - 1;
+  {
+     p += POW(2, i);
+  }
+  return p;
+}

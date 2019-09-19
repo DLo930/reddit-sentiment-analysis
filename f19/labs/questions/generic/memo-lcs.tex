@@ -1,0 +1,76 @@
+\section*{Using a generic dictionary to memoize the LCS problem}
+
+Now that we have a working generic dictionary implementation, let's
+look back at the longest common subsequence problem.
+
+We've got one implementation of an algorithm that solves the problem
+in \lstinline'lcs-slow.c1'. To see how long this algorithm takes on
+two strings of 120 characters each, run \lstinline'make time-lcs-slow'
+on the command line. Clearly, this takes a long time to run!
+
+Now, we'll make the implementation faster by memoizing it using our
+dictionary implementation.
+
+\begin{part}\TAGS{application, dictionary, genericy, function-pointer, string}
+  In the \lstinline'lab-dict' directory, create a new file called
+  \lstinline'lcs-fast.c1' and copy the code from
+  \lstinline'lcs-slow.c1' into it. Then, alter the code so that calls
+  to \lstinline'LCS' are memoized using the interface of the
+  dictionaries you wrote earlier. When you're finished, note how much
+  faster it runs than the slow version!
+
+  Testing: \lstinline[language={[coin]C}]'% make time-lcs-fast'
+
+  \begin{solution}
+  \begin{lstlisting}
+#use <util>
+#use <string>
+
+struct lcs_key_data {
+    int s_length;
+    int t_length;
+};
+typedef struct lcs_key_data keydata;
+
+int compare_keys(key e1, key e2) {
+    keydata* k1 = (keydata*)e1;
+    keydata* k2 = (keydata*)e2;
+    if (k1->s_length == k2->s_length) {
+        return min(1, max(-1, k1->t_length - k2->t_length));
+    }
+    return min(1, max(-1, k1->s_length - k2->s_length));
+}
+
+int lcs_fast(string s, string t, int s_length, int t_length, dict_t D) {
+    if (s_length == 0 || t_length == 0) {
+        return 0;
+    }
+
+    keydata* lookup = alloc(keydata);
+    lookup->s_length = s_length;
+    lookup->t_length = t_length;
+    int* result = (int*)dict_lookup(D, (void*)lookup);
+    if (result != NULL) return *result;
+
+    result = alloc(int);
+
+    if (string_charat(s, s_length-1) == string_charat(t, t_length-1)) {
+        *result = 1 + lcs_fast(s, t, s_length-1, t_length-1, D);
+    } else {
+        *result = max(lcs_fast(s, t, s_length-1, t_length, D),
+                      lcs_fast(s, t, s_length, t_length-1, D));
+    }
+
+    dict_insert(D, (void*)lookup, (void*)result);
+    return *result;
+}
+
+int LCS(string s, string t, int s_length, int t_length)
+{
+    dict_t D = dict_new(&compare_keys);
+    return lcs_fast(s,t,s_length,t_length,D);
+}
+
+  \end{lstlisting}
+  \end{solution}
+\end{part}

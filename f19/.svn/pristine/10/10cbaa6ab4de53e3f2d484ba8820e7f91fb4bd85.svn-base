@@ -1,0 +1,16 @@
+\part[0\half]\hfill\\
+\vspace{-5ex}
+\lstinputlisting{\code/double-free.c}
+\begin{framed}
+\ans[0.75in]{The code attempts to read from memory that's been freed --- as well as attempting to free \lstinline'A'; again}
+\end{framed}
+
+\RUBRIC
+double-free
+
+Gradescope rubric:
++0.5pt Explains how code attempts to read from memory that's been freed - as well as attempting to free A again
+
+Commentary:
+  Double free.
+ENDRUBRIC

@@ -1,0 +1,339 @@
+LAST: AVL trees
+TODAY:
+- priority queues
+- heaps
+  . queues as trees
+  . trees as arrays
+NEXT: implementing heaps
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[3] worklist review
+[5] priority queues
+[5] heaps
+[5] insertion and removal
+[5] heaps as arrays
+[2] implementation of heaps (can be done next time)
+[3] bounded worklists
+
+Workslists revisited
+====================
+- data structures that store tasks and give them back to us one at a time, in some specific order
+  . stacks: always returns last task/item added (last in first out -- LIFO)
+  . queues: always returns task/item added longest ago (first in first out -- LIFO)
+- today: PRIORITY QUEUES
+  . always returns the most important task
+    . tasks are given a PRIORITY
+    . returns task with HIGHEST priority
+  . examples:
+    . emergency room      [highest priority = most critical condition]
+    . processes in an OS  [highest priority = ... complicated ...]
+    . homework due        [highest priority = ... hours to the deadline]
+ . multiple tasks may have the same priority
+
+Priority queue interface
+========================
+- same high-level operations as any worklist
+  . create, empty, add, remove
+- start from interface for GENERIC stack and rename types and operations
+      typedef void* elem;      // Element type
+      // typedef ______* pq_t;
+
+      bool pq_empty(pq_t Q)
+      /*@requires Q != NULL; @*/;
+
+      pq_t pq_new()
+      /*@ensures \result != NULL &&  pq_empty(\result); @*/ ;
+
+      void pq_add(pq_t Q, elem x)
+      /*@requires Q != NULL && x != NULL; @*/
+      /*@ensures !pq_empty(Q); @*/ ;
+
+      elem pq_rem(pq_t Q)
+      /*@requires Q != NULL && !pq_empty(Q); @*/
+      /*@ensures \result != NULL; @*/ ;
+- we may want to also have a peek operation as part of interface
+      elem pq_peek(pq_t Q)
+      /*@requires Q != NULL && !pq_empty(Q); @*/
+      /*@ensures  \result != NULL && !pq_empty(Q); @*/ ;
+- how to we specify the priority of an element?
+  . sol. 1: provide it as part of pq_add, e.g., an additional integer argument
+            void pq_add(pq_t Q, elem x, int priority)
+    . issue: are bigger numbers higher or lower priorities?
+    . issue: assigning integer priority to task is not always obvious
+      . e.g., what priority is a ear infection?
+    . issue: client has burden of using priorities consistently
+      . all ear infections should be given the same priority
+  . sol. 2: make the priority an inherent part of the element
+    . like keys were part of entries in dictionaries
+    . have client provide a priority function (elem to int)? same issues as sol. 1
+  . sol. 3: have client tell use if elem1 has higher priority than elem2
+      . STRICTLY HIGHER PRIORITY FUNCTION
+    . modify interface:
+        // f(e1,e2) returns true if e1 has STRICTLY higher priority than e2
+        typedef bool has_higher_priority_fn(elem e1, elem e2);     // ADDED
+        ...
+        pq_t pq_new(has_higher_priority_fn* prio)                  // ADDED
+        /*@requires prio != NULL; @*/                              // ADDED
+        /*@ensures \result != NULL && pq_empty(\result); @*/ ;
+
+How to implement priority queues?
+=================================
+               unsorted arrays   Sorted
+               /linked lists     arrays   AVL trees   HEAPS
+               ---------------   ------   ---------   --------
+    add:       O(1)              O(n)     O(log n)    O(log n)
+    rem:       O(n)              O(1)     O(log n)    O(log n)
+    peek:      O(n)              O(1)     O(log n)    O(1)
+- we will study HEAPS, an efficient data structure for implementing priority queues
+  . brings together many of the concepts seen in this course
+  . but have nothing to do with the heap segment of memory!
+
+Min-heaps
+=========
+- priority queues with integers as priorities have special names
+- MIN-HEAP if smaller numbers represent higher priorities
+  . very common, often abbreviated as just HEAP
+- MAX-HEAP if larger numbers represent higher priorities
+- frequent confusion 1:
+  . a heap can mean a data structure used to implement priority queues
+  . a heap can mean a priority queue with integer priorities
+- frequent confusion 2:
+  . in a min-heap, SMALLER numbers represent HIGHER priorities
+  . most heaps you will see are min-heaps
+- our convention [BE CONSISTENT TO AVOID CONFUSION]
+  - when dealing with min/max heaps, we use the words VALUE, LARGER and SMALLER
+  - when dealing with generic pq, we use the words PRIORITY, HIGHER and LOWER
+
+Heaps
+=====
+- a type of binary tree used to implement priority queues
+- since add/rem have cost O(log n), heaps must be balanced binary trees
+  . in fact, they are as balanced as a tree can be
+       /\
+      /  \
+     /  __\
+    /__/
+  . this was our failed balance invariant for self-balancing trees!
+- since peek has cost O(1), highest priority element must be at the root
+  . in fact, elements are ordered so that on any path higher priority elements
+    are closer to the root
+- heaps have TWO invariants (like AVL trees)
+  . (heap) SHAPE INVARIANT:
+    tree is perfectly balanced except last level where elements are shifted to the left
+  . (heap) ORDERING INVARIANT (multiple ways of expressing them):
+    (version A) priority of a child is lower than or equal to priority of parent
+                [min-heap version] value of a child is >= value of parent
+        ==> takes point of view of child
+    (version B) priority of parent is higher than or equal to priority of children
+                [min-heap version] value of parent is <= value of children
+        ==> takes point of view of parent
+
+              generic pq                min-heap
+       /\      ^ highest priority       | smallest value
+      /  \     |                        |
+     /  __\    |                        |
+    /__/       | lower priority         v larger value
+
+- notes:
+  . both heaps and BSTs have an ordering invariant, but they are totally different
+  . heaps allow duplicates, but BSTs do not
+- activity: draw a min-heap with values 1, 2, 2, 9, 7
+  . multiple solutions
+           1         1         1
+          / \       / \       / \
+         2   2     2   9     2   7    and a few more
+        / \       / \       / \
+       7   9     2   7     9   2
+  . shape is fixed given number of elements
+  . root must be 1
+  . one of the children of 1 must be 2
+
+Insertion into a heap
+=====================
+- strategy
+  . maintain shape invariant
+  . temporarily break and then restore ordering invariant
+    . using child-parent swaps
+- similar to what we did for AVL trees
+  . maintain ordering invariant
+  . temporarily break and then restore height/balance invariant
+    . using rotations
+- example
+          2
+        /   \
+       4     7
+      / \   /
+     9   4 8
+  . add 1, put it in the only place where shape invariant will be maintained
+          2
+        /   \
+       4     7
+      / \   / #
+     9   4 8   1
+  . ordering invariant is violated at #
+  . fix violation by SWAPPING child with parent
+          2
+        /   #
+       4     1
+      / \   / \
+     9   4 8   7
+  . new violation, one up the tree
+  . fix violation by swapping child with parent
+          1
+        /   \
+       4     2
+      / \   / \
+     9   4 8   7
+  . no more violations, this a valid heap
+- general procedure
+  . put added element in place expected by shape invariant
+  . repeatedly swap it up with parent
+  . until the violation is fixed or we reach the root
+    . at most one violation, always
+- this is called SIFTING UP
+  . we make O(log n) swaps
+
+Removing the minimal element from a heap
+========================================
+- strategy: same as insertion
+  . maintain shape invariant
+  . temporarily break and then restore ordering invariant
+    . using child-parent swaps
+- example
+          1
+        /   \
+       4     2
+      / \   / \
+     7   4 8   9          [7 and 9 have been swapped for effect]
+  . clearly return 1, but what to put in its place to still have a tree?
+  . to maintain the shape invariant, we must put 9
+          9
+        #   #
+       4     2
+      / \   /
+     7   4 8
+  . we have TWO violations, which one do we fix?
+    . swapping 9 and 4 leads to THREE violations -- which one do we fix next?
+    . swapping 9 and 2 leads to just one
+      . always swap with child with highest priority [smallest value]
+          2
+        /   \
+       4     9
+      / \   #
+     7   4 8
+  . new violation, one down the tree (could have been two)
+  . fix violation by swapping with child with highest priority
+          2
+        /   \
+       4     8
+      / \   /
+     7   4 9
+  . no more violations, this a valid heap
+- general procedure
+  . replace root with element in place that maintains shape invariant
+  . repeatedly swap it down with child with highest priority [smallest value]
+  . until the violation is fixed or we reach a leaf
+    . at most two violations, always
+- this is called SIFTING DOWN
+  . we make O(log n) swaps
+
+Array representation of heaps
+=============================
+- let's number the nodes of our last heap level by level starting at 1 [use colored chalk]
+- [audience participation]
+  . can you spot a relation between the number of a node and the number of its left child?
+    [i_{left_child} = 2 * i_parent]
+  . between the number of a node and the number of its right child?
+    [i_{right child} = 2 * i_parent + 1]
+  . between the number of a node and the number of its parent?
+    [i_parent = i_child / 2  -- for both left and right child]
+- why does this work at all? [out-of-class exercise]
+  . write node numbers in binary and observe pattern!
+- if we number nodes this way, we can navigate up and down the tree using arithmetic
+- note that these numbers are contiguous
+  . start at 1
+  . end at the size of the heap (= number of elements in it)
+- do we know of a data structure that allows accessing data based on consecutive integers?
+  . arrays!
+- we can represent a heap as an array of its nodes
+  . for simplicity, we do not use first position (at index 0) -- makes math (slightly) simpler
+  . this example:
+       0   1   2   3   4   5   6   7   8   9
+      -----------------------------------------
+      | X | 2 | 4 | 8 | 7 | 4 | 9 | X | X | X |
+      -----------------------------------------
+- how do add/remove grow/shrink the heap? [audience participation]
+  . insert/delete last used element
+  . it makes sense to have array with unused positions at the end
+- why does it work at all? [audience participation]
+  . shape invariant
+- we have 2 layers of abstraction
+  . priority queues represented as heaps (trees)
+  . heaps represented as arrays
+
+Other implementations
+=====================
+- heaps could be implemented using pointers
+  . 2 pointers to children for sifting down
+  . 1 pointer to parent    for sifting up
+- advantages of array representation
+  . uses less space -- no need for pointers
+  . locality enhances performance [15-213 topic]
+
+
+[WHAT FOLLOWS BELONGS TO THE NEXT LECTURE, BUT DO IT NOW IF TIME]
+
+Implementing heaps -- types and basic invariants
+================================================
+- interface: elem is void* and pq_new takes a priority comparison function
+- complete struct, and then write constraints on fields
+      typedef struct heap_header heap;
+      struct heap_header {
+        int limit;                     // WRITE ME  // limit = capacity+1  // ADD LATER
+        elem[] data;                   // WRITE ME  // \length(data) == limit
+        int next;                      // WRITE ME  // 1 <= next && next <= limit
+        has_higher_priority_fn* prior; // WRITE ME  // != NULL
+      };
+- translate into BASIC data structure invariant (does not check ordering)
+      bool is_heap_safe(heap* H) {
+        return H != NULL
+            && (1 < H->limit && H->limit < int_max()/2)    // to prevent overflow (we do 2*i+1)
+            && is_array_expected_length(H->data, H->limit)
+            && (1 <= H->next && H->next <= H->limit)
+            && H->prior != NULL;
+      }
+- what about shape invariant?
+  . baked in the array representation
+- how is limit determined?  two options
+  . resize array as needed -- unbounded array technique
+  . fix maximum size (capacity) a priori
+
+Bounded worklists
+=================
+- worklists seen so far are UNBOUNDED: no maximum number of tasks
+- sometimes it makes sense to set a maximum: BOUNDED WORKLISTS
+  . queue: only 50 seats in the movie theater
+  . pq: emergency room
+  . frequently used to prevent DENIAL-OF-SERVICE attacks
+- for simplicity, we will implement bounded priority queue
+  . interface update
+      bool pq_full(pq_t Q)                                      // NEW FUNCTION
+      /*@requires Q != NULL; @*/ ;
+
+      pq_t pq_new(int capacity, has_higher_priority_fn* prio)   // NEW ARGUMENT
+      /*@requires capacity > 0 && prio != NULL; @*/             // NEW CONTRACT
+      /*@ensures \result != NULL && pq_empty(\result); @*/ ;
+
+      void pq_add(pq_t Q, elem x)
+      /*@requires Q != NULL && !pq_full(Q) && x != NULL; @*/ ;  // NEW CONTRACT
+      /*@ensures  !pq_empty(Q); @*/ ;
+
+      elem pq_rem(pq_t Q)
+        /*@requires Q != NULL && !pq_empty(Q); @*/
+        /*@ensures  \result != NULL && !pq_full(Q); @*/ ;       // NEW CONTRACT
+
+      elem pq_peek(pq_t Q)
+      /*@requires Q != NULL && !pq_empty(Q); @*/
+      /*@ensures  \result != NULL && !pq_empty(Q); @*/ ;
+- nothing wrong with unbounded priority queues (occasional exam question)

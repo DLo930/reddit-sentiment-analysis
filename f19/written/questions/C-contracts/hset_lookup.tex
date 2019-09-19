@@ -1,0 +1,103 @@
+\clearpage
+\Question[3\half]{Contracts in C}\TAGS{c-memory, correctness, safety}
+
+The code below is taken from the lecture notes on hash sets in
+C0. This is also legal C code (assuming all the right definitions are
+available), but the contracts will not be checked in C.
+
+\begin{lstlisting}
+elem hset_lookup(hset* H, elem x)
+//@requires is_hset(H);
+//@requires x != NULL;
+//@ensures \result==NULL || elem_equiv(\result, x);
+{
+  int i = elemhash(H, x);
+  for (chain* p = H->table[i]; p != NULL; p = p->next) {
+    //@assert p->data != NULL;
+    if (elem_equiv(p->data, x)) return p->data;
+  }
+  return NULL;
+}
+\end{lstlisting}
+
+Rewrite the function in the box on the next page as follows:
+\begin{itemize}
+\item%
+  Insert assignment statements so that all return statements have the form\linebreak[4]
+  \lstinline'return result'. (In other words, use the variable
+  \lstinline'result', defined on the next page, to hold the return value for
+  all cases and use this variable in your postcondition.)
+\item%
+  Insert any necessary C contracts so that, when compiled with the flag
+  \lstinline'-DDEBUG', contracts will be checked as they would be in C0 with
+  the flag \lstinline'-d'.
+\end{itemize}
+Do \emph{not} simplify any contracts even if it is immediately obvious from
+the context that you could do so. You may omit the C0 contracts (lines
+beginning \lstinline'//@') even though in practice we might like to keep them.
+
+\newpage
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+elem hset_lookup(hset *H, elem x) {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  REQUIRES(is_hset(H));
+  REQUIRES(x != NULL);
+\end{lstlisting}
+\else\vspace{1.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+  elem result;
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  int i = elemhash(H, x);
+  for (chain* p = H->table[i]; p != NULL; p = p->next) {
+    ASSERT(p->data != NULL);
+    if (elem_equal(p->data, x)) {
+      result = p->data;
+      ENSURES(result==NULL || elem_equal(result, x));
+      return result;
+    }
+  }
+  result = NULL;
+  ENSURES(result==NULL || elem_equal(result, x));
+  return result;
+\end{lstlisting}
+\else\vspace{6in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+TAGS: c-memory, correctness, safety
+
+Gradescope rubric:
++1pt REQUIRES(is_hset(H)); REQUIRES(x != NULL); after left curly bracket before elem result;
++0.75pt ASSERT(p->data != NULL) as first instruction in loop
++0.75pt Correct assignments to result variable; return result in correct positions
++1pt ENSURES(result==NULL || elem_equal(result, x); before each return
+
+Commentary:
+1 point for the REQUIRES, 3/4 point for the ASSERT, 3/4 point for the assignments to result and returns, 1 point for the ENSURES
+
+elem hset_lookup(hset* H, elem x) {
+  REQUIRES(is_hset(H));
+  REQUIRES(x != NULL);
+  elem result;
+  int i = elemhash(H, x);
+  for (chain* p = H->table[i]; p != NULL; p = p->next) {
+    ASSERT(p->data != NULL);
+    if (elem_equal(p->data, x)) {
+      result = p->data;
+      ENSURES(result==NULL || elem_equal(result, x));
+      return result;
+    }
+  }
+  result = NULL;
+  ENSURES(result==NULL || elem_equal(result, x));
+  return result;
+}
+ENDRUBRIC

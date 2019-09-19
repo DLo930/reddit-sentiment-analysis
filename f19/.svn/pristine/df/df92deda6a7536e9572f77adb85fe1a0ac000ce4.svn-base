@@ -1,0 +1,123 @@
+\clearpage
+\Question{Big-O Notation}
+%% Task 3: comment version A or B in alternate semesters
+
+Recall the definition for big-O:
+\begin{quote}\em
+  $g \in O(f)$ if there is a real constant $c > 0$ and some natural
+  number $n_0$ such that
+  for every $n \ge n_0$ we have $g(n) \le c \cdot f(n)$.
+\end{quote}
+
+\begin{parts}
+\newcommand{\poly}
+  {3n^2 + 7n + 4} % [c=4,n0=8; c=5,n0=4; ...] F19 S18 F16 S16
+%  {2n^2 + 5n + 1}  % [c=3,n0=6; c=4,n0=3; ...] F18 S17
+%  {4n^2 + 2n + 3}  % [c=5,n0=0; c=6,n0=1; ...] S19 F17
+
+\RUBRIC
+NOTE: the function changes from semester to semester.  Make sure the
+      rubrics match the function.
+ENDRUBRIC
+
+
+\part[2]\TAGS{big-o}
+Demonstrate graphically that $\poly \in O(n^2)$ by finding values for
+$c$ and $n_0$ that satisfy the definition above, where $g(n) = \poly$
+and $f(n) = n^2$. Draw a picture to illustrate that $cn^2$ acts as an
+upper bound to $\poly$ for all $n \ge n_0$ using your values for $c$
+and $n_0$. Be sure to label the horizontal and vertical axes.
+
+If you choose to insert a plot (or a picture) generated using an
+external application, please \textbf{paste it in the space provided} ---
+do not insert it as a new page.
+\begin{framed}
+\bigskip
+$c = \uanswer{24.5em}{5}$
+\par\bigskip
+$n_0 = \uanswer{24em}{15}$
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}
+\draw[step=0.5cm,color=gray] (-1,-1) grid (13,9);
+\end{tikzpicture}
+
+\smallskip
+\end{center}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: big-o
+
+Gradescope rubric:
++1pt Reasonable n0 and c (Examples: c=10 and n0=1, ...)
++1pt Clean plot with labeled axes
+-0.5pt Curves not labeled
+
+Commentary:
+. Answers:
+  To check answers: https://www.mathsisfun.com/quadratic-equation-solver.html
+
+  To come up with answers:
+  - set c = 1 + quadratic coefficient (or any strictly positive real intead of 1)
+  - simplify the inequality cn^2 - (given poly) >= 0
+  - plug the coefficients in above web site
+  - pick any n0 on the right where the parabola is positive
+
+  Grading: 1 pt for constants, 1 pt for a reasonable picture to
+  accompany the constants.  NOTE: If necessary, you can go to
+  fooplot.com and plot the two functions if you need to verify.
+ENDRUBRIC
+
+\newpage
+\part[0\half]\TAGS{big-o}
+In one sentence, explain why $\poly \notin O(n)$.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Since a quadratic function increases more rapidly than a linear
+  function, there is no constant that can guarantee that the linear
+  function will always be an upper bound to the quadratic function.
+}\else~\vspace{1.9in}\fi
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: big-o
+
+Gradescope rubric:
++ 0.25 pt  Sentence says that the first function grows faster than the second
++ 0.25 pt  Sentence says that there is no constant that can guarantee that the linear function will always be an upper bound to the quadratic function
+
+Commentary:
+. Since a quadratic function increases more rapidly than
+  a linear function, there is no constant that can guarantee that the
+  linear function will always be an upper bound to the quadratic
+  function.
+
+   Grading: 1 pt for anything that indicates that the linear function
+   can't be an upper bound to a quadratic since it doesn't grow as
+   fast. 1/2 pt for something in the ball park but says something
+   vague or inconsistent (try to avoid this, and discuss to maintain
+   consistency among graders). 0 pts for something just plain
+   wrong. Students might try to justify using the formal definition,
+   which is ok if they state something that there's no c that can be
+   found that will make the linear function an upper bound...
+ENDRUBRIC
+
+\enlargethispage{5ex}
+\part[1]\TAGS{complexity}
+Determine the asymptotic complexity of the following function using
+big-O notation as a function of its arguments in its simplest, tightest
+form.
+
+%\input{mysteryA} % S19, before F18
+\input{mysteryB} % F19 F18
+\end{parts}
+
+\bigskip%
+\textbf{Reminder:} as discussed in recitation, in this class when we
+are dealing with logarithms, we consider the ``simplest form'' to be
+the one \emph{without the base}.  Therefore, we prefer $O(\log n)$
+over big-$O$ descriptions like $O(\log_4 n)$ or $O(\ln n)$.

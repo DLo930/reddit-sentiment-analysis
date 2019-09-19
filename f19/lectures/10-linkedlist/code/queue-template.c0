@@ -1,0 +1,136 @@
+// Element type -- supplied by client
+
+
+/**** Implementation ****/
+
+/* Linked lists */
+
+/* is_segment(start, end) will diverge if list is circular! */
+bool is_segment(list* start, list* end) {
+  // WRITE ME!
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bool is_acyclic(list* start) {
+  // See lecture notes
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Queues */
+
+typedef struct queue_header queue;
+struct queue_header {
+  list* front;
+  list* back;
+};
+
+bool is_queue(queue* Q) {
+  return Q != NULL
+      && is_acyclic(Q->front)
+      && is_segment(Q->front, Q->back);
+}
+
+bool queue_empty(queue* Q)
+//@requires is_queue(Q);
+{
+  /* write me */
+  return false;
+}
+
+// REMOVING a value from the BEGINNING of a list segment [start, end)
+
+// REMOVING a value from the END of a list segment [start, end)
+
+// INSERTING a value at the BEGINNING of a list segment [start, end)
+
+// INSERTING a value at the END of a list segment [start, end)
+
+
+string deq(queue* Q)
+//@requires is_queue(Q);
+//@requires !queue_empty(Q);
+//@ensures is_queue(Q);
+{
+  /* write me */
+  return "";
+}
+
+void enq(queue* Q, string x)
+//@requires is_queue(Q);
+//@ensures is_queue(Q);
+//@ensures !queue_empty(Q);
+{
+  /* write me */
+  return;
+}
+
+queue* queue_new()
+//@ensures is_queue(\result);
+//@ensures queue_empty(\result);
+{
+  /* write me */
+  return NULL;
+}
+
+typedef queue* queue_t;
+
+
+/**** Interface ****/
+
+// typedef ______* queue_t;
+
+bool queue_empty(queue_t Q)       /* O(1) */
+/*@requires Q != NULL; @*/;
+
+queue_t queue_new()               /* O(1) */
+/*@ensures \result != NULL; @*/
+/*@ensures queue_empty(\result); @*/;
+
+void enq(queue_t Q, string e)     /* O(1) */
+/*@requires Q != NULL; @*/;
+
+string deq(queue_t Q)             /* O(1) */
+/*@requires Q != NULL; @*/
+/*@requires !queue_empty(Q); @*/ ;

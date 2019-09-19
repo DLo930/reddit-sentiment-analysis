@@ -1,0 +1,27 @@
+/**** Library Interface ****/
+typedef void* elem;      // Element type
+
+
+/**** Library Implementation ****/
+
+// ...
+
+
+/**** Library Interface ****/
+
+// typedef ______* stack_t;
+
+bool stack_empty(stack_t S)
+/*@requires S != NULL; @*/ ;
+
+stack_t stack_new()
+/*@ensures \result != NULL; @*/
+/*@ensures stack_empty(\result); @*/ ;
+
+void push(stack_t S, elem x)
+/*@requires S != NULL && x != NULL; @*/
+/*@ensures  !stack_empty(S); @*/ ;
+
+elem pop(stack_t S)
+/*@requires S != NULL && !stack_empty(S); @*/
+/*@ensures \result != NULL; @*/ ;

@@ -1,0 +1,57 @@
+#use <string>
+#use "gapbuf-mimic.c0"
+
+bool is_in_str(char c, string str, int start, int end)
+//@requires 0 <= start && start <= end && end <= string_length(str);
+{
+  int len = string_length(str);
+  for (int i = start; i < end; i++)
+    if (string_charat(str, i) == c) return true;
+  return false;
+}
+
+bool is_gapbuf_string(int limit, string s) {
+  int len = string_length(s);
+  if (!(0 < len && len < limit)) return false;
+  if (!(is_in_str('|', s, 0, len))) return false;
+  return true;
+}
+
+int search_str(char c, string str, int start)
+//@requires 0 <= start && start <= string_length(str);
+/*@ensures (\result == -1 && !is_in_str(c, str, start, string_length(str)))
+           || (start <= \result && \result < string_length(str)
+               && string_charat(str, \result) == c);
+  @*/
+{
+  int len = string_length(str);
+  for (int i = start; i < len; i++)
+    //@loop_invariant start <= i && i <= len;
+    //@loop_invariant !is_in_str(c, str, start, i);
+    {
+      if (string_charat(str, i) == c) return i;
+    }
+  // assert i == len;
+  return -1;
+}
+
+gapbuf gapbuf_builder(int limit, string s)
+//@requires is_gapbuf_string(limit, s);
+//@ensures is_gapbuf_(\result);
+{
+  gapbuf G = gapbuf_new_mimic(limit);
+  int len = string_length(s);
+  
+  // copy in all the data, not including the cursor
+  for (int i = 0; i < len; i++) {
+    if (string_charat(s, i) != '|') 
+      gapbuf_insert_mimic(G, string_charat(s, i));
+  }
+  // then back up the gap to be at the cursor
+  int cursor = search_str('|', s, 0);
+  //@assert cursor != -1;
+  for (int i = cursor+1; i < len; i++) 
+    gapbuf_backward_mimic(G);
+  
+  return G;
+}

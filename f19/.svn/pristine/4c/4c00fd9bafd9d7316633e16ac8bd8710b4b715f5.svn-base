@@ -1,0 +1,143 @@
+/*
+ * An interface to unbounded arrays
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+/*************************** Implementation ***************************/
+#use <util>
+#use <string>
+
+
+typedef struct uba_header uba;
+struct uba_header {
+  int size;          // 0 <= size && size < limit
+  int limit;         // 0 < limit
+  string[] data;     // \length(data) == limit
+};
+
+bool is_array_expected_length(string[] A, int length) {
+  //@assert \length(A) == length;
+  return true;
+}
+
+bool is_uba(uba* A) {
+  return A != NULL
+      && is_array_expected_length(A->data, A->limit)
+      && 0 <= A->size
+      && A->size < A->limit;
+}
+
+int uba_len(uba* A)
+//@requires is_uba(A);
+//@ensures 0 <= \result && \result < \length(A->data);
+{
+  return A->size;
+}
+
+string uba_get(uba* A, int i)
+//@requires is_uba(A);
+//@requires 0 <= i && i < uba_len(A);
+{
+  return A->data[i];
+}
+
+void uba_set(uba* A, int i, string x)
+//@requires is_uba(A);
+//@requires 0 <= i && i < uba_len(A);
+//@ensures is_uba(A);
+{
+  A->data[i] = x;
+}
+
+uba* uba_new(int size)
+//@requires 0 <= size;
+//@ensures is_uba(\result);
+//@ensures uba_len(\result) == size;
+{
+  uba* A = alloc(uba);
+  int limit = size == 0 ? 1 : size*2;
+  A->data = alloc_array(string, limit);
+  A->size = size;
+  A->limit = limit;
+
+  return A;
+}
+
+void uba_resize(uba* A, int new_limit)
+/* A may not be a valid array since A->size == A->limit is possible! */
+//@requires A != NULL;
+//@requires 0 <= A->size && A->size < new_limit;
+//@requires \length(A->data) == A->limit;
+//@ensures is_uba(A);
+{
+  string[] B = alloc_array(string, new_limit);
+
+  for (int i = 0; i < A->size; i++)
+    //@loop_invariant 0 <= i;
+    {
+      B[i] = A->data[i];
+    }
+
+  A->limit = new_limit;
+  A->data = B;
+}
+
+void uba_add(uba* A, string x)
+//@requires is_uba(A);
+//@ensures is_uba(A);
+{
+  A->data[A->size] = x;
+  (A->size)++;
+
+  if (A->size < A->limit) return;
+  assert(A->limit <= int_max() / 2); // Fail if array would get too big
+  uba_resize(A, A->limit * 2);
+}
+
+string uba_rem(uba* A)
+//@requires is_uba(A);
+//@requires 0 < uba_len(A);
+//@ensures is_uba(A);
+{
+  (A->size)--;
+  string x = A->data[A->size];
+
+  if (A->limit >= 4 && A->size <= A->limit / 4)
+    uba_resize(A, A->limit / 2);
+
+  return x;
+}
+
+
+// Client type
+typedef uba* uba_t;
+
+
+/**************************** Interface ****************************/
+
+// typedef ______* uba_t;
+
+int uba_len(uba_t A)
+/*@requires A != NULL;   @*/
+/*@ensures \result >= 0; @*/ ;
+
+uba_t uba_new(int size)
+/*@requires 0 <= size;               @*/
+/*@ensures \result != NULL;          @*/
+/*@ensures uba_len(\result) == size; @*/ ;
+
+string uba_get(uba_t A, int i)
+/*@requires A != NULL;                @*/
+/*@requires 0 <= i && i < uba_len(A); @*/ ;
+
+void uba_set(uba_t A, int i, string x)
+/*@requires A != NULL;                @*/
+/*@requires 0 <= i && i < uba_len(A); @*/ ;
+
+void uba_add(uba_t A, string x)
+/*@requires A != NULL; @*/ ;
+
+string uba_rem(uba_t A)
+/*@requires A != NULL;      @*/
+/*@requires 0 < uba_len(A); @*/ ;

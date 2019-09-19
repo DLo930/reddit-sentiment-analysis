@@ -1,0 +1,3 @@
+No contracts in the code we gave them to read in the blur mask!!!
+
+Autograder test for new array output also uses a unique mask that triggers an error not being tested for.

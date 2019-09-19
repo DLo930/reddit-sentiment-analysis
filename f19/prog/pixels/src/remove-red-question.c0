@@ -1,0 +1,97 @@
+/* Task 4(d) - remove_red() on an array
+ *
+ * Write two implementations of remove_red(). The first one,
+ * remove_all_red_copy(), should leave the original array p unchanged
+ * and should return a copy of the array. The second one,
+ * remove_all_red_replace(), should modify the array you were
+ * given. */
+
+pixel[] remove_all_red_copy(pixel[] A, int length)
+//@requires length == \length(A);
+//@ensures length == \length(\result);
+//@ensures \result != p;
+{
+  // Write me!
+  return p;
+}
+
+void remove_all_red_copy(pixel[] A, int length)
+//@requires length == \length(A);
+{
+  // Write me!
+}
+
+/* This is some code for testing the remove_all_red_X() functions. You
+ * can use it to test your implementations and, if you want, extend it
+ * with your own tests, but we won't run this test code in the
+ * autograder. */
+
+
+bool pixels_equal(pixel[] A, pixel[] B, int length)
+//@requires length == \length(A);
+//@requires length == \length(B);
+{
+  for (int i = 0; i < length; i++)
+    //@loop_invariant 0 <= i;
+    {
+      if (get_alpha(A[i]) != get_alpha(B[i])) return false;
+      if (get_red(A[i])   != get_red(B[i]))   return false;
+      if (get_blue(A[i])  != get_blue(B[i]))  return false;
+      if (get_green(A[i]) != get_green(B[i])) return false;
+    }
+  return true;
+}
+
+bool all_red_removed(pixel[] A, pixel[] B, int length) 
+//@requires length == \length(A);
+//@requires length == \length(B);
+{
+  for (int i = 0; i < length; i++)
+    //@loop_invariant 0 <= i;
+    {
+      if (get_alpha(B[i]) != get_alpha(A[i])) return false;
+      if (get_red(B[i])   != 0)               return false;
+      if (get_blue(B[i])  != get_blue(A[i]))  return false;
+      if (get_green(B[i]) != get_green(A[i])) return false;
+    }
+  return true;
+}
+
+void test_remove_all_red_once(pixel[] A, int length)
+//@requires length == \length(A);
+{
+  pixel[] B = copy_pixels(A, length);
+  pixel[] C = copy_pixels(A, length);
+  remove_all_red_replace(B, length);
+  assert(remove_all_red_worked(A, B, length));
+  B = remove_all_red_copy(A, length);
+  assert(remove_all_red_worked(A, B, length));
+  assert(pixels_equal(A, C)); 
+}
+
+void test_remove_all_red() {
+  pixel[] A;
+  
+  // Edge case test: length 0
+  A = alloc_array(pixel, 0);
+  test_remove_all_red_once(A, 0);
+  
+  // Edge case test: length 1
+  A = alloc_array(pixel, 1);
+  A[0] = make_pixel(0xFF, 0xFF, 0xFF, 0xFF);
+  test_remove_all_red_once(A, 1);
+
+  // Test length 9
+  A = alloc_array(pixel, 9);
+  A[0] = make_pixel(0xFF, 0x01, 0x03, 0x04);
+  A[1] = make_pixel(0x02, 0x00, 0xFF, 0xEE);
+  A[2] = make_pixel(0xFF, 0xFF, 0xFF, 0xFF);
+  A[3] = make_pixel(0xEE, 0xFF, 0xDD, 0x00);
+  A[4] = make_pixel(0xDD, 0xCC, 0x00, 0xFF);
+  A[5] = make_pixel(0xCC, 0x00, 0xDD, 0xEE);
+  A[6] = make_pixel(0x00, 0xEE, 0xFF, 0xDD);
+  A[7] = make_pixel(0x00, 0x00, 0x00, 0x00);
+  A[8] = make_pixel(0x00, 0xAA, 0xBB, 0xCC);
+  test_remove_all_red_once(A, 9);
+}
+

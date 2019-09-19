@@ -1,0 +1,24 @@
+TITLE: Tips on Reasoning About Code
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+A common question among students each semester is "Can I use -------- to justify this statement? What kind of statements am I allowed to make?" This post is an attempt to clarify how we reason about code and structure our proofs in 15-122.
+
+There are two kinds of reasoning that we use in 15-122: logical reasoning and operational reasoning.
+
+<blockquote>
+<i>Logical reasoning</i> is using what we know to be <strong>true</strong> to prove certain properties about code.
+<em>Operational reasoning</em> is drawing conclusions about how things <strong>change</strong> when certain lines of code are run.
+</blockquote>
+Probably the best way to see the difference between these two types of reasoning is with examples. When we say things like this, we're using logical reasoning:
+<ul><li>"we know <tt>x &gt; 0</tt> from the loop guard"</li><li>"<tt>y</tt> is not modified in the loop"</li><li>"on line 5, we know <tt>z % 4 == 0</tt> because we must have entered an <tt>if (z % 4 == 0) {...}</tt> statement"</li></ul>
+
+But when we say things like this, we're using operational reasoning:
+<ul><li>"after an iteration of the loop, <tt>i' = i - 1</tt>"</li><li>"<tt>x</tt> is strictly decreasing"</li><li>"we know x<tt> &lt; 0</tt> because <tt>x &gt; 0</tt> by the loop guard and <tt>x = -x</tt> by line 5"</li></ul>
+
+It's a common misconception that operational reasoning is always bad and should never be used. In fact, operational reasoning is often necessary to prove the correctness of functions. However, operational reasoning is more difficult and prone to error than logical reasoning, since you need to consider all of the possible effects any statement could have.
+
+Because of this, we want to <strong>limit our use of operational reasoning to the smallest chunks of code possible</strong>. In particular, it's very difficult to reason about multiple iterations of a loop at once, so you should <strong>never</strong> make statements like "the loop runs <tt>y</tt> times and <tt>x=0</tt> initially, so <tt>x=y</tt> when the loop exits." In 15-122, operational reasoning should only be used to prove preservation of loop invariants and loop termination.
+
+Finally, to clarify an important point for written 2: An assertion is <em>supported</em> if we can prove it's always true using only logical reasoning.

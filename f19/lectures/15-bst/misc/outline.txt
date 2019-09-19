@@ -1,0 +1,376 @@
+LAST: hash tables
+TODAY:
+- trees
+- BST
+NEXT: self-balancing trees
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[3] limitations of hash dictionaries
+[3] BST as search template for binary search
+[5] definition of trees and related concepts + binary search trees specifically
+[5] trees as pointer structures
+[4] trees as recursive data structures -- tree templates
+[5] recursive operations on BSTs -- lookup
+[4] comparison functions
+[4] DS invariants for BSTs -- is_ordered
+[4] need for insertion to be functional
+[4] implementing dictionaries with BSTs
+
+Review
+======
+- refined memory model
+  . function pointers
+- generic libraries with client interfaces
+  . object-oriented flavor
+
+Dictionaries revisited
+======================
+- with hash dictionaries, lookup and insert are O(1) operations
+- what's NOT to love about this?
+  . O(1) is AVERAGE: we could be (very) unlucky and get O(n)
+  . O(1) is AMORTIZED: we need to pause from time to time and resize the table, again O(n)
+  . some operations, e.g., find_min, are inherently O(n)
+- hash dictionaries may be too risky or not good enough for some situations
+- goal: develop a DS with O(log n) WORST CASE complexity for lookup, insert and find_min
+  . over the next 2 lectures
+- DS review
+               unsorted arrays   Sorted             Hash Tables
+               /linked lists     arrays     common case    worst-case
+               ---------------   --------   --------------------------
+    lookup:    O(n)              O(log n)   O(1) avg+amt   O(n)
+    insert:    O(1)              O(n)       O(1) avg+amt   O(n)
+    find_min:  O(n)              O(1)       O(n)           O(n)
+
+
+Binary Search Trees
+===================
+- sorted arrays are the closest to what we want
+- recall how we looked up elements
+  . search for element [but don't say which one]
+     0  1  2  3  4  5  6  7  8  9      [0 <= i < 9]
+    ----------------------------
+    |-2| 0| 4| 7|12|19|22|42|65|
+    ----------------------------
+  . we always started at index 4   -- mid = (lo + hi) / 2
+    [draw 12 straight up from 12 in array]
+  . if the element was smaller, we then looked at index 2; if bigger we looked at index 7
+    [draw 4 and 42 straight up from array and connect them to 12 with edges]
+  . once at index 2, we looked at index 1 if smaller and index 3 if bigger, etc
+    [draw rest of tree]
+- from each index, the next index we would examine was one of two possibilities
+  (unless we found the element)
+- access pattern completely determined by endpoints of array segment
+- we can draw all the possible accesses as an abstract pattern
+                  12
+                /     \
+               /       \
+              /         \
+             /           \
+            4             42
+          /  \           /  \
+         /    \         /    \
+        0      7       22    65
+       /              /
+     -2             19
+    ----------------------------
+    |-2| 0| 4| 7|12|19|22|42|65|
+    ----------------------------
+  . we are hoisting the array by its midpoint, its two sides by their midpoint, etc
+- we can achieve the same thing by pairing up each element with two pointers
+  [draw struct boxes around each number and turn lines into pointer arrows]
+            --------
+            |*|12|*|
+            --------
+           /        \
+         ...       ...
+  . code
+     typedef struct tree_node tree;
+     struct tree_node {
+        tree* left;
+        int   data;
+        tree* right;
+     };
+  . we are losing direct access to arbitrary element,
+    but retain direct access to the two elements that matter to us
+    . array gives us more power than we need
+  . what pointer do we put for -2 for example? need to signal there is nothing beyond
+    . NULL -- serves our purposes
+    . dummy node -- unmanageable
+  . cost of lookup is still O(log n) -- same number of element accesses for any given search
+- benefit?
+  . we can insert an element in O(log n) -- in THIS tree
+  . just "search" for it and
+    . either put it where it should have been if it were there
+    . or replace existing element
+    . [insert 5 as an example]
+- how do we find the minimum element?
+  . follow the left pointers to the end
+  . O(log n)
+- terminology:
+  . TREE, NODE, ROOT, INNER NODE, LEAF, CHILDREN, SUBTREES
+  . ordering on array induces an ordering on tree elements -- elements are ordered
+    . BINARY SEARCH TREE
+- are we done?
+  . not quite, but let's explore this idea
+
+Data Structure Invariants -- I
+==============================
+- to reason about trees, we need a pictorial abstraction
+  . triangles -- root is the tip, leaves are at the base
+- what do trees look like? [audience participation]
+  [they typically throw in a bunch of extra cases and they forget the base case]
+  . root with a tree hanging from left pointer and a tree hanging from right pointer
+  . NULL [our representation of the empty tree]
+  . this is all we need!
+  . when designing DS/algos, distilling a representation that makes reasoning easy is critical
+    . often times one with the least number of cases
+- translate this into a minimal DS invariant
+      bool is_tree(tree* T) { // minimal
+        if (T == NULL) return true;   // Code for empty tree
+
+        return is_tree(T->left)       // Code for non-empty tree
+            && is_tree(T->right);
+      }
+- what other DS invariants do we want from trees?
+  . no cycles -- how could we check that? [audience participation]
+    . go through the tree [traverse] putting pointers in a hash set
+    . if we encounter a previously seen pointer, return false
+  . same node reachable in two different ways from root
+    . hash set will take care of that too
+    . assume we have somehow incorporated within is_tree
+  . node data is sorted
+    . not strictly about trees but about BINARY SEARCH TREES
+      [put code in template -- no need to write it live]
+      bool is_bst(tree* T) {
+        return is_tree(T)
+            && is_ordered(T, NULL, NULL);
+      }
+    . how to write is_ordered -- later
+
+Lookup -- I
+===========
+- lookup function works just like binary search [code with audience]
+  [keep on working with keys and entries being int's for the moment, even if it's not totally sensible]
+      entry bst_lookup(tree* T, key k)
+      //@requires is_bst(T);
+      //@ensures ...
+      {
+        // Code for empty tree
+        if (T == NULL) return NULL;
+
+        // Code for non-empty tree
+        if (k == T->data)  return T->data;
+        if (k <  T->data)  return bst_lookup(T->left, k);
+        //@assert k > T->data;
+        return bst_lookup(T->right, k);
+      }
+- this is a recursive function
+  . 'case T is empty' is a base case
+  . 'case T not empty' is a recursive case
+- we have those cases because these are the two possible shapes of a tree
+  . exact same two cases as in is_tree
+  . other DS may have more than 1 base case and/or more than 1 recursive case
+
+Lookup -- II
+============
+- but using < and > works only for integers!
+- how to generalize this to work for any type of data? [audience participation]
+  . have a function key_compare(k1, k2) that
+    . returns -1 if k1 is smaller than k2
+    . returns  0 if they are equal
+    . returns  1 if k1 is greater than k2
+  . prototype
+      int key_compare(key k1, key k2)
+      /*@ensures -1 <= \result && \result <= 1; @*/ ;
+- who should provide key_compare?
+  . client -- knows what keys are, as well as entries
+  . client will also need to provide an entry_key function to get key from entry
+  . there will be a client interface for our new dictionaries (surprise?)
+    [show it at top of file]
+- generalized bst_lookup
+      entry bst_lookup(tree* T, key k)
+      //@requires is_bst(T);
+      //@ensures \result == NULL || key_compare(entry_key(\result), k) == 0;  // ADDED
+      {
+        // Code for empty tree
+        if (T == NULL) return NULL;
+
+        // Code for non-empty tree
+        int cmp = key_compare(k, entry_key(T->data));  // ADDED
+        if (cmp == 0)  return T->data;                 // MODIFIED
+        if (cmp <  0)  return bst_lookup(T->left, k);  // MODIFIED
+        //@assert cmp > 0;                             // MODIFIED
+        return bst_lookup(T->right, k);
+      }
+
+Data Structure Invariants -- II  [is_ordered]
+===============================
+- how should we implement is_ordered?  [audience participation]
+  . typical answer ends up with broken algorithm [display simplified code from template file]
+     bool is_ordered(tree* T) {
+        if (T == NULL) return true;
+
+        return (T->left  == NULL || T->left->data < T->data)
+            && (T->right == NULL || T->data < T->right->data)
+            && is_ordered(T->left)
+            && is_ordered(T->right);
+     }
+  . [ask to come up with counterexample: is_ordered(T) == true but T is not sorted
+     alternatively, bst_lookup won't find data that is in there]
+           42
+          /  \
+         /    \
+       12      49
+      /  \    /  \
+     0  122  6  100
+   . cannot find 6 nor 122
+- how to correctly implement is_sorted? [refer to lecture notes]
+  A. keep track of bounds where key of subtree is allowed to be
+     . use entries as bounds
+       . key of entry is bound itself
+       . NULL entry represents -infinity and +infinity
+      bool is_ordered(tree* T, entry lo, entry hi)
+      //@requires is_tree(T);
+      {
+        // Code for empty tree
+        if (T == NULL) return true;
+
+        // Code for non-empty tree
+        //@assert T->data != NULL;   // because is_tree(T)
+        key k = entry_key(T->data);
+        return (lo == NULL || key_compare(entry_key(lo), k) < 0)
+            && (hi == NULL || key_compare(k, entry_key(hi)) < 0)
+            && is_ordered(T->left, lo, T->data)
+            && is_ordered(T->right, T->data, hi);
+      }
+     . cost is O(n)
+  B. implement k < T and k > T and use them at every recursive step
+      bool gt_tree(key k, tree* T)
+      //@requires is_tree(T);
+      {
+         if (T == NULL) return true;
+         return key_compare(k, entry_key(T->data)) > 0
+             && gt_tree(k, T->left) && gt_tree(k, T->right);
+      }
+      bool lt_tree(key k, tree* T); // similar
+
+      bool is_ordered(tree* T)
+      //@requires is_tree(T);
+      {
+         if (T == NULL) return true;
+        //@assert T->data != NULL;   // because is_tree(T)
+        key k = entry_key(T->data);
+         return is_ordered(T->left)  && gt_tree(k, T->left)
+             && is_ordered(T->right) && lt_tree(k, T->right);
+      }
+      . cost is O(n^2)
+- either version entails that a BST cannot have duplicate keys
+
+Insertion
+=========
+- given tree on board,
+  . ask where various elements should be inserted
+  . ask what element we should insert to fill the left/right child of various nodes
+- basic idea: look up new element and insert it where it should have been
+- start with version of bst_insert with unspecified return type
+      ________ bst_insert(tree* T, entry e)
+- fill case for empty tree
+  . students will want to write something like this:
+        if (T == NULL) {
+          tree* R  = alloc(tree);
+          R->data  = e;
+          R->left  = NULL;  // Not necessary
+          R->right = NULL;  // Not necessary
+          T = R;
+        }
+  . recall that this would not change T for caller (changes are local to function)
+  . deduce that bst_insert MUST return updated tree
+      tree* bst_insert(tree* T, entry e)
+  . write correct code for empty tree
+        if (T == NULL) {
+          tree* R  = alloc(tree);
+          R->data  = e;
+          R->left  = NULL;  // Not necessary
+          R->right = NULL;  // Not necessary
+          return R;         // MODIFIED
+        }
+  . write contracts
+      //@requires is_bst(T) && e != NULL;
+      //@ensures is_bst(\result) && bst_lookup(\result, entry_key(e)) == e;
+  . write code for non-empty tree
+        int cmp = key_compare(entry_key(e), entry_key(T->data));
+        if (cmp == 0)     T->data = e;
+        else if (cmp < 0) T->left = bst_insert(T->left, e);
+        else { //@assert cmp > 0;
+          T->right = bst_insert(T->right, e);
+        }
+- clean up by factoring leaf case into a leaf function
+      tree* leaf(entry e)
+      //@requires e != NULL;
+      //@ensures is_bst(\result);
+      {
+        tree* T = alloc(tree);
+        T->data = e;
+        T->left  = NULL;  // Not necessary
+        T->right = NULL;  // Not necessary
+        return T;
+      }
+- simulate insertion on tree on the board
+  . call on NULL subtree returns new pointer that gets incorporate in tree
+  . call to non-NULL subtrees return same pointer (but stuff happened down below)
+
+BST Dictionary Interface [display from bstdict.c0]
+========================
+- client interface
+      // typedef ______* entry;        // Supplied by client
+      // typedef ______  key;          // Supplied by client
+
+      key entry_key(entry e)           // Supplied by client
+      /*@requires e != NULL; @*/ ;
+
+      int key_compare(key k1, key k2)  // Supplied by client
+      /*@ensures -1 <= \result && \result <= 1; @*/ ;
+- library interface
+      // typedef ______* dict_t;
+
+      dict_t dict_new()
+      /*@ensures \result != NULL; @*/ ;
+
+      entry dict_lookup(dict_t D, key k)
+      /*@requires D != NULL; @*/
+      /*@ensures \result == NULL || key_compare(entry_key(\result), k) == 0; @*/ ;
+
+      void dict_insert(dict_t D, entry e)
+      /*@requires D != NULL && e != NULL; @*/
+      /*@ensures dict_lookup(D, entry_key(e)) == e; @*/ ;
+
+      entry dict_min(dict_t D)
+      /*@requires D != NULL; @*/ ;
+- observe that they are not the same as hash dictionary interface
+  . client interface needs different operations from client to do its job
+    . (here library provides additional operations, but this is not critical)
+
+BST Dictionary Implementation
+=============================
+[display ready-made code for this part]
+- can we do
+      typedef tree *dict_t;
+  ?  and set dict_* to bst_* ?
+  . no!
+    . NULL represents the tree with nothing in it
+    . prototypes of dict_insert and bst_insert have different return types
+- we need to define dict_t as
+      struct dict_header {
+        tree* root;
+      };
+      typedef struct dict_header dict;
+      typedef dict* dict_t;
+- all functions act on D->root, in particular,
+      void dict_insert(dict* D, entry e)
+      //@requires is_dict(D) && e != NULL;
+      //@ensures is_dict(D) && dict_lookup(D, entry_key(e)) != NULL;
+      {
+        D->root = bst_insert(D->root, e);
+      }
+- observe that structure of code corresponds exactly to structure of types

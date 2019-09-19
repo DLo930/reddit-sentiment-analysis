@@ -1,0 +1,41 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{2}
+\newcommand{\duedate}{\formatdate{9}{9}{\YEAR}} % day-month-year
+\newcommand{\shortdesc}{This written homework covers more reasoning
+  using loop invariants and assertions, and the C0 types \lstinline'int'
+  and \lstinline'bool' as well as arrays.}
+
+\input{inc/preamble}
+\begin{document}
+\input{inc/frontmatter}
+
+\begin{questions}
+\inputQuestion[questions/safety-c0/]{main} % F19 F18 F17 F16 S16
+%\inputQuestion[questions/safe-assert/]{main} % S19 S18 S17
+\inputQuestion[questions/int-bool/]{main} % See file
+\inputQuestion[questions/funloop-correct/]{fib} % F19 S19 S18 S17 S16
+%\inputQuestion[questions/funloop-correct/]{pell} % F18 F17 F16
+\inputQuestion[questions/loop-preservation/]{main} % See file
+\end{questions}
+
+\RUBRIC
+
+Learning Objectives (AKA Evaluation Summary)
+* proving assertions
+* 32-bit integers using 2's complement
+* correctness of functions with one loop
+* preservation of loop invariants
+
+Gradescope rubric (no points, first two are always the same):
+-0pt EXCELLENT JOB!!!
+-0pt There are several concepts you have doubts about (see below): please consider going to office hours.
+
+-0pt You appear to be having difficulty proving assertions.
+-0pt You don't seem to have a good understanding of how 32-bit integers using 2's complement work.
+-0pt You seem to be a bit confused about proving the correctness of a function with one loop.
+−0pt It looks like you don't have a good grasp on how to prove the preservation of loop invariants.
+
+ENDRUBRIC
+
+\input{inc/backmatter}
+\end{document}

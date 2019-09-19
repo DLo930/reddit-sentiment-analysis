@@ -1,0 +1,49 @@
+\part[0\half]\TAGS{pq}
+You are given a non-empty min-heap.  In one sentence, describe
+precisely where the maximum value must be located.  Do not assume the
+heap is implemented as an array --- your vocabulary should pertain
+only to the tree definition of a heap.
+\begin{framed}
+\bigskip\bigskip
+\answer{\linewidth}{The maximum will be at a leaf node.\hfill}
+\end{framed}
+
+\RUBRIC
+Part <max position>
+TAGS: pq
+
+Gradescope rubric:
++0.5pt  A leaf node
+-0.25pt  Only saying that it is on the last level
+
+Commentary:
+ The maximum should be at a leaf node
+     half for saying should be at last level
+ENDRUBRIC
+
+
+\part[0\half]\TAGS{complexity, pq}
+What is the worst-case runtime complexity of finding the maximum in a
+min-heap if the min-heap has $n$ elements and is implemented as an
+array? Why?
+
+\begin{framed}
+$O(\uanswer{8em}{$n$})$
+
+\medskip
+Because the number of values that need to be examined is \uanswer{8em}{$(n+1)/2$}.
+\end{framed}
+
+\RUBRIC
+Part <max cost>
+TAGS: complexity, pq
+
+Gradescope rubric:
++0.25pts  O(n)
++0.25pts  (n+1)/2 -- n/2 accepted too
+
+Commentary:
+O(n), the number of values to be examined is (n+1)/2
+    Full points for n/2.
+    Half points for O(n), number of values that need to be examined is n.
+ENDRUBRIC

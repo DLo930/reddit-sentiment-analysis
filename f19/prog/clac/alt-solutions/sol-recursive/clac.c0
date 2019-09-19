@@ -1,0 +1,170 @@
+/*
+ * Clac, stack-based calculator language
+ * Uses extended libraries
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+#use <util>
+
+struct state_header {
+  bool trace;
+  dict_t dictionary;
+};
+typedef struct state_header* state_t;
+
+state_t init_state()
+//@ensures \result != NULL;                                                     
+{
+  state_t ST = alloc(struct state_header);
+  ST->trace = false;
+  ST->dictionary = dict_new();
+  return ST;
+}
+
+void register_trace(state_t ST)
+//@requires ST != NULL;
+{
+  ST->trace = true;
+}
+
+/* auxiliary arithmetic functions that check for overflow */
+int div(int x, int y) {
+  if (y == 0) error("division by zero");
+  if (x == int_min() && y == -1) error("division overflow");
+  return x / y;
+}
+
+int mod(int x, int y) {
+  if (y == 0) error("modulo zero");
+  if (x == int_min() && y == -1) error("modulus overflow");
+  return x % y;
+}
+
+/* auxiliary deq and pop functions that check for emptiness */
+string DEQ(queue_t Q) 
+//@requires Q != NULL;
+{
+  if (queue_empty(Q)) error("unexpected end of input");
+  return deq(Q);
+}
+
+int POP(stack_t S) 
+//@requires S != NULL;
+{
+  if (stack_empty(S)) error("not enough elements on stack");
+  return pop(S);
+}
+
+int PICK(stack_t S, int n) 
+//@requires S != NULL;
+//@requires n > 0;
+{
+  int i = POP(S);
+  if (n == 1) { 
+    push(S, i);
+    return i;
+  } else {
+    int j = PICK(S, n-1);
+    push(S, i);
+    return j;
+  }
+}
+
+/* return false to exit interpreter */
+bool eval(queue_t Q, stack_t S, state_t ST)
+{ 
+  while (!queue_empty(Q)) {
+    string tok = DEQ(Q);
+    if (string_equal(tok, "+")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, x+y);
+    } else if (string_equal(tok, "-")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, x-y);
+    } else if (string_equal(tok, "*")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, x*y);
+    } else if (string_equal(tok, "/")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, div(x,y));
+    } else if (string_equal(tok, "%")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, mod(x,y));
+    } else if (string_equal(tok, "<")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, (x < y) ? 1 : 0);
+    } else if (string_equal(tok, "drop")) {
+      POP(S);
+    } else if (string_equal(tok, "swap")) {
+      int y = POP(S);
+      int x = POP(S);
+      push(S, y); push(S, x);
+    } else if (string_equal(tok, "rot")) {
+      int z = POP(S);
+      int y = POP(S);
+      int x = POP(S);
+      push(S, y); push(S, z); push(S, x);
+    } else if (string_equal(tok, "print")) {
+      int x = POP(S);
+      printint(x); print("\n");
+    } else if (string_equal(tok, "quit")) {
+      return false; /* do not continue */
+    } else if (string_equal(tok, "if")) {
+      /* if false, skip three tokens; otherwise just continue */
+      if (POP(S) == 0) {
+        DEQ(Q);
+        DEQ(Q);
+        DEQ(Q);
+      } /* if true (!= 0), just continue */
+    } else if (string_equal(tok, "else")) {
+      /* skip next token */
+      DEQ(Q);
+    } else if (string_equal(tok, "pick")) {
+      int n = POP(S);
+      if (n <= 0) error("pick must be positive");
+      push(S,PICK(S, n));
+    } else if (string_equal(tok, "skip")) {
+      int n = POP(S);
+      while (n > 0) { n--; DEQ(Q); }
+    } else if (string_equal(tok, ":")) {
+      string name = DEQ(Q);
+      queue_t DEF = queue_new();
+      string next = DEQ(Q);
+      
+      while (!string_equal(next, ";")) {
+        enq(DEF, next);
+        next = DEQ(Q);
+      }
+      
+      dict_insert(ST->dictionary, name, DEF);
+      print("(defined "); print(name); println(")");
+      
+    } else {
+      int* p = parse_int(tok, 10);
+      queue_t DEF = dict_lookup(ST->dictionary, tok);
+      if (p != NULL) {
+        /* input token was number, stored in p */
+        push(S, *p);
+      } else if (DEF != NULL) {
+        if (!eval(queue_read_only_copy(DEF), S, ST)) {
+          return false;
+        }
+      } else {
+        error(string_join("undefined token ", tok));
+      }
+    }
+  }
+
+  return true; /* continue */
+}
+

@@ -1,0 +1,22 @@
+\documentclass[lab]{inc/122handout}
+\mfcsnumber{9: Legacy of the void*}
+\mfcsdate{\formatdate{21}{10}{\YEAR}} % day-month-year
+
+\begin{document}
+\labcollab
+
+\textbf{Setup:} Copy the lab code from our public directory to your
+private directory:
+
+\begin{lstlisting}[language={[coin]C}]
+% cd private/15122
+% cp -R /afs/andrew/course/15/122/misc/lab09 .
+% cd lab09
+\end{lstlisting}
+% formerly, lab-rollcall
+
+\textbf{Grading:} Finish tasks (1.a), (1.b), and (1.c) for 2 points,
+and additionally finish (1.d) for 3 points.
+
+\inputQuestion[questions/fpointer/]{rollcall}
+\end{document}

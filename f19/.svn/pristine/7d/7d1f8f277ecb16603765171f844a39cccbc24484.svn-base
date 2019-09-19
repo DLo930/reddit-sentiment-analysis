@@ -1,0 +1,15 @@
+#use <conio>
+#use <string>
+
+int main () {
+  string s = "pfenning";
+  char a = string_charat(s,1);
+  char b = string_charat(s,3);
+  char c = string_charat(s,5);
+  char d = string_charat(s,7);
+  println(string_fromchar(a));
+  println(string_fromchar(b));
+  println(string_fromchar(c));
+  println(string_fromchar(d));
+  return 0;
+}

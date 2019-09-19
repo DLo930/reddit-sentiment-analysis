@@ -1,0 +1,8 @@
+int main()
+{
+  int* i = alloc(int);
+  *i = 15;
+  int* j = NULL;
+  *j = 122;
+  return 0;
+}

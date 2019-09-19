@@ -1,0 +1,26 @@
+\section*{Freeing memory%
+\TAGS{c-memory}}
+
+After you are done using any memory referenced by a pointer returned
+by \lstinline[language=C]'malloc' or \lstinline[language=C]'calloc',
+you must free it or your program will have ``memory leaks'' (in C0 and
+C1, something called a garbage collector does this automatically). You
+can free such memory by passing a pointer to it to
+\lstinline[language=C]'free'. Once you free it, it is undefined to
+access that memory. Also, don't free memory that was previously
+freed. That also results in undefined behavior.
+
+When we design libraries for data structures like stacks and BST's,
+it's important to specify whether the client or library is responsible
+for freeing each piece of memory that is
+\lstinline[language=C]'malloc'ed. Usually, whoever allocates the
+memory ``owns'' it and is responsible for freeing it, but in data
+structures like BST's, we may want to transfer ownership of the memory
+to the data structure. Thus, we ask the client to supply a ``freeing''
+function in \lstinline[language=C]'bst_new' for BST elements, so that
+when the client calls \lstinline[language=C]'bst_free', we can call
+their ``freeing'' function on every element in the BST. If the
+function pointer the client gives us is \lstinline[language=C]'NULL',
+then we don't free the BST elements.
+
+\input{bst_new}

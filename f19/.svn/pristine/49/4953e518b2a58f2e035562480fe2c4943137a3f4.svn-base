@@ -1,0 +1,3 @@
+int main() {
+  return 0x01234567 + 0xFEDCBA98;
+}

@@ -1,0 +1,71 @@
+#use <conio>
+#use "sol-tbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = tbuf_new_();
+
+  //empty tbuf
+  if(!(is_tbuf(B) == true)) {
+    passed = false;
+    // error("failed to accept empty tbuf");
+  }
+
+  //slightly too empty tbuf
+  B->point->next = alloc(struct list_node);
+  B->point->next->prev = B->point;
+  B->point->next->next = B->end;
+  B->end->prev = B->point->next;
+
+  B->point->next->data = gapbuf_new_(16);
+
+  if(!(is_tbuf(B) == false)) {
+    passed = false;
+    // error("accepted doubly empty tbuf");
+  }
+
+  //now with chars
+  B = tbuf_new_();
+  insert_char_(B, 'x');
+
+  if(!(is_tbuf(B) == true)) {
+    passed = false;
+    // error("failed to accept tbuf with a char");
+  }
+
+  //lots of chars
+  B = tbuf_new_();
+  for(int i = 0; i < 1000; i++)
+    insert_char_(B, 'x');
+
+  if(!(is_tbuf(B) == true)) {
+    passed = false;
+    // error("failed to accept big tbuf");
+  }
+
+  //not linked
+  dll previous_thingy = B->start->next;
+  B->start->next = B->point;
+
+  if(!(is_tbuf(B) == false)) {
+    passed = false;
+    // error("accepted unlinked tbuf");
+  }
+
+  /* removed
+  //not aligned
+  B->start->next = previous_thingy;
+  gapbuf_backward_(B->start->next->data);
+
+  if(!(is_tbuf(B) == false)) {
+    passed = false;
+    error("accepted unaligned tbuf");
+  }
+  */
+  
+  //report
+  if(passed) return 0; else return 1;
+}

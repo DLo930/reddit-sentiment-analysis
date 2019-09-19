@@ -1,0 +1,228 @@
+#use <args>
+#use <conio>
+#use <util>
+#use <string>
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  if (string_equal(arg, "all_distinct-c1")) {
+    string[] data1 = alloc_array(string, 8);
+    data1[0] = "aha";
+    data1[1] = "drifters";
+    data1[2] = "drifters";
+    data1[3] = "eurythmics";
+    data1[4] = "garbage";
+    data1[5] = "garbage";
+    data1[6] = "garbage";
+    data1[7] = "genesis";
+    if (all_distinct(data1, 8))
+      return 1;
+  } else if (string_equal(arg, "all_distinct-c2")) {    
+    string[] data2 = alloc_array(string, 8);
+    data2[0] = "aha";
+    data2[1] = "bdrifters";
+    data2[2] = "derp";
+    data2[3] = "eurythmics";
+    data2[4] = "fderp";
+    data2[5] = "fgerp";
+    data2[6] = "garbage";
+    data2[7] = "genesis";
+    if (!all_distinct(data2, 8))
+      return 1;
+  } else if (string_equal(arg, "all_distinct-c3")) {    
+    string[] data3 = alloc_array(string, 6);
+    data3[0] = "aha";
+    data3[1] = "drifters";
+    data3[2] = "eurythmics";
+    data3[3] = "garbage";
+    data3[4] = "garbage";
+    data3[5] = "genesis";
+    if (all_distinct(data3, 6))
+      return 1;
+    if (!all_distinct(data3,4))
+      return 1;
+  } else if (string_equal(arg, "all_distinct-c4")) {
+    string[] data1 = alloc_array(string, 6);
+    data1[0] = "";
+    data1[1] = "";
+    data1[2] = "aha";
+    data1[3] = "garbage";
+    data1[4] = "garbage";
+    data1[5] = "s";
+    if (all_distinct(data1, 6))
+      return 1;
+    if (all_distinct(data1,4))
+      return 1;
+  } else if (string_equal(arg, "all_distinct-c5")) {
+    string[] data2 = alloc_array(string, 0);
+    if (!all_distinct(data2, 0))
+      return 1;
+  } else if (string_equal(arg, "all_distinct-c6")) {
+    string[] data3 = alloc_array(string, 1);
+    data3[0] = "hello";
+    if (!all_distinct(data3, 1))
+      return 1;
+
+  } else if (string_equal(arg, "all_distinct-a1")) {
+    string[] lol = alloc_array(string, 3);
+    all_distinct(lol, 4);
+  } else if (string_equal(arg, "all_distinct-a2")) {
+    string[] lol = alloc_array(string, 3);
+    lol[0] = "lol";
+    lol[1] = "im not sorted";
+    lol[2] = "keke";
+    all_distinct(lol, 3);
+    return 0;
+    
+  } else if (string_equal(arg, "count_distinct-c1")) {
+    string[] data1 = alloc_array(string, 8);
+    data1[0] = "aha";
+    data1[1] = "drifters";
+    data1[2] = "drifters";
+    data1[3] = "eurythmics";
+    data1[4] = "garbage";
+    data1[5] = "garbage";
+    data1[6] = "garbage";
+    data1[7] = "genesis";
+    if (count_distinct(data1, 8) != 5)
+      return 1;
+  } else if (string_equal(arg, "count_distinct-c2")) {
+    string[] data2 = alloc_array(string, 8);
+    data2[0] = "aha";
+    data2[1] = "bdrifters";
+    data2[2] = "derp";
+    data2[3] = "eurythmics";
+    data2[4] = "fderp";
+    data2[5] = "fgerp";
+    data2[6] = "garbage";
+    data2[7] = "genesis";
+    if (count_distinct(data2, 8) != 8)
+      return 1;
+  } else if (string_equal(arg, "count_distinct-c3")) {
+    string[] data1 = alloc_array(string, 0);
+    if (count_distinct(data1, 0) != 0)
+      return 1;
+  } else if (string_equal(arg, "count_distinct-c4")) {
+    string[] data2 = alloc_array(string, 1);
+    data2[0] = "";
+    if (count_distinct(data2, 1) != 1)
+      return 1;
+
+  } else if (string_equal(arg, "count_distinct-a1")) {
+    string[] data1;
+    data1 = alloc_array(string, 6);
+    data1[0] = "aha";
+    data1[1] = "genesis";
+    data1[2] = "drifters";
+    data1[3] = "eurythmics";
+    data1[4] = "garbage";
+    data1[5] = "genesis";
+    count_distinct(data1, 6);
+  } else if (string_equal(arg, "count_distinct-a2")) {
+    string[] lol = alloc_array(string, 2);
+    lol[0] = "hi";
+    lol[1] = "sup";
+    count_distinct(lol, -2);
+
+  } else if (string_equal(arg, "remove_duplicates-c1")) {
+    string[] data1 = alloc_array(string, 8);
+    data1[0] = "aha";
+    data1[1] = "drifters";
+    data1[2] = "drifters";
+    data1[3] = "eurythmics";
+    data1[4] = "garbage";
+    data1[5] = "garbage";
+    data1[6] = "garbage";
+    data1[7] = "genesis";
+    
+    string[] data2 = alloc_array(string, 5);
+    data2[0] = "aha";
+    data2[1] = "drifters";
+    data2[2] = "eurythmics";
+    data2[3] = "garbage";
+    data2[4] = "genesis";
+    
+    string[] data3 = remove_duplicates(data1, 8);
+    //@assert \length(data3) == 5;
+    for (int i = 0; i < 5; i++)
+      //@loop_invariant 0 <= i;
+      if (!string_equal(data2[i],data3[i]))
+        return 1;
+
+  } else if (string_equal(arg, "remove_duplicates-c2")) {
+    string[] data1 = alloc_array(string, 8);
+    data1[0] = "aha";
+    data1[1] = "drifters";
+    data1[2] = "eof";
+    data1[3] = "eurythmics";
+    data1[4] = "garbage";
+    data1[5] = "genesis";
+    data1[6] = "hi";
+    data1[7] = "wow";
+    string[] data3 = remove_duplicates(data1, 8);
+    //@assert \length(data3) == 8;
+
+  } else if (string_equal(arg, "remove_duplicates-c3")) {
+    string[] data1 = alloc_array(string, 1);
+    data1[0] = "aha";
+    string[] data1r = remove_duplicates(data1, 1);
+    string[] data1com = alloc_array(string, 1);
+    if (!string_equal(data1r[0], "aha"))
+      return 1;
+  } else if (string_equal(arg, "remove_duplicates-c4")) {
+    string[] data1 = alloc_array(string, 0);
+    string[] data2 = remove_duplicates(data1, 0);
+    //@assert \length(data2) == 0;
+  } else if (string_equal(arg, "remove_duplicates-c5")) {
+    string[] data1 = alloc_array(string, 200);
+    string[] data2 = remove_duplicates(data1, 200);
+    //@assert \length(data2) == 1;
+  } else if (string_equal(arg, "remove_duplicates-c6")) {
+    // Check that a new array is always allocated
+    string[] data0 = alloc_array(string, 0);
+    if (remove_duplicates(data0, 0) == data0) return 1;
+
+    string[] data1 = alloc_array(string, 1);
+    data1[0] = "A";
+    if (remove_duplicates(data1, 1) == data1) return 1;
+
+    string[] data10 = alloc_array(string, 10);
+    data10[0] = "A";
+    data10[1] = "B";
+    data10[2] = "C";
+    data10[3] = "D";
+    data10[4] = "E";
+    data10[5] = "F";
+    data10[6] = "G";
+    data10[7] = "H";
+    data10[8] = "I";
+    data10[9] = "J";
+    if (remove_duplicates(data10, 10) == data10) return 1;
+
+  } else if (string_equal(arg, "remove_duplicates-a1")) {
+    string[] lol = alloc_array(string, 2);
+    lol[0] = "hi";
+    lol[1] = "sup";
+    remove_duplicates(lol, 3);
+  } else if (string_equal(arg, "remove_duplicates-a2")) {
+    string[] lol = alloc_array(string, 2);
+    lol[0] = "hi";
+    lol[1] = "sup";
+    remove_duplicates(lol, -2);
+  } else if (string_equal(arg, "remove_duplicates-a3")) {
+    string[] lol = alloc_array(string, 3);
+    lol[0] = "hi";
+    lol[1] = "sup";
+    lol[2] = "imunsorted";
+    remove_duplicates(lol, 3);
+
+  } else {
+    error("Bad argument");
+  }
+
+return 0;
+
+}

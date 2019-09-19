@@ -1,0 +1,19 @@
+int main() {
+  rope_t R;
+
+  R = rope_new("");
+  assert(R == NULL);
+  assert(rope_length(R) == 0);
+
+  R = rope_new("abcdefj");
+  assert(R != NULL);
+  assert(R->len == 7);
+  assert(R->left == NULL);
+  assert(R->right == NULL);
+  assert(string_equal(R->data, "abcdefj"));
+  assert(rope_length(R) == 7);
+  assert('a' == rope_charat(R, 0));
+  assert('b' == rope_charat(R, 1));
+
+  return 0;
+}

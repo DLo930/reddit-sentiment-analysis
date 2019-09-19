@@ -1,0 +1,67 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+CC0=cc0 lib/*.c0 -o
+CC0D=cc0 -d lib/*.c0 -o
+
+all:
+	$(MAKE) extract -s
+	$(MAKE) compile -is
+	$(MAKE) grade -s
+
+extract:
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar
+	tar -mkxzvf handin.tgz
+	echo ""
+
+compile:
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(MAKE) doslingostests -s --stop
+	$(CC0)  analyze doslingos.c0 analysis.c0
+	$(CC0)  dos-cv   doslingos.c0 doslingos-cv-grade.c0
+	$(CC0D) dos-cv-d doslingos.c0 doslingos-cv-grade.c0
+	$(CC0)  dos-sf   doslingos.c0 doslingos-sf-grade.c0
+	$(CC0D) dos-sf-d doslingos.c0 doslingos-sf-grade.c0
+
+doslingostests:
+	$(CC0D) dos-stu-impl doslingos.c0 doslingos-test.c0
+	$(CC0D) dos-our-impl countvocab-ref.c0   sortbyfreq-ref.c0 doslingos-test.c0
+
+	$(CC0D) dos-cv-bug1  countvocab-bug1.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug1b countvocab-bug1b.c0 sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug2  countvocab-bug2.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug2b countvocab-bug2b.c0 sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug3  countvocab-bug3.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug4  countvocab-bug4.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug5  countvocab-bug5.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug6  countvocab-bug6.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug7  countvocab-bug7.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug8  countvocab-bug8.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bug9  countvocab-bug9.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugA  countvocab-bugA.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugB  countvocab-bugB.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugC  countvocab-bugC.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugD  countvocab-bugD.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugDb countvocab-bugDb.c0 sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugE  countvocab-bugE.c0  sortbyfreq-ref.c0 doslingos-test.c0
+	$(CC0D) dos-cv-bugEb countvocab-bugEb.c0 sortbyfreq-ref.c0 doslingos-test.c0
+
+	$(CC0D) dos-sf-bug1  countvocab-ref.c0 sortbyfreq-bug1.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug1b countvocab-ref.c0 sortbyfreq-bug1b.c0 doslingos-test.c0
+	$(CC0D) dos-sf-bug1c countvocab-ref.c0 sortbyfreq-bug1c.c0 doslingos-test.c0
+	$(CC0D) dos-sf-bug2  countvocab-ref.c0 sortbyfreq-bug2.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug3  countvocab-ref.c0 sortbyfreq-bug3.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug4  countvocab-ref.c0 sortbyfreq-bug4.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug5  countvocab-ref.c0 sortbyfreq-bug5.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug5b countvocab-ref.c0 sortbyfreq-bug5b.c0 doslingos-test.c0
+	$(CC0D) dos-sf-bug5c countvocab-ref.c0 sortbyfreq-bug5c.c0 doslingos-test.c0
+	$(CC0D) dos-sf-bug5d countvocab-ref.c0 sortbyfreq-bug5d.c0 doslingos-test.c0
+	$(CC0D) dos-sf-bug6  countvocab-ref.c0 sortbyfreq-bug6.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug7  countvocab-ref.c0 sortbyfreq-bug7.c0  doslingos-test.c0
+	$(CC0D) dos-sf-bug8  countvocab-ref.c0 sortbyfreq-bug8.c0  doslingos-test.c0
+
+grade:
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

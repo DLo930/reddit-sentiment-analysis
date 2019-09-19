@@ -1,0 +1,8 @@
+\documentclass[recitation]{inc/122handout}
+\newcommand{\why}{Mid-semester break}
+\mfcsnumber{8: \why{} (no classes)}
+\mfcsdate{\formatdate{18}{10}{\YEAR}} % day-month-year
+
+\begin{document}
+\bf No recitation this week: \textcolor{red}{\why}
+\end{document}

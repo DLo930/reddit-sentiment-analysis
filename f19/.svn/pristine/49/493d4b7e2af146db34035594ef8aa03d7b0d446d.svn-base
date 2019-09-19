@@ -1,0 +1,20 @@
+#use <conio>
+#use "sol-tbuf.c0"
+#use "make-tbuf.c0"
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = make_tbuf("abcdefgh|ijklm");
+  
+  insert_char(B, 'x');
+  
+  if(!(string_equal("abcdefghx|ijklm", tbuf_to_string(B)))) {
+    passed = false;
+    // error("insert_char did not insert correctly");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

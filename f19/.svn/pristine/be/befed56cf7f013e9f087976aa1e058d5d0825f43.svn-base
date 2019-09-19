@@ -1,0 +1,10 @@
+int main () {
+  int i = 15; 
+  int j = 122;
+  int sum = 0;
+  while (i <= j) {
+    sum += i;
+    i*=2;
+  }
+  return sum;
+}

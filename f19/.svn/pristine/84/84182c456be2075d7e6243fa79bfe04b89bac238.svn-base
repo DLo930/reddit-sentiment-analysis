@@ -1,0 +1,83 @@
+#use <conio>
+#use <string>
+#use <args>
+#use <parse>
+#use <img>
+
+/* tests the correctness of rotate based on sample images provided */
+
+pixel[] rotate(pixel[] image, int height, int width);
+
+/* tests if two images a and b are equal */
+bool image_equal(image_t a, image_t b) {
+		int aheight = image_height(a);
+    int bheight = image_height(b);
+    if (aheight != bheight)
+        return false;
+
+    int awidth = image_width(a);
+    int bwidth = image_width(b);
+    if (awidth != bwidth)
+        return false;
+
+    pixel[] arra = image_data(a);
+    pixel[] arrb = image_data(b);
+   
+    for(int i = 0; i < awidth*aheight; i++)
+    {
+        if(arra[i] != arrb[i])
+                return false;
+    }
+
+		return true;
+}
+
+int main() {
+    image_t source;
+    image_t dest;
+    image_t expected_image;
+    int width;
+    int height;
+    int[] inpixels;
+    int[] outpixels;
+    int[] resultpixels;
+    string *output = alloc(string);
+    string *input = alloc(string);
+    string *expected = alloc(string);
+    string type = "rotate";
+    string[] args;
+    bool result;
+    int i;
+  
+    *input = "./images/carnegie.png"; 
+    *expected = "./images/carnegie-rotate.png"; 
+
+    source = image_load(*input);
+    width = image_width(source);
+    height = image_height(source);
+
+		expected_image = image_load(*expected);
+
+    dest = image_create(2*width, 2*height);
+    inpixels = image_data(source);
+    outpixels = image_data(dest);
+
+    resultpixels = rotate(inpixels, width, height);
+
+    for (i = 0; i < 4*width*height; i++)
+        outpixels[i] = resultpixels[i];
+
+    result = image_equal(dest, expected_image);
+
+    image_destroy(dest);
+    image_destroy(source);
+
+    if(!result)
+	{
+		println("TEST FAILED");
+		assert(false);
+	}
+
+	println("TEST PASSED");
+    return 0;
+}

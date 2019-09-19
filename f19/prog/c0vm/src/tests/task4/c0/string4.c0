@@ -1,0 +1,9 @@
+#use <conio>
+#use <string>
+
+int main () {
+  string s = "pfenning";
+  if (string_charat(s,4)==string_charat(s,5))
+    return 0;
+  return 1;
+}

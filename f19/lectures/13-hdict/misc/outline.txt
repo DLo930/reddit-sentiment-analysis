@@ -1,0 +1,271 @@
+LAST: hashing
+TODAY:
+ - client vs. library interface
+ - implementing hash table dictionaries
+ - hash sets
+NEXT: genericity II
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] client vs library interface
+[5] complex DS invariants -- is_dict
+[3] storing pointers = client can mess up valid DS
+[4] implementation of hdict_lookup
+[2] implementation of hdict_insert
+[1] implementation of hdict_new
+[4] hash sets
+
+
+Hash table review
+=================
+- efficient dictionary (and set) DS for large collections
+- O(1) insert/lookup
+  . average: obtained by hashing key to unpredictable hash value
+    . not all hash functions are equally unpredictable [lab]
+    . crypto-strength hash functions are overkill for hash table
+  . amortized: resize table to keep load factor within threshold
+- collisions handled via separate chaining (or open addressing)
+
+Pretending to be a hash table [slide]
+=============================
+- [write on the board]
+    key =[hash function]=> hash value =[%m]=> hash index
+- setup
+  . client [class] wants to use hash table to store (produce, quantity) entries and retrieve them by produce (key)
+  . LCG hash [from lab] of a few fruit is given
+      Key         Hash
+    "apple"   -1290151091
+    "berry"    -514151789
+    "banana"    207055587
+    "grape"    -581390202
+    "lemon"    -665562942
+    "lime"     2086736531
+    "pumpkin" -1189657311
+  . hashtable library [me] performs sequence of client operations
+    . go behind the screen so I can't see what I'm doing
+- goal: realize that client needs to provide functionalities for HT to do its job
+- create HT
+  . separate chaining HT with capacity 10
+- insert A = ("apple", 20)
+  . HT: WHAT'S THE KEY?
+    . "apple"
+  . HT: WHAT'S ITS HASH VALUE?
+    . -1290151091
+  . -1290151091 % 10 is -1 which is not a valid array index
+    . add 10, getting 9
+    . take absolute value, getting 1 <-- solution we use for simplicity
+    . [will be explored further in written hw]
+  . HT: go to bucket 1 (empty), insert (A)
+- insert B = ("banana", 10)
+  . HT: what's the key?         "banana"
+  . HT: what's its hash value?  207055587  -> hash index = 7
+  . HT: go to bucket 7 (empty), insert (B)
+- insert C = ("pumpkin", 50)
+  . HT: what's the key?         "pumpkin"
+  . HT: what's its hash value?  -1189657311 -> hash index = 1
+  . HT: go to bucket 1, points to (A)
+  . HT: what's the key of (A)?  "apple"
+  . HT: IS IT THE SAME KEY AS "pumpkin"?  no
+  . HT: next is empty, insert (C) there
+- lookup "apple"
+  . HT: what's its hash value?  -1290151091 -> hash index = 1
+  . HT: go to bucket 1, points to (A)
+  . HT: what's the key of (A)?  "apple"
+  . HT: is it the same key as "apple"?  yes
+  . return A = ("apple", 20)
+- lookup "lime"
+  . HT: what's its hash value?  2086736531 -> hash index = 1
+  . HT: go to bucket 1, points to (A)
+  . HT: what's the key of (A)?  "apple"
+  . HT: is it the same key as "lime"?  no
+  . HT: next points to (C)
+  . HT: what's the key of (C)?  "pumpkin"
+  . HT: is it the same key as "lime"?  no
+  . HT: next is empty, return "not there"
+- add (F) = ("banana", 20)
+  . HT: what's the key?         "banana"
+  . HT: what's its hash value?  207055587  -> hash index = 7
+  . HT: go to bucket 7, points to (B)
+  . HT: what's the key of (B)?  "banana"
+  . HT: is it the same key as "banana"?  yes
+  . HT: replace (B) with (F)
+- [probably enough to drive the point home; if not, see slides]
+
+Library interface [right side of board]
+=================
+- library provides a type for hash dictionaries and some operations
+- usual pointer type for DS
+      // typedef ______* hdict_t;
+- [usually comes up last] function to create a dictionary
+      hdict_t hdict_new(int capacity)
+      /*@requires capacity > 0; @*/
+      /*@ensures \result != NULL; @*/ ;
+  . must pass capacity of HT for non-resizing variant
+    . capacity > 0 [not >= 0], otherwise % 0
+  . useful also for resizing variant if there is a good sense of expected size
+- function to lookup a key
+      entry hdict_lookup(hdict_t H, key k)
+      /*@requires H != NULL; @*/
+      [OMIT /*@ensures \result == NULL || key_equiv(entry_key(\result), k);] @*/ ;
+  . switch to client side and add type of keys and entries
+      // typedef ______ entry;
+      // typedef ______  key;
+  . must either return an entry or signal there isn't any with this key [audience participation]
+    . have entries be non-NULL POINTERS and use NULL as signal
+      . update
+          // typedef ______* entry;
+- function to insert entry
+      void hdict_insert(hdict_t H, entry x)
+      /*@requires H != NULL && x != NULL; @*/
+      [OMIT /*@ensures hdict_lookup(H, entry_key(x)) == x;] @*/ ;
+  . decision: override existing entry with same key, if any
+
+Client interface [left side of board]
+================
+- client needs to supply information to library so it can do its job
+- type of keys and entries [from earlier]
+      // typedef ______* entry;
+      // typedef ______  key;
+  . entry must be a pointer type (because of lookup), key can be any type
+- function to answer question "WHAT'S THE KEY?"
+      key entry_key(entry x)
+      /*@requires x != NULL; @*/ ;
+  . assumes key is embedded in entry
+    . alternative: key and value are distinct [code for this online]
+  . allows giving a meaningful postcondition to hdict_insert
+      /*@ensures hdict_lookup(H, entry_key(x)) == x; @*/
+- function to answer question "WHAT'S ITS HASH VALUE?"
+      int key_hash(key k);
+- function to answer question "ARE THESE KEYS THE SAME?"
+      bool key_equiv(key k1, key k2);
+  . allows giving a meaningful postcondition to hdict_lookup
+      /*@ensures \result == NULL || key_equiv(entry_key(\result), k); @*/
+
+Code organization
+=================
+- forces splitting client code [already seen when talking about elem type]
+  --------------------------
+  | client implementation  | implements types and operations in client interface      HOW
+  --------------------------
+  -------------------------
+  | client interface       | describes operations and contracts expected from client  WHAT
+  -------------------------
+  | library implementation | implements types and operations provided by library      HOW
+  --------------------------
+  | library interface      | describes operations and contracts provided by library   WHAT
+  --------------------------
+  --------------------------
+  | client application     | uses library operations and values
+  --------------------------
+
+- library = client interface + library implementation + library interface
+  . typically in 1 file
+- client view: client implementation + client interface + library interface + client application
+  . NOT library implementation!
+  . client implementation and application broken in 2 files to respect dependencies
+- example compilation
+    # cc0 -d hdict-client.c0 hdict.c0 main.c0
+  . hdict-client.c0 contains type and function definitions in client interface
+  . hdict.c0 contains client interface + library implementation + library interface
+  . main.c0 is client application
+- rather unsatisfactory
+  . we would like to use the library as a standalone service, like #use <string>
+  . we will fix this next time
+
+Library implementation
+======================
+[load hdict.c0 in editor and split window 3 ways:
+ . left: implementation code
+ . right top: client interface
+ . right bottom: library interface]
+- types [write from template]
+      typedef struct chain_node chain;
+      struct chain_node {
+        entry data;           // != NULL; contains both key and value
+        chain* next;
+      };
+
+      typedef struct hdict_header hdict;
+      struct hdict_header {
+        int size;              // 0 <= size
+        chain*[] table;        // \length(table) == capacity
+        int capacity;          // 0 < capacity
+      };
+  . assumes entry contains key
+  . key/value variant would have separate fields in chain_node's
+- data structure invariant
+  . based just on field constraints [pre-written in template file]
+      bool is_hdict(hdict* H) {
+        return H != NULL
+            && H->capacity > 0
+            && H->size >= 0
+            && is_array_expected_length(H->table, H->capacity);
+      }
+  . many more things need to be checked as part of is_hdict
+    . chains are acyclic
+    . no two entries with same key
+    . no entry is NULL
+    . each element hashes to right index
+    . number of entries = H->size
+    . if resizing, load factor within range
+    . possibly more
+- CLIENT CAN INVALIDATE is_hdict
+  . entries are pointers
+  . client can change fields and cause DS invariant to become invalid
+    . the library has no fault [first time this happens]
+  . aliasing can be very dangerous
+- implement hdict_lookup
+      entry hdict_lookup(hdict* H, key k)
+      //@requires is_hdict(H);
+      //@ensures \result == NULL || key_equiv(entry_key(\result), k);
+      {
+        int i = abs(key_hash(k) % H->capacity);
+        for (chain* p = H->table[i]; p != NULL; p = p->next) {
+          if (key_equiv(entry_key(p->data), k))
+            return p->data;
+        }
+        return NULL;
+      }
+  . client-supplied functions answer exactly the questions we were asking earlier
+  . computation of hash index common to many operations: better factor out as helper function
+      int index_of_key(hdict* H, key k)
+      //@requires is_hdict(H);
+      //@ensures 0 <= \result && \result < H->capacity;
+      {
+        return abs(key_hash(k) % H->capacity);
+      }
+- implement hdict_insert [if time]
+  . similar to hdict_lookup
+  . easier to prepend new entry
+- implement hdict_new [if time]
+
+Hash sets
+=========
+- other use of arrays: set of elements
+- reuse hash dictionaries idea for hash set library
+  . just 2 operations: membership (hset_contains) and adding an element (hset_insert)
+- a set is a dictionary where key = entry = element
+  . single client type, elem
+  . no need for function that extracts key from entry (key = entry = elem)
+- membership works like lookup but no need to return entry (we give it as input)
+  . return boolean
+  . NULL not needed as signal of "not there" -- elem doesn't have to be a pointer
+- streamlined set interface [show in file]
+/*** Client interface ***/
+// typedef _______ elem;           // Supplied by client
+bool elem_equiv(elem x, elem y);   // Supplied by client
+int elem_hash(elem x);             // Supplied by client
+
+/*** Library interface ***/
+// typedef ______* hset_t;
+
+hset_t hset_new(int capacity)
+  /*@requires capacity > 0; @*/
+  /*@ensures \result != NULL; @*/ ;
+
+bool hset_contains(hset_t H, elem x)
+  /*@requires H != NULL; @*/ ;
+
+void hset_add(hset_t H, elem x)
+  /*@requires H != NULL; @*/
+  /*@ensures hset_contains(H, x); @*/ ;

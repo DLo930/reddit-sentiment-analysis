@@ -1,0 +1,11 @@
+\checkpoint*{\TAGS{big-o}}
+
+Using the formal definition of big-O, prove that $n^3 + 300 n^2 \in
+O(n^3)$.
+
+\begin{solution}
+  $n^3 + 300n^2 \leq n^3 + 300n^3$ for all $n > 1$. $n^3 + 300n^3 =
+  301 n^3$.  So, for all $n > 1$, $n^3 + 300 n^2 \leq 301n^3$. We have
+  $n_0 = 1$, $c = 301$ if we want to plug back in to the formal
+  definition.
+\end{solution}

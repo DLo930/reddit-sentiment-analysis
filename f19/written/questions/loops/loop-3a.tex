@@ -1,0 +1,65 @@
+\part[1]\TAGS{loop-invariant, testing}
+Consider this loop:
+
+\begin{lstlisting}
+while (a > 0 && b > 0) {
+    if (a > b) {
+        a = a-b;
+    } else {
+        b = b-a;
+    }
+}
+\end{lstlisting}
+
+\begin{itemize}
+\itemsep=2ex
+
+\item If $a = 94$ and $b = 12$, then
+
+\medskip
+$a'$ = \ans{82} and
+$b'$ = \ans{12}
+
+\item If $a = x+y$ and $b = x$, where $x$ and $y$ are both positive
+  integers, then
+
+\medskip
+$a'$ = \ans{$y$} and
+$b'$ = \ans{$x$}
+
+\item If $a = x$ and $b = x+z$, where $x$ is a positive integer and
+  $z$ is a non-negative integer, then
+
+\medskip
+$a'$ = \ans{$x$} and
+$b'$ = \ans{$z$}
+
+\item If $a > 0$ and $b > 0$, one of the two cases above will always
+  be the case. Therefore, we can conclude which of the following about
+  the values stored in \lstinline'a' and \lstinline'b' after an arbitrary
+  iteration of the loop? (Check \textbf{\underline{all}} that apply)
+
+\smallskip
+\ansB{x} ~ $a' \geq 0$ and $b' \geq 0$
+
+\smallskip
+\ansB{x} ~ $a' > 0$ and $b' \geq 0$
+
+\smallskip
+\ansB{} ~ $a' \geq 0$ and $b' > 0$
+
+\smallskip
+\ansB{} ~ $a' > 0$ and $b' > 0$
+
+\end{itemize}
+
+\RUBRIC
+Part (c)
+TAGS: loop-invariant, testing
+
+Gradescope rubric:
++ 0.25 pts First bullet: a' = 82, b' = 12
++ 0.25 pts Second bullet: a' = y, b' = x
++ 0.25 pts Third bullet: a' = x, b' = z
++ 0.25 pts Fourth bullet: exactly the first two should be checked (the most precise answer is a' > 0 and b' >= 0, but this implies that a' >= 0 and b' >= 0)
+ENDRUBRIC

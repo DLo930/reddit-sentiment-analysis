@@ -1,0 +1,132 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 18             # string pool total size
+# string pool
+68 65 6C 6C 6F 00  # "hello"
+77 6F 72 6C 64 00  # "world"
+68 65 6C 6C 6F 00  # "hello"
+77 6F 72 6C 64 00  # "world"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 03             # number of local variables = 3
+00 BB             # code length = 187 bytes
+10 01    # bipush 1        # 1
+36 00    # vstore 0        # i = 1;
+# <00:loop>
+15 00    # vload 0         # i
+10 0A    # bipush 10       # 10
+A1 00 06 # if_icmplt +6    # if (i < 10) goto <01:body>
+A7 00 AD # goto +173       # goto <02:exit>
+# <01:body>
+15 00    # vload 0         # i
+BC 08    # newarray 8      # alloc_array(string, i)
+36 01    # vstore 1        # C = alloc_array(string, i);
+10 00    # bipush 0        # 0
+36 02    # vstore 2        # k = 0;
+# <03:loop>
+15 02    # vload 2         # k
+15 00    # vload 0         # i
+A1 00 06 # if_icmplt +6    # if (k < i) goto <04:body>
+A7 00 29 # goto +41        # goto <05:exit>
+# <04:body>
+15 01    # vload 1         # C
+15 02    # vload 2         # k
+63       # aadds           # &C[k]
+15 02    # vload 2         # k
+10 02    # bipush 2        # 2
+70       # irem            # (k % 2)
+10 00    # bipush 0        # 0
+9F 00 06 # if_cmpeq +6     # if ((k % 2) == 0) goto <06:cond_true>
+A7 00 09 # goto +9         # goto <07:cond_false>
+# <06:cond_true>
+14 00 00 # aldc 0          # s[0] = "hello"
+A7 00 06 # goto +6         # goto <08:cond_end>
+# <07:cond_false>
+14 00 06 # aldc 6          # s[6] = "world"
+# <08:cond_end>
+4F       # amstore         # C[k] = (((k % 2) == 0) ? "hello" : "world");
+15 02    # vload 2         # k
+10 01    # bipush 1        # 1
+60       # iadd            # 
+36 02    # vstore 2        # k += 1;
+A7 FF D3 # goto -45        # goto <03:loop>
+# <05:exit>
+10 00    # bipush 0        # 0
+36 02    # vstore 2        # k = 0;
+# <09:loop>
+15 02    # vload 2         # k
+15 00    # vload 0         # i
+A1 00 06 # if_icmplt +6    # if (k < i) goto <10:body>
+A7 00 5B # goto +91        # goto <11:exit>
+# <10:body>
+15 02    # vload 2         # k
+10 02    # bipush 2        # 2
+70       # irem            # (k % 2)
+10 00    # bipush 0        # 0
+9F 00 06 # if_cmpeq +6     # if ((k % 2) == 0) goto <15:and>
+A7 00 1D # goto +29        # goto <13:else>
+# <15:and>
+15 01    # vload 1         # C
+15 02    # vload 2         # k
+63       # aadds           # &C[k]
+2F       # amload          # C[k]
+14 00 0C # aldc 12         # s[12] = "hello"
+B7 00 00 # invokenative 0  # string_equal(C[k], "hello")
+10 01    # bipush 1        # true
+9F 00 0C # if_cmpeq +12    # if (string_equal(C[k], "hello") == true) goto <13:else>
+A7 00 03 # goto +3         # goto <12:then>
+# <12:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <14:endif>
+# <13:else>
+# <14:endif>
+15 02    # vload 2         # k
+10 02    # bipush 2        # 2
+70       # irem            # (k % 2)
+10 01    # bipush 1        # 1
+9F 00 06 # if_cmpeq +6     # if ((k % 2) == 1) goto <19:and>
+A7 00 1D # goto +29        # goto <17:else>
+# <19:and>
+15 01    # vload 1         # C
+15 02    # vload 2         # k
+63       # aadds           # &C[k]
+2F       # amload          # C[k]
+14 00 12 # aldc 18         # s[18] = "world"
+B7 00 00 # invokenative 0  # string_equal(C[k], "world")
+10 01    # bipush 1        # true
+9F 00 0C # if_cmpeq +12    # if (string_equal(C[k], "world") == true) goto <17:else>
+A7 00 03 # goto +3         # goto <16:then>
+# <16:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <18:endif>
+# <17:else>
+# <18:endif>
+15 02    # vload 2         # k
+10 01    # bipush 1        # 1
+60       # iadd            # 
+36 02    # vstore 2        # k += 1;
+A7 FF A1 # goto -95        # goto <09:loop>
+# <11:exit>
+15 00    # vload 0         # i
+10 01    # bipush 1        # 1
+60       # iadd            # 
+36 00    # vstore 0        # i += 1;
+A7 FF 4F # goto -177       # goto <00:loop>
+# <02:exit>
+10 00    # bipush 0        # 0
+B0       # return          # 
+
+00 01             # native count
+# native pool
+00 02 00 5F       # string_equal
+

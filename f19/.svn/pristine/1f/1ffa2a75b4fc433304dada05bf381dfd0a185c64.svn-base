@@ -1,0 +1,96 @@
+{
+  "title" : "Written Homeworks",
+  "label" : "book:writtens",
+  "chapters" : [
+  {
+    "number": 0,
+    "title": "Written 00 (UNGRADED)",
+    "label": "written:00",
+    "release date": "Aug 26 2019, 8:00"
+  },
+  {
+    "number": 1,
+    "title": "Written 01",
+    "label": "written:01",
+    "release date": "Aug 26 2019, 21:00"
+  },
+  {
+    "number": 2,
+    "title": "Written 02",
+    "label": "written:02",
+    "release date": "Sep 2 2019, 21:00"
+  },
+  {
+    "number": 3,
+    "title": "Written 03",
+    "label": "written:03",
+    "release date": "Sep 9 2019, 21:00"
+  },
+  {
+    "number": 4,
+    "title": "Written 04",
+    "label": "written:04",
+    "release date": "Sep 16 2019, 21:00"
+  },
+  {
+    "number": 5,
+    "title": "Written 05",
+    "label": "written:05",
+    "release date": "Sep 23 2019, 21:00"
+  },
+  {
+    "number": 6,
+    "title": "Written 06",
+    "label": "written:06",
+    "release date": "Sep 30 2019, 21:00"
+  },
+  {
+    "number": 7,
+    "title": "Written 07",
+    "label": "written:07",
+    "release date": "Oct 7 2019, 21:00"
+  },
+  {
+    "number": 8,
+    "title": "Written 08",
+    "label": "written:08",
+    "release date": "Oct 14 2019, 21:00"
+  },
+  {
+    "number": 9,
+    "title": "Written 09",
+    "label": "written:09",
+    "release date": "Oct 21 2019, 21:00"
+  },
+  {
+    "number": 10,
+    "title": "Written 10",
+    "label": "written:10",
+    "release date": "Oct 28 2019, 21:00"
+  },
+  {
+    "number": 11,
+    "title": "Written 11",
+    "label": "written:11",
+    "release date": "Nov 7 2019, 21:00"
+  },
+  {
+    "number": 12,
+    "title": "Written 12",
+    "label": "written:12",
+    "release date": "Nov 14 2019, 21:00"
+  },
+  {
+    "number": 13,
+    "title": "Written 13",
+    "label": "written:13",
+    "release date": "Nov 21 2019, 21:00"
+  },
+  {
+    "number": 14,
+    "title": "Written 14",
+    "label": "written:14",
+    "release date": "Dec 2 2019, 21:00"
+  }
+  ]
+}

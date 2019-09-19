@@ -1,0 +1,55 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 15             # string pool total size
+# string pool
+48 61 70 70 79 20 54 68 61 6E 6B 73 67 69 76 69 6E 67 21 0A 00  # "Happy Thanksgiving!\n"
+
+00 02             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 03             # number of local variables = 3
+00 0F             # code length = 15 bytes
+14 00 00 # aldc 0          # s[0] = "Happy Thanksgiving!\n"
+B7 00 00 # invokenative 0  # print("Happy Thanksgiving!\n")
+57       # pop             # (ignore result)
+10 00    # bipush 0        # 0
+10 0A    # bipush 10       # 10
+B8 00 01 # invokestatic 1  # f(0, 10)
+B0       # return          # 
+
+
+#<f>
+00 02             # number of arguments = 2
+00 03             # number of local variables = 3
+00 23             # code length = 35 bytes
+15 01    # vload 1         # i
+10 00    # bipush 0        # 0
+9F 00 06 # if_cmpeq +6     # if (i == 0) goto <00:then>
+A7 00 0A # goto +10        # goto <01:else>
+# <00:then>
+15 00    # vload 0         # sum
+36 02    # vstore 2        # result = sum;
+A7 00 12 # goto +18        # goto <02:endif>
+# <01:else>
+15 00    # vload 0         # sum
+15 01    # vload 1         # i
+60       # iadd            # (sum + i)
+15 01    # vload 1         # i
+10 01    # bipush 1        # 1
+64       # isub            # (i - 1)
+B8 00 01 # invokestatic 1  # f((sum + i), (i - 1))
+36 02    # vstore 2        # result = f((sum + i), (i - 1));
+# <02:endif>
+15 02    # vload 2         # result
+B0       # return          # 
+
+00 01             # native count
+# native pool
+00 01 00 06       # print
+

@@ -1,0 +1,38 @@
+\section*{Comparing tree contents}
+
+Since there are multiple valid BSTs that contain the
+same elements, it is not possible to check if two BSTs
+contain the same elements by just comparing their structure. In-order
+traversal can solve this.
+
+\enlargethispage{5ex}
+\begin{part}\TAGS{bst, interface, testing}
+  In file \lstinline'bst.c1', implement the function
+  \lstinline'bst_equal', which returns whether or not two BSTs
+  contain the same elements.  You may assume that the two
+  trees use the same comparison function.
+\begin{solution}
+\begin{lstlisting}
+bool bst_equal(bst* B1, bst* B2)
+//@requires is_bst(B1) && is_bst(B2);
+{
+  stack_t S1 = bst_traverse_start(B1);
+  stack_t S2 = bst_traverse_start(B2);
+  while (!bst_traverse_finished(S1) && !bst_traverse_finished(S2)) {
+    elem e1 = bst_traverse_next(S1);
+    elem e2 = bst_traverse_next(S2);
+    if ((*B1->compare)(e1, e2) != 0) {
+      return false;
+    }
+  }
+  return bst_traverse_finished(S1) && bst_traverse_finished(S2);
+}
+\end{lstlisting}
+\vspace*{-0.5em}
+\end{solution}
+\end{part}
+\vspace*{-0.5em}
+You can test your code using: %
+\lstinline'cc0 -d -x lib/stack.c1 bst.c1 test-equal.c1'.
+
+\threePT

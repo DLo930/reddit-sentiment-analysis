@@ -1,0 +1,44 @@
+---
+general:
+  name: peg
+  description: ''
+  display_name: Peg Solitaire
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: peg-handout.tgz
+  writeup: peg-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: 15
+  has_svn: false
+  category_name: Programming
+problems:
+- name: moves
+  description: ''
+  max_score: 8.0
+  optional: false
+- name: peg1
+  description: ''
+  max_score: 8.0
+  optional: false
+- name: peg2
+  description: ''
+  max_score: 9.0
+  optional: false
+- name: bonus
+  description: ''
+  max_score: 2.0
+  optional: true
+autograder:
+  autograde_timeout: 600
+  autograde_image: rhel.img
+  release_score: true
+scoreboard:
+  banner: ''
+  colspec: '{"scoreboard": [ {"hdr":"Graded boards"}, {"hdr":"Fastest
+    French solve", "asc":1}, {"hdr":"Solved english?"} ] }'
+version_penalty:
+  kind: 1
+  value: 5.0

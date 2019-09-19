@@ -1,0 +1,132 @@
+\clearpage
+\bgroup
+%% Change values from time to time
+\newcommand{\arrTP}{int}%{char}
+\newcommand{\arrONE}{X}%{C}{B}{A}
+\newcommand{\arrTWO}{AUX}%{TMP}{C}
+\newcommand{\arrSize}{27}%{42}{10}
+\newcommand{\IO}{3}%{5}{2}
+\newcommand{\IA}{5}%{7}{3}{2}
+\newcommand{\IB}{13}%{11}{7}{4}
+\newcounter{cnt}
+\newcommand{\IAA}{\setcounter{cnt}{\IA - \IO}\arabic{cnt}}
+\newcommand{\IBB}{\setcounter{cnt}{\IB - \IO}\arabic{cnt}}
+\newcommand{\vA}{\setcounter{cnt}{42 - \IA}\arabic{cnt}}
+\newcommand{\vB}{\setcounter{cnt}{42 - (\IB - \IO)}\arabic{cnt}}
+
+\Question[4]{Pass by Reference and Arrays versus Pointers in C}%
+\TAGS{aliasing, c-array}
+
+The following little program allocates and initializes an array of
+numbers, then calls a function \lstinline'f' on two of its elements.
+Rewrite these functions in the box below so that it has the same
+behavior, uses the same variables at any point, but doesn't use the
+pointer arithmetic notation.  You may not insert additional
+instructions.
+
+\bigskip
+\begin{lstlisting}
+#include <stdlib.h>
+#include <stdio.h>
+#include "lib/xalloc.h"
+#include "lib/contracts.h"
+
+void f([*\textbf{\arrTP}*] *x, [*\textbf{\arrTP}*] *y);   // Code omitted
+
+[*\textbf{\arrTP}*] *mk_[*\arrTP*]_array(size_t n) {
+  return xmalloc(sizeof([*\textbf{\arrTP}*]) * n);
+}
+
+int main() {
+  [*\textbf{\arrTP}*] *[*\arrONE*] = mk_[*\arrTP*]_array(1[*\arrSize*]);
+  for (int i = 0 ; i < [*\arrSize*] ; i++) {
+    ASSERT(0 <= i);
+    *([*\arrONE*] + i) = 42 - i;
+  }
+  [*\textbf{\arrTP}*] *[*\arrTWO*] = [*\arrONE*]+[*\IO*];
+  ASSERT(*([*\arrONE*]+[*\IA*]) == [*\vA*]);
+  ASSERT(*([*\arrTWO*]+[*\IB*]) == [*\vB*]);
+  f([*\arrONE*]+[*\IA*], [*\arrONE*]+[*\IB*]);
+  ASSERT(*([*\arrTWO*]+[*\IAA*]) == [*\vB*]);
+  ASSERT(*([*\arrONE*]+[*\IBB*]) == [*\vA*]);
+
+  printf("All tests passed.\n");
+  free([*\arrONE*]);
+  return 0;
+}
+\end{lstlisting}
+\newpage
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+[*\textbf{\arrTP}*] *mk_[*\arrTP*]_array(size_t n) {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  return xmalloc(sizeof([*\arrTP*]) * n);      // UNCHANGED
+\end{lstlisting}
+\else\vspace{0.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+}
+
+int main() {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  [*\textbf{\arrTP}*] *A = mk_[*\textbf{\arrTP}*]_array(1[*\arrSize*]);
+  for (int i = 0 ; i < [*\arrSize*] ; i++) {
+    ASSERT(0 <= i);
+    [*\arrONE*][i] = 42 - i;
+  }
+  [*\textbf{\arrTP}*] *[*\arrTWO*] = &[*\arrONE*][[*\IO*]];
+  ASSERT([*\arrONE*][[*\IA*]] == [*\vA*]);
+  ASSERT([*\arrTWO*][[*\IB*]] == [*\vB*]);
+  f(&[*\arrONE*][[*\IA*]], &[*\arrONE*][[*\IB*]]);
+  ASSERT([*\arrTWO*][[*\IAA*]] == [*\vB*]);
+  ASSERT([*\arrONE*][[*\IBB*]] == [*\vA*]);
+
+  printf("All tests passed.\n");
+  free([*\arrONE*]);
+  return 0;
+\end{lstlisting}
+\else\vspace{10cm}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+TAGS: aliasing, c-array
+
+Gradescope rubric:
++0.5pt Allocation remains the same
++0.5pt Array notation in for loop
++1pt Correctly assigns TMP
++1pt Array notation in assertions
++1pt Array notation when calling f
+
+Commentary:
+3/4 point each for the allocation, the assignment, all the assertions, and the call to f.
+
+int *mk_int_array(size_t n) {
+  return xmalloc(sizeof(int) * n);      // UNCHANGED
+}
+
+int main() {
+  int *A = mk_int_array(110);
+  for (int i = 0 ; i < 10 ; i++) {
+    ASSERT(0 <= i);
+    A[i] = 42 - i;
+  }
+  int *C = &A[2];
+  ASSERT(A[3] == 3);
+  ASSERT(C[5] == 7);
+  f(&A[3], &A[7]);
+  ASSERT(C[1] == 7);
+  ASSERT(A[7] == 3);
+
+  printf("All tests passed.\n");
+  free(A);
+  return 0;
+}
+ENDRUBRIC
+\egroup

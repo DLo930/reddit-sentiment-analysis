@@ -1,0 +1,303 @@
+/*
+ * Clac, stack-based calculator language
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+#use <util>
+
+/* From the perspective of the clac-main.c0 file, state_t is an
+ * abstract type. (typedef ____* state_t) This file contains the
+ * implementation of the state_t type. You will add new fields to this
+ * struct when you do task 4. */
+struct state_header {
+  dict_t def;
+};
+typedef struct state_header* state_t;
+state_t init_state()
+//@ensures \result != NULL;
+{
+  return alloc(struct state_header);
+}
+
+bool is_operand(string str)
+{
+    return string_equal(str,"+")||string_equal(str,"-")||string_equal(str,"*")
+    ||string_equal(str,"/")||string_equal(str,"%")||string_equal(str,"<");
+}
+
+int operand_Output(int num1, int num2, string op)
+//@requires is_operand(op);
+{
+    if(string_equal(op,"+"))
+    {
+        return num2 + num1;
+    }
+    else if(string_equal(op,"-"))
+    {
+        return num2 - num1;
+    }
+    else if(string_equal(op,"*"))
+    {
+        return num2 * num1;
+    }
+    else if(string_equal(op,"/"))
+    {
+        return num2 / num1;
+    }
+    else if(string_equal(op,"%"))
+    {
+        return num2 % num1;
+    }
+    else//op == "<"
+    {
+        if(num2 < num1)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
+bool divByZero(int num1, int num2, string tok)
+//@requires is_operand(tok);
+{
+    return ((string_equal(tok, "/")||string_equal(tok, "%")) && 
+           (num1 == 0 || (num2 == -2147483648 && num1== -1)));
+}
+
+/* Main clac interpreter. */
+/* Return true: clac top-level interpreter will expect more input */
+/* Return false: clac top-level interpreter will exit */
+bool eval(queue_t Q, stack_t S, state_t ST)
+//@requires Q != NULL && S != NULL && ST != NULL;
+//@ensures \result == false || queue_empty(Q);
+{
+  ST->def = dict_new();
+  while (!queue_empty(Q)) 
+  {
+    string tok = deq(Q); /* Is this dequeue safe? */
+    // Uncommenting these lines might help with debugging:
+    print("Read: "); print(tok); print("\n");
+    if (string_equal(tok, "print")) 
+    {
+        if(!stack_empty(S))
+        {      
+            int x = pop(S); /* This line is unsafe and must be fixed! */
+            printint(x); 
+            print("\n");
+        }
+        else
+        {
+            error("not enough elements on stack");
+        }
+    }
+    else if(string_equal(tok, "quit")) 
+    {
+        return false;
+    } 
+    else if(string_equal(tok, "drop")) 
+    {
+        if(!stack_empty(S))
+        {
+            int dropIt = pop(S);
+        }
+        else{error("not enough elements on stack");}
+    }
+    else if(string_equal(tok, "swap"))
+    {
+        if(!stack_empty(S))//checks that pop is safe
+        {
+            int num1 = pop(S);
+            if(!stack_empty(S))
+            {
+                int num2 = pop(S);
+                push(S,num1);
+                push(S,num2);
+            }
+            else{error("not enough elements on stack");}
+        }
+        else{error("not enough elements on stack");}
+    } 
+    else if(string_equal(tok, "rot"))
+    {
+        if(!stack_empty(S))//checks that pop is safe
+        {
+            int num1 = pop(S);
+            if(!stack_empty(S))
+            {
+                int num2 = pop(S);
+                if(!stack_empty(S))
+                {
+                    int num3 = pop(S);
+                    push(S,num2);
+                    push(S,num1);
+                    push(S,num3);
+                }
+            }
+            else{error("not enough elements on stack");}
+        }
+        else{error("not enough elements on stack");}
+    }
+    else if(string_equal(tok, "if"))
+    {
+        if(!stack_empty(S))//checks that pop is safe
+        {
+            int x = pop(S);
+            if(x == 0)
+            {
+                for(int i =0; i<3;i++)
+                {
+                   if(!queue_empty(Q)){deq(Q);}
+                   else {error("not enough elements on queue");}
+                }
+            }
+            else
+            {
+                queue_t QTemp = queue_new();
+                for(int i =0; i<3;i++)//checks that queue is >= 3
+                {
+                    if(!queue_empty(Q)){enq(QTemp,deq(Q));}
+                    else {error("not enough elements on queue");}
+                }
+                while(!queue_empty(QTemp))
+                {
+                    enq(Q,deq(QTemp));//putting back the elements
+                }
+            }
+        }
+    }
+     
+    else if(string_equal(tok, "skip"))
+    {
+        if(!stack_empty(S))//checks that pop is safe
+        {
+            int n = pop(S);
+            if(n < 0){error("improper value for skip function");}
+            for(int i=0; i<n;i++)
+            {
+                if(!queue_empty(Q)){deq(Q);}
+                else
+                {
+                    i=n;
+                    error("not enough elements on queue");
+                }
+            }
+        }
+        else{error("not enough elements on stack");} 
+    }
+    else if(string_equal(tok, "pick"))
+    {
+        int pickNum = -42;
+        if(!stack_empty(S))//checks that pop is safe
+        {
+            int n = pop(S);
+            if(n <= 0){error("improper value for pick function");}
+            stack_t T = stack_new();
+            for(int i=0; i<n;i++)
+            {
+                if(!stack_empty(S))
+                {
+                    pickNum = pop(S);
+                    push(T,pickNum);
+                }
+                else
+                {
+                    error("not enough elements on queue");
+                }
+            }
+            while(!stack_empty(T))
+            {
+                push(S,pop(T));
+            }
+            push(S,pickNum);
+        }
+        else{error("not enough elements on stack");} 
+    }           
+    else if(is_operand(tok))//addition
+    {
+        if(!stack_empty(S)) 
+        {
+            int num1 = pop(S);
+            if(!stack_empty(S)) //check that both pops are safe   
+            {
+                int num2 = pop(S);
+                if(divByZero(num1,num2,tok)){error("Division by zero");}
+                else
+                {
+                    int result = operand_Output(num1, num2, tok);
+                    push(S,result);
+                }
+            }
+            else{error("not enough elements on stack");}
+        }
+        else{error("not enough elements on stack");}
+    }
+    else if(string_equal(tok, ":"))//definition function
+    {
+        string name = deq(Q);
+        queue_t temp = queue_new();
+        string next = deq(Q);
+        while(!string_equal(next, ";"))
+        {
+            if(!queue_empty(Q))
+            {
+                enq(temp, next);
+                next = deq(Q);
+            }
+            else//if user does not end with a ;
+            {
+                error("unexpected end of input");
+            }
+        }
+        dict_insert(ST->def, name, temp);
+    }
+    else if(dict_lookup(ST->def, tok)!= NULL)
+    {
+        queue_t defQ = dict_lookup(ST->def, tok);
+        queue_t temp_defQ = queue_read_only_copy(defQ);
+        queue_t temporaryQ = queue_read_only_copy(Q);
+        while(!queue_empty(Q))
+        {
+            deq(Q);
+        }
+        while(!queue_empty(temp_defQ))//places the definition queue in front
+        {
+            enq(Q,deq(temp_defQ));
+        }
+        while(!queue_empty(temporaryQ))//places rest of Q back in place
+        {
+            enq(Q,deq(temporaryQ));
+        }
+    }
+    else 
+    {
+      /* Not defined as an operation name, should be an int */
+      int* p = parse_int(tok, 10);
+      if (p == NULL) { /* not an int */
+        /* call error(msg) which prints msg and aborts */
+        error(string_join("undefined token ", tok));
+      }
+      push(S, *p);
+    }
+  }
+
+  /* When you return "true", don't pop anything off the stack! When we
+   * grade your function, we'll check that the stack contains the
+   * integers we expect. */
+  return true;
+}
+/*bool strInQ(string str, queue_t Q)
+{
+    queue_ t T = 
+    while(!is_empty(Q))
+    {
+        if(string_equal(str,deq(Q))
+    }
+}*/

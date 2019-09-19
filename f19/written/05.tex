@@ -1,0 +1,47 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{5}
+\newcommand{\duedate}{\formatdate{30}{9}{\YEAR}} % day-month-year
+\newcommand{\shortdesc}{This written homework covers big-$O$ notation,
+  some reasoning about searching and sorting algorithms, pointers,
+  interfaces, and stacks and queues.  You will use some of the
+  functions from the arrayutil.c0 library, as well as the data
+  structure interfaces introduced in lecture this week.
+
+  This is the first homework to emphasize interfaces. It's important
+  for you to think carefully and be sure that your solutions respect
+  the interface involved in the problem.}
+
+\input{inc/preamble}
+\begin{document}
+\input{inc/frontmatter}
+
+\begin{questions}
+%\inputQuestion{overlaps}  % S17 F16 S16 -- don't use with speller hw
+\inputQuestion[questions/pointers/]{main1}  % F19 F18 F17 F16 S16
+%\inputQuestion[questions/pointers/]{main2}  % S19 S18 S17
+\inputQuestion[questions/image-struct/]{main}  % See file
+%\inputQuestion[questions/interfaces/]{main1}  % F19 S19 S18 S17 F16 S16
+\inputQuestion[questions/interfaces/]{main2}  % F19 F18
+\end{questions}
+
+\RUBRIC
+
+Learning Objectives (AKA Evaluation Summary)
+* Pointers
+* Library interfaces
+* Library implementations
+* Using stacks and queues
+
+Gradescope rubric (no points, first two are always the same):
+-0pt EXCELLENT JOB!!!
+-0pt There are several concepts you have doubts about (see below): please consider going to office hours.
+
+-0pt You don't seem to fully understand how pointers work
+-0pt You seem to be having difficulty with library interfaces
+-0pt You look a bit confused about library implementations
+-0pt You don't seem comfortable with using stacks and queues
+
+ENDRUBRIC
+
+\input{inc/backmatter}
+\end{document}

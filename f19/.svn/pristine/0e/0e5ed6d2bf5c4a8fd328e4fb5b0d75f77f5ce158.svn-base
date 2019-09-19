@@ -1,0 +1,203 @@
+\section*{Using generic hash tables}
+
+In this lab, we'll be using the hash dictionaries discussed in
+lecture, but we'll be implementing a slightly different
+dictionary interface than what we saw in class.
+\begin{quote}
+\begin{lstlisting}
+/*** Client interface ***/
+
+typedef void* key;
+typedef void* value;
+
+typedef bool key_equiv_fn(key x, key y);
+typedef int key_hash_fn(key x);
+
+/*** Library interface ***/
+
+// typedef ______* hdict_t;
+typedef struct hdict_header* hdict_t;
+
+hdict_t hdict_new(int capacity, key_equiv_fn* equiv, key_hash_fn* hash)
+  /*@requires capacity > 0 && equiv != NULL && hash != NULL; @*/
+  /*@ensures \result != NULL; @*/ ;
+
+value hdict_lookup(hdict_t H, key k)
+  /*@requires H != NULL; @*/ ;
+
+void hdict_insert(hdict_t H, key k, value v)
+  /*@requires H != NULL && v != NULL; @*/
+  /*@ensures hdict_lookup(H, k) == v; @*/ ;
+\end{lstlisting}
+\end{quote}
+Our sample application will be used in checking student attendance.
+Your code for this should go in a file called \lstinline'rollcall.c1'. %NEW
+
+\begin{part}\TAGS{dictionary, void-star}
+  Define a struct that represents students.  Its fields should include
+  \lstinline'andrew_id' (\lstinline'string'), \lstinline'days_present'
+  (\lstinline'int'), and \lstinline'days_absent' (\lstinline'int').
+  You can include other fields if you want, but you need these fields
+  with these types.
+
+  Write out the definition of this struct.  Include a
+  \lstinline'typedef' so that you can allocate structs with
+  \lstinline'alloc(student)'.
+
+\onePT
+\begin{solution}
+\begin{lstlisting}[numbers=left, name="rollcall"]
+struct student_info {
+  string andrew_id;
+  int days_present;
+  int days_absent;
+};
+typedef struct student_info student;
+
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{interface, hashing, void-star}
+  Write client functions for a hashtable based on student
+  information. For this lab we will think of our keys as being
+  Andrew IDs, and therefore be using pointers to
+  \lstinline'string's (\lstinline'string*') to represent them. We will
+  think of the entries as being students, and therefore
+  use pointers to \lstinline'student's (\lstinline'student*') to represent
+  the value.
+
+  \emph{Hint:} Your functions should have the requirement that
+  \lstinline'x' and \lstinline'y' are both non-\lstinline'NULL' and
+  have \lstinline'string*' as their tag.
+ %The hash function should create a hash value based \emph{only} on the \lstinline'andrew_id' string, and the equivalence function should check \emph{only} the \lstinline'andrew_id' fields for equality.
+\begin{quote}
+\begin{lstlisting}
+int hash_student(key x);
+bool students_same_andrewid(key x, key y);
+\end{lstlisting}
+\end{quote}
+
+\begin{solution}
+\begin{lstlisting}[numbers=left, name="rollcall"]
+int hash_student(key x)
+//@requires x != NULL && \hastag(string*, x);
+{
+    string s = *(string*)x;
+    int h = 0;
+    for (int i = 0; i < string_length(s); i++) {
+        h = 31 * h + char_ord(string_charat(s, i));
+    }
+    return h;
+}
+
+bool students_equal(key x, key y)
+//@requires x != NULL && \hastag(string*, x);
+//@requires y != NULL && \hastag(string*, y);
+{
+    string s1 = *(string*)x;
+    string s2 = *(string*)y;
+    return string_equal(s1, s2);
+}
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{function-pointer, interface}
+  Write a function that initializes a \lstinline'hdict_t' with students
+  that have no attendance record. Don't worry about what happens if
+  there are duplicates in this array.
+\begin{quote}
+\begin{lstlisting}[belowskip=0pt]
+hdict_t new_roster(string[] andrew_ids, int len)
+//@requires \length(andrew_ids) == len;
+\end{lstlisting}
+\twoPT
+\end{quote}
+
+\begin{solution}
+\begin{lstlisting}[numbers=left, name="rollcall"]
+hdict_t new_roster(string[] andrew_ids, int len)
+//@requires \length(andrew_ids) == len;
+{
+    hdict_t H = hdict_new(len, &students_equal, &hash_student);
+    for (int i = 0; i < len; i++) {
+        student* s = alloc(student);
+        s->andrew_id = andrew_ids[i];
+        string* v = alloc(string);
+        *v = andrew_ids[i];
+        hdict_insert(H, (void*)v, (void*)s);
+    }
+    return H;
+}
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+At this point, you should create a trivial \lstinline'main()' function
+inside \lstinline'rollcall.c1'
+just to make sure your code compiles:
+\begin{lstlisting}[language={[coin]C}]
+cc0 -d hdict.c1 rollcall.c1
+\end{lstlisting}
+You'll need to delete this \lstinline'main()'
+function before compiling with \lstinline'test-rollcall.c1' below.
+
+\begin{part}\TAGS{application, dictionary, interface}
+  Write functions that increment a student's attendance record.
+\begin{quote}
+\begin{lstlisting}
+void mark_present(hdict_t H, string andrew_id)
+//@requires H != NULL;
+
+void mark_absent(hdict_t H, string andrew_id)
+//@requires H != NULL;
+\end{lstlisting}
+\end{quote}
+These functions should manipulate the \lstinline'days_present' and
+\lstinline'days_absent' fields stored in the hash table, so that
+\lstinline'hdict_lookup' can access these fields later on.
+
+\threePT
+\begin{solution}
+\begin{lstlisting}[numbers=left, name="rollcall"]
+void mark_present(hdict_t H, string andrew_id)
+//@requires H != NULL;
+{
+    string* k = alloc(string);
+    *k = andrew_id;
+    student* s = (student*)hdict_lookup(H, (void*)k);
+    if (s == NULL) return; //bail out if we can't find the student
+    s->days_present++;
+}
+
+void mark_absent(hdict_t H, string andrew_id)
+//@requires H != NULL;
+{
+    string* k = alloc(string);
+    *k = andrew_id;
+    student* s = (student*)hdict_lookup(H, (void*)k);
+    if (s == NULL) return; //bail out if we can't find the student
+    s->days_absent++;
+}
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+You can compile and run your code with \lstinline'test-rollcall.c1':
+\begin{lstlisting}[language={[coin]C}]
+% cc0 -d hdict.c1 rollcall.c1 test-rollcall.c1
+% ./a.out
+Enrolling bovik, rjsimmon, fp, and niveditc... done.
+Student gburdell is not enrolled...
+Student bovik is enrolled...
+Student rjsimmon is enrolled...
+Student twm is not enrolled...
+
+Student bovik: 5 present, 4 absent...
+Student rjsimmon: 8 present, 1 absent...
+Student niveditc: 8 present, 1 absent...
+Student fp: 2 present, 7 absent...
+Done!
+\end{lstlisting}
+\enlargethispage{5ex}

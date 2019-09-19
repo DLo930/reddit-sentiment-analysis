@@ -1,0 +1,39 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (k <= n)
+//@loop_invariant i*i == k;[*\label{l:lpres-yes5-LI}*]
+{
+  k = k + 2*i + 1;[*\label{l:lpres-yes5-setk}*]
+  i = i + 1;[*\label{l:lpres-yes5-seti}*]
+}
+\end{lstlisting}
+\begin{framed}
+\newcommand{\ans}[2]{\item\makebox[16em][l]{#1} by #2}
+\ifprintanswers{\color{\answerColor}
+  ALWAYS PRESERVED.
+
+\begin{enumerate}[(a)]
+  \ans{\lstinline'k`' = \lstinline'k + 2*i + 1'}{line~\ref{l:lpres-yes5-setk}}
+  \ans{\lstinline'k + 2*i + 1' = \lstinline'i*i + 2*i + 1'}{line~\ref{l:lpres-yes5-LI}}
+  \ans{\lstinline'i*i + 2*i + 1' = \lstinline'(i+1)*(i+1)'}{math}
+  \ans{\lstinline'(i+1)*(i+1)' = \lstinline'i`*i`'}{line~\ref{l:lpres-yes5-seti}}
+  \ans{so \lstinline'i`*i` == k`'}{(a--d)}
+  \end{enumerate}
+}\else~\vspace{2.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<y5>)
+
+Gradescope rubric:
++0.25pt ALWAYS PRESERVED
++0.25pt Valid proof showing that i'*i' == k'
+
+Commentary:
+The loop invariant is always preserved.
+  - k' = k + 2*i + 1                 (line 4)
+  - k + 2*i + 1 = i*i + 2*i + 1      (line 2)
+  - i*i + 2*i + 1 = (i + 1)*(i + 1)  (math)
+  - (i + 1)*(i + 1) = i'*i'          (line 5)
+  - i'*i' = k                        (transitivity, the last 4 facts)
+ENDRUBRIC

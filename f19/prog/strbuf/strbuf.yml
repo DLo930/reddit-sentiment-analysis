@@ -1,0 +1,51 @@
+---
+general:
+  name: strbuf
+  description: ''
+  display_name: String Buffers
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: strbuf-handout.tgz
+  writeup: strbuf-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: 7
+  has_svn: false
+  category_name: Programming
+problems:
+- name: is_strbuf
+  description: ''
+  max_score: 4.0
+  optional: false
+- name: strbuf_basic
+  description: ''
+  max_score: 3.0
+  optional: false
+- name: strbuf_add
+  description: ''
+  max_score: 5.0
+  optional: false
+- name: unit_tests
+  description: ''
+  max_score: 4.0
+  optional: false
+- name: translation
+  description: ''
+  max_score: 9.0
+  optional: false
+autograder:
+  autograde_timeout: 180
+  autograde_image: rhel.img
+  release_score: true
+scoreboard:
+  banner: ''
+  colspec: '{"scoreboard": [{"hdr": "Tasks Complete"}, {"hdr": "C0 bugs"}, {"hdr":
+    "C bugs"}]}'
+late_penalty:
+  kind: 1
+  value: 100.0
+version_penalty:
+  kind: 0
+  value: 0.5

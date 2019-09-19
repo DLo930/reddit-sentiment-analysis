@@ -1,0 +1,113 @@
+/* test the correctness of blur based on provided test images */
+
+#use <img>
+#use <parse>
+#use <args>
+#use <conio>
+#use <file>
+#use <string>
+
+pixel[] blur(pixel[] p, int width, int height, int[] mask, int maskwidth);
+
+/* tests if two images a and b are equal */
+bool image_equal(image_t a, image_t b) {
+		int aheight = image_height(a);
+    int bheight = image_height(b);
+    if (aheight != bheight)
+        return false;
+
+    int awidth = image_width(a);
+    int bwidth = image_width(b);
+    if (awidth != bwidth)
+        return false;
+
+    pixel[] arra = image_data(a);
+    pixel[] arrb = image_data(b);
+   
+    for(int i = 0; i < awidth*aheight; i++)
+    {
+        if(arra[i] != arrb[i])
+        {
+            return false;
+        }
+    }
+
+		return true;
+}
+
+/* returns the mask array specified in the file file_name */
+int[] get_mask(string file_name)
+{
+    int [] blurmask;
+    int i;
+    file_t file = file_read(file_name);
+
+    int *size = parse_int(file_readline(file), 10);
+    blurmask = alloc_array(int, *size * *size);
+    i = 0;
+    while (!file_eof(file)) {
+        int *value = parse_int(file_readline(file),10);
+        blurmask[i] = *value;
+        i++;
+    }
+   
+   return blurmask;
+}
+
+int main() {
+    image_t source;
+    image_t dest;
+    image_t expected_image;
+    int width;
+    int height;
+    int[] inpixels;
+    int[] outpixels;
+    int[] resultpixels;
+    int[] blurmask;
+    string *output = alloc(string);
+    string *input = alloc(string);
+    string *mask = alloc(string);
+    string *expected = alloc(string);
+    string type = "blur";
+    string[] args;
+    bool result = true;
+    int i;
+  
+    *input = "./images/carnegie.png"; 
+
+    source = image_load(*input);
+    width = image_width(source);
+    height = image_height(source);
+
+    dest = image_create(width, height);
+    inpixels = image_data(source);
+    outpixels = image_data(dest);
+
+    *expected = "./images/carnegie-blur3.png"; 
+    *mask = "./mask3.txt";
+
+		expected_image = image_load(*expected);
+    blurmask = get_mask(*mask);
+
+    resultpixels = blur(inpixels, width, height, blurmask, 3);
+
+    for (i = 0; i < width*height; i++)
+        outpixels[i] = resultpixels[i];
+
+    if(!image_equal(dest, expected_image))
+        result = false;
+
+    image_destroy(dest);
+    image_destroy(source);
+
+
+    if(!result)
+	{
+		println("TEST FAILED");
+		assert(false);
+	}
+
+	println("TEST PASSED");
+    return 0;
+}
+ 

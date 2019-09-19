@@ -1,0 +1,146 @@
+\usepackage{import}  % Like input and include, but respects subdirectories
+
+% copied from palatino.sty, except left ttdefault as CMTT
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+% \renewcommand{\ttdefault}{pcr}
+% end palatino.sty
+
+\usepackage{amsmath,amsthm,amssymb}
+%\usepackage{enumerate}  Use enumitem, diderot doesn't like enumerate
+\usepackage{enumitem}  % control enumerate/itemized lists, used
+\usepackage{etoolbox} % Subsumes ifthen
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{makeidx}
+\usepackage{minitoc}
+
+\usepackage[breaklinks=true,
+  colorlinks=true,
+  citecolor=blue,
+  linkcolor=blue,
+  urlcolor=blue]{hyperref}
+
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\setlength{\headheight}{14pt}
+\addtolength{\oddsidemargin}{30pt}
+\addtolength{\evensidemargin}{-22pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\newcommand{\gototoc}{\quad\hyperlink{toc}{\phantom{$\Uparrow$}}\quad}
+\lhead[\thepage\gototoc]{\fancyplain{}{\leftmark}}
+\chead{}
+\rhead[\rightmark]{\fancyplain{}{\gototoc\thepage}}
+\rfoot{}
+\cfoot{\fancyplain{\thepage}{\em Draft of \today}}
+\lfoot{}
+
+
+% Directories containing code and pictures
+\newcommand{\code}{code}
+\newcommand{\img}{img}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{exercise}{Exercise}[chapter]
+\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\newenvironment{Exercise}[1]
+{\begin{exercise}[sample solution on page~\pageref{#1-solved}]%
+    \label{#1}}
+{\end{exercise}\vspace{-0.5ex}}
+
+\newenvironment{Solution}[1]
+{\par\noindent
+  \textbf{Solution of exercise~\ref{#1}.}~\bgroup\itshape
+  \label{#1-solved}%
+}
+{\egroup\par\bigskip}
+
+\renewenvironment{proof}{\trivlist \item[\hskip \labelsep{\bf
+Proof:}]}{\hfill$\Box$ \endtrivlist}
+\newenvironment{attempt}{\trivlist \item[\hskip \labelsep{\bf
+Proof attempt:}]}{\hfill$\Diamond$ \endtrivlist}
+
+\newcommand{\ednote}[1]{\footnote{\it #1}\message{ednote!}}
+\newenvironment{note}{\begin{quote}\message{note!}\it}{\end{quote}}
+\newcommand{\highlight}[1]{\par%\vspace{1ex}%
+\framebox{\addtolength{\linewidth}{-1em}\begin{minipage}{\linewidth}#1\end{minipage}}}
+
+\newcommand{\m}[1]{\mathsf{#1}}
+
+%% Displays tags in 'answer' mode
+\providecommand{\ismeta}{false}
+\newcommand{\TAGS}[2][0ex]
+{\ifbool{\ismeta}%
+  {%\rule{0em}{0ex}%
+   \marginpar{\vspace*{-5.5ex}\footnotesize%
+   \raisebox{#1}{%
+     \fcolorbox{black}{Gray!25}{%
+       \parbox[t]{2cm}{\raggedright\textbf{TAGS:}\\#2}}}}%
+   \ignorespaces}%
+  {}}%
+\newcommand{\exerciseTAGS}[1]{\TAGS[-10ex]{#1}}
+\newcommand{\chapterTAGS}[1]
+{\ifbool{\ismeta}%
+  {\chead{\fancyplain{%
+   \fcolorbox{black}{Gray!25}{%
+     \parbox[t]{0.985\linewidth}{\raggedright\textbf{TAGS:} #1}}%
+   }}}%
+  {}}%
+
+%% Macros for rendering C0, C1, C, C0VM listings
+\usepackage{../../misc/latex/c0}
+
+
+% Must be loaded after listings
+\usepackage{tikz}
+
+
+\setcounter{tocdepth}{1}
+\newenvironment{preface}
+ {\rhead[\sc Preface]{\fancyplain{}{\thepage}}%
+  \clearpage%
+  \vspace*{2cm}%
+  \noindent%
+  {\Huge \textbf{Preface}}%
+  \par%
+  \vspace*{1.5cm}%
+  \noindent}
+ {}
+
+%% Enter chapter heading in list of figures -- only if there are figures
+\newcommand{\currentChapter}{}
+\newcommand{\lofchapter}
+ {\addtocontents{lof}{\noindent{\bfseries\chaptername~\thechapter:~~\currentChapter}}}
+
+%% Is this the whole book or individual chapters?
+\newcommand{\main}{true}
+\newcommand{\ifmain}[2]{\ifdefstring{\main}{true}{#1}{#2}}
+
+%% Macros to undefine if this is the main
+\newenvironment{abstract}{}{\medskip}
+
+
+% \ifcsname all\endcsname%
+%  \relax
+% \else
+%  \typeout{}
+%  \typein[\all]{What to compile? <enter> for everything, or chapter/chapter_name}
+% \fi
+
+% \newcommand{\ifall}[2]{\ifdefstring{\all}{}{#1}{#2}}
+
+% \ifall{}
+% {\renewcommand{\lectitle}[1]{\chapter{#1}}
+% \renewcommand{\date}[1]{}
+% \includeonly{\all}}
+
+% \ifall{
+\makeindex
+% }{}

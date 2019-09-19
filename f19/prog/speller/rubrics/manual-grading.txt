@@ -1,0 +1,76 @@
+15-122 Speller manual analysis grading instructions and rubric
+
+We are grading the analysis of speller.
+
+################################################################################
+
+*How To Grade Analysis*
+
+1) Go the 15-122 shared documents (on Google Docs) and click on the entry entitled "Manual Grading". There, go to the 'Speller' tab. This will tell you which submissions you are responsible for.
+2) Go to autolab.andrew.cmu.edu
+3) Navigate to the Speller assignment
+4) Click "Grade all submissions" under Admin Options
+5) It should be sorted already, but you can also click on "Email & Name" at the top to make it
+   properly sorted a-z by Andrew ID
+6) Click on the bolded point value that the student got for UNIT_TESTS.
+   a) You can resize the tiny window that appears.
+   b) Scroll to the bottom where Autolab has printed their output -- their analysis should be there.
+   c) Use the rubric below to compute how many points they earned
+7) Click the "-" in the ANALYSIS column
+   a) Enter their grade
+   b) Enter the rubric below in the feedback box
+   c) DO NOT release the grade
+8) When you finish all your students, update the spreadsheet to reflect that
+
+
+################################################################################
+
+RUBRIC:
+As you grade analysis, cut and paste the following rubric into the Autolab feedback box and fill in the <<Write me!>>.
+
+--------------------------------------------------------------------------------
+Rubric items earned: ____<<Write me!>>____
+Rubric items not earned: ____<<Write me!>>____
+Adjustments: ____<<Write me!>>____
+
+A (0.75pt) number of misspelled words in the text.
+B (0.75pt) number of misspelled words of length 8 in the text.
+C (0.75pt) first 4 misspelled words of length 15 in the text.
+D (0.75pt) alphabetically-last misspelled word in the text.
+--------------------------------------------------------------------------------
+
+INSTRUCTIONS:
+- Each point is all or nothing -- **they have to get it right in both Shakespeare and Twitter**, or else they probably just hardcoded an answer and so they don't get that point.
+- The only adjustment (partial credit) is if they made some interpretation error like only doing the three most common words or giving the most common words but omitting their frequencies.
+- Formatting does not matter unless it makes the answer ambiguous.
+
+
+SOLUTIONS:
+
+===== WITH SHAKESPEARE CORPUS: =====
+
+There are 2894 misspelled words in the text.
+
+There are 408 misspelled words of length 8 in the text.
+
+Here are the first 4 misspelled words of length 15 in the text:
+1. disproportioned
+2. distemperatures
+3. gioucestershire
+4. northumberlands
+
+The alphabetically-last misspelled word in the text is 'zwagger' and appears 1 times.
+
+===== WITH TWITTER CORPUS: =====
+
+There are 62818 misspelled words in the text.
+
+There are 7318 misspelled words of length 8 in the text.
+
+Here are the first 4 misspelled words of length 15 in the text:
+1. 2010kobestopper
+2. 2010springbreak
+3. 3sumanniversary
+4. aaaaaaahhhhhhhh
+
+The alphabetically-last misspelled word in the text is 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' and appears 1 times.

@@ -1,0 +1,28 @@
+#use <args>
+#use <string>
+
+int main() {
+  args_t args = args_parse();
+  int argc = args->argc;
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  if (string_equal(arg, "empty")) {
+    string[] A = alloc_array(string, 0);
+    dict_t D = dict_new(A, 0);
+    if (D == NULL) return 1;
+
+  } else if (string_equal(arg, "bad")) {
+    if (is_dict(NULL)) 1;
+
+  } else if (string_equal(arg, "good")) {
+    string[] A = alloc_array(string, 10);
+    dict_t D = dict_new(A, 10);
+    if (!is_dict(D)) 1;
+
+  } else {
+    error("Unknown argument");
+  }
+
+  return 0;
+}

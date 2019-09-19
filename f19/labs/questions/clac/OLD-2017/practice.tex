@@ -1,0 +1,80 @@
+\section*{Clac}
+
+For the next programming assignment for class, you will implement a
+stack-based calculator named Clac that evaluates postfix
+expressions. A reference (i.e., completed) implementation
+\lstinline'clac-ref' is available on AFS. Use the \lstinline'-trace'
+option to see how the stack and queue change as an expression is
+evaluated:
+
+\enlargethispage{1ex}
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle, belowskip=0pt]
+% clac-ref -trace
+clac>> 2 3 * 4 +
+                                 stack || queue
+                                       || 2 3 * 4 +
+                                     2 || 3 * 4 +
+                                   2 3 || * 4 +
+                                     6 || 4 +
+                                   6 4 || +
+                                    10 ||
+\end{lstlisting}
+Note that the stack is written left (bottom) to right (top). Enter
+\lstinline'quit' to exit Clac.
+
+\begin{part}
+  Use \lstinline'clac-ref' to compute the value of your postfix
+  expression from Exercise 1. What is the maximum size of the stack as
+  this expression is evaluated?
+\end{part}
+
+\begin{solution}
+The maximum stack size is 4.
+\end{solution}
+
+Clac has additional features. The operator \lstinline'<' pops an
+operand $y$ off the stack, then pops another operand $x$ off the
+stack, and pushes 1 on the stack if $x < y$ or 0 if $x \ge y$.  The
+sequence of tokens
+
+$\lstinline[language=]'if ' a \lstinline' 1 skip ' b$ \qquad (where
+$a$ and $b$ are replaced by integers)
+
+pops the top operand off the stack, and pushes $a$ on the stack if the
+popped value was 1 or $b$ if the popped value was 0.
+
+\begin{part}
+  Determine what this function computes in Clac, substituting
+  different values for $x$ as you test it.
+
+  \lstinline[language=]'x x 0 < if -1 1 skip 1 *'
+\end{part}
+
+\begin{solution}
+This function computes the absolute value of x.
+\end{solution}
+
+\begin{part}
+  The Clac operator ``\lstinline[language=]'if''' can be used apart
+  from the ``$\lstinline[language=]'if ' a \lstinline' 1 skip ' b$''
+  pattern (see the reference below).  Write a program that uses
+  ``\lstinline[language=]'if''' without a subsequent %
+``\lstinline'1 skip'''.%
+\end{part}
+
+We can create new functions in Clac by using the ``\lstinline':'''
+token followed by the function name and the operations and a final
+``\lstinline';''' token. For example, here is a function that squares
+the number on top of the stack:
+
+\lstinline': square 1 pick * ;'
+
+\begin{part}
+  Implement a function that performs the computation in (2.b) by
+  assuming that one copy of $x$ is on the top of the stack before the
+  function is executed.
+\end{part}
+
+\begin{solution}
+\lstinline': abs 1 pick 0 < if -1 1 skip 1 * ;'
+\end{solution}

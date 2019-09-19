@@ -1,0 +1,55 @@
+\clearpage
+\part[0\half]\TAGS{testing}
+Consider this loop:
+
+\begin{lstlisting}
+while (...) {
+    i = i + 3;
+    j = j * 2 + i;
+    k = k + i - j;
+}
+\end{lstlisting}
+
+Be careful, it looks similar but is trickier! Give simplified answers.
+
+\begin{itemize}
+
+\item
+If $i = 7$, $j = 3$, and $k = 9$, then assuming the loop guard evaluates
+to true,
+
+\medskip
+$i'$ = \ans{10},
+$j'$ = \ans{16}, and
+$k'$ = \ans{3}
+
+\bigskip
+\item In general, assuming the loop guard evaluates to true, then in terms of $i$, $j$, and $k$,
+
+\medskip
+$i'$ = \ans{$i + 3$}
+$j'$ = \ans{$2j + i + 3$}, and
+$k'$ = \ans{$k - 2j$},
+
+\end{itemize}
+
+\RUBRIC
+Part (b)
+TAGS: testing
+
+Gradescope rubric:
++ 0.25 pts First bullet: i' = 10, j' = 16, k' = 3
++ 0.25 pts Second bullet: i' = i + 3, j' = 2*j + i + 3, k' = k - 2*j
+
+Commentary:
+Showing work (students need not do this)
+
+    * i[ 7] j[ 3] k[ 9]
+      i[10] j[ 3] k[ 9]
+      i[10] j[16] k[ 9]
+      i[10] j[16] k[ 3]
+
+    * i[i]     j[j]          k[k]
+      i[i + 3] j[j]          k[k]
+      i[i + 3] j[2j + i + 3] k[k - 2j]
+ENDRUBRIC

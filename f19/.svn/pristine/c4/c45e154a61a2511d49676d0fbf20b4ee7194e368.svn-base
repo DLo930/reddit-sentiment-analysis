@@ -1,0 +1,151 @@
+15-122 Editor manual contracts and style grading instructions and rubric
+
+We are grading contracts and style for Editor (final).
+
+################################################################################
+**How To Grade**
+
+1) Go the 15-122 shared documents (on Google Docs) and click on the entry entitled "Manual Grading". There, go to the 'Editor' tab. This will tell you which submissions you are responsible for.
+2) Go to autolab.andrew.cmu.edu
+3) Navigate to the Editor Assignment
+4) Click "Grade submissions" under Admin Options
+5) It "should" be sorted, but you can also click on "Email & Name" at the top until it properly sorts, a-z by andrew id
+6) Grading Task 5:
+   a) Click on the arrow next to the student name, this will open a new tab.
+   b) On that tab, click on the magnifying glass next to the various files (opening them in multiple tabs may make things faster)
+   c) See grading instructions below for contracts and style.
+   d) In the original tab and change grades by clicking the "-" in the FAST column, but do not release the grade when completed
+7) If you finish, update the spreadsheet to reflect that
+
+################################################################################
+
+CONTRACTS (10pts)
+
+We have to look for contracts that pass the autograder but shouldn't get
+full credit. On a test where the autograder expects a contract to fail,
+the student could pass the test case by failing any assertion. We want
+them to fail a precondition rather than the postcondition. We attempt to
+catch these cases with the following rubric items.
+
+As you grade contracts, cut and paste the following rubric into the
+Autolab feedback box and fill in the <<Write me!>>.
+
+--------------------------------------------------------------------------------
+Rubric items earned: ____<<Write me!>>___
+Rubric items not earned: ____<<Write me!>>___
+Total points received: ____<<Write me!>>___
+
+gapbuf.c0
+   A (1pt) ensures is_gapbuf() on all modifying functions (not necessary for gapbuf_at_left, etc)
+   B (1pt) having is_gapbuf as a precondition on gapbuf_delete
+   C (1pt) having !gapbuf_at_left as precondition on gapbuf_delete
+   D (1pt) is_gapbuf as first precondition on gapbuf_delete
+        if they didn't earn rubric item B, they can't earn this point
+
+dll_pt.c0
+   E (1pt) ensures is_dll_pt() on all modifying functions
+   F (1pt) having is_dll_pt as a precondition on dll_pt_forward/backward/delete
+   G (1pt) having !dll_pt_at_right                       for dll_pt_forward
+           having !dll_pt_at_left                        for dll_pt_forward
+           having !dll_pt_at_right || !dll_pt_at_left    for dll_pt_delete
+   H (1pt) is_dll_pt as first precondition on dll_pt_forward/backward/delete
+        if they didn't earn rubric item F, they can't earn this point
+
+tbuf.c0
+   I (2pt) ensures is_tbuf() on modifying functions
+--------------------------------------------------------------------------------
+
+Notes:
+
+* The writeup asks students to put the contracts in their
+  implementation.  It's Ok if they have them also in the interface.
+
+* No partial credit
+
+* If the student's contracts are stronger than what we require (e.g.,
+  putting !dll_pt_empty when we asked for !dll_pt_at_left)
+  give them full credit.
+
+* putting contract X, which //@requires contract Y, does not count
+  as also putting contract Y.
+
+* if they essentially put the definition of the function they should
+  have called (like they wrote the implementation of dll_pt_at_right
+  instead of just calling that function), DO give them points.  This
+  is a style issue.
+
+###############################################################################
+
+STYLE (negative grading, all-or-nothing: -20 or 0 points)
+
+Be kind, be constructive, be complimentary: the point is to give general, constructive feedback
+but also give people things to fix where necessary ("FIXSTYLE" issues).
+
+If taking off points for style, be sure to leave a comment on the line with the prefix "FIXSTYLE"
+so students know to fix those issues in order to receive points back.
+
+We'll let students know when grades are released that in order to get these points back, they'll
+need to fix their style and show a TA their updated code.
+
+As you grade style, if a student's submission receives a negative score, copy and paste the
+following message into the Autolab feedback box, including the lines marked (A) (B) or (C) as
+necessary:
+
+--------------------------------------------------------------------------------
+You have 5 days to address the style issues in your code (if any) and show your fixes to a TA.  Look for TA comments starting with FIXSTYLE.
+
+  (A) Multiple cases of bad indentation, dead code, or lines longer than 80 characters
+  (B) Hard-to-read specification functions
+  (C) Not using functions written earlier as building blocks
+  (D) Unnecessary allocation
+  (E) Contracts reimplement specification functions
+--------------------------------------------------------------------------------
+
+Notes:
+* THE USUAL STUFF (A): Lots and lots of dead code and print statements,
+  horribly broken indentation, or other "traditional style" issues can
+  be a cause for failure, but hold back here unless you think their
+  bad style is going to get in the way of their own learning for
+  future classes - if they'd be simply unable to maintain this code, for
+  instance. Don't fail style grading because someone put six spaces
+  between their functions.
+
+* SPECIFIC FOR THIS ASSIGNMENT: checks on tbuf.c0 should suffice, or
+  whatever the last piece of the assignment they mostly completed. If
+  people didn't get much beyond gapbuf, let's let style slide.
+
+  . (B) is_tbuf should either be (1) separated into helper functions or (2)
+    should be clearly commented. Both is not necessary (err on the side of
+    being nice), but some thought should have gone into making the code
+    readable. ("FIX STYLE: This is a long mess of uncommented code; it's
+    important that specification functions, in particular, be both correct
+    and readable, by you in the future and by others who may look at your
+    code! Either factor out into individual functions or carefully comment
+    what invariants are being checked where.")
+
+  . (C) tbuf_delete must use gapbuf_delete() and dll_pt_delete() ("FIX
+    STYLE: use the helper functions provided by the interfaces you've
+    already written!")
+
+  . (C) same for tbuf_forward, tbuf_backward. Don't worry about
+    tbuf_insert, as the split point makes this a special case
+
+  . (D) If you happen to see the
+       gapbuf x = alloc(struct gap_buffer);
+       x = G;
+    antipattern, fail style grading for this ("FIX STYLE: unnecessary
+    allocation - this pattern is bad here but will be particularly
+    dangerous in C"). Make sure, when people come to correct this, that
+    they see why this is a problem and maybe draw out a picture of memory.
+
+  . (E) In contracts, it is bad style if they essentially put the
+    definition of the function they should have called (like they wrote
+    the implementation of dll_pt_at_right instead of just calling that
+    function)
+
+* Don't fail style grading over not using dll_pt_at_left or
+  gapbuf_at_left in their respective files, though they are good
+  ideas.
+
+* If they got very few points on tbuf, style grade dll_pt. If they got
+  very few points on that, style grade gapbuf.

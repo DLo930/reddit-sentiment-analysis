@@ -1,0 +1,123 @@
+#use <args>
+#use <string>
+
+tbuf construct_char_buffer(string s) 
+{
+  int limit = string_length(s);
+  tbuf B = alloc(struct text_buffer);
+
+  B->start = alloc(struct list_node);
+
+  dll last = B->start;
+  for(int i = 0; i < limit; i++) 
+    //@loop_invariant 0 <= i && i <= limit;
+    {
+      last->next = alloc(struct list_node);
+      last->next->prev = last;
+      last->next->data = string_charat(s,i);
+      last = last->next;
+    }
+
+  last->next = alloc(struct list_node);
+  last->next->prev = last;
+
+  B->point = last;
+  B->end = last->next;
+
+  return B;
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) 4/0; // Bug in autograder!
+  string s = args->argv[0];
+
+  tbuf B = construct_char_buffer("abc");
+  B->point = B->point->prev; 
+  assert(B->point->data == 'b');
+
+  struct list_node* node = alloc(struct list_node);
+  node->prev = B->start;
+  node->next = B->end;
+
+  // Basic tests -- well-formed buffers
+  if (string_equal("good1", s)) {
+    B = construct_char_buffer("a");
+  } else if (string_equal("good2", s)) {
+    B = construct_char_buffer("ab");
+  } else if (string_equal("good3", s)) {
+    B = B;
+  } else if (string_equal("good34", s)) {
+    B = construct_char_buffer("supercalifragilisticexpialidocious");
+  } 
+
+  // Basic tests -- ill-formed buffers
+  else if (string_equal("badNULL", s)) { B = NULL; }
+  else if (string_equal("badalloc", s)) { B = alloc(struct text_buffer); }
+  else if (string_equal("bad0", s)) { B = construct_char_buffer(""); }
+    
+  // Bypass the point
+  else if (string_equal("bypasspoint", s)) {
+    B->start->next = node;
+    B->end->prev = node;
+  }
+
+  // Change each of the pointers in B to NULL
+  else if (string_equal("linkednull1", s)) { B->start->next = NULL; } 
+  else if (string_equal("linkednull2", s)) { B->start->next->next = NULL; }
+  else if (string_equal("linkednull3", s)) { B->point->next = NULL; }
+  else if (string_equal("linkednull4", s)) { B->point->next->next = NULL; }
+  else if (string_equal("linkednull5", s)) { B->end->prev = NULL; }
+  else if (string_equal("linkednull6", s)) { B->end->prev->prev = NULL; }
+  else if (string_equal("linkednull7", s)) { B->point->prev = NULL; }
+  else if (string_equal("linkednull8", s)) { B->point->prev->prev = NULL; }
+  else if (string_equal("linkednull9", s)) { B->start = NULL; }
+  else if (string_equal("linkednullA", s)) { B->point = NULL; }
+  else if (string_equal("linkednullB", s)) { B->end = NULL; }
+ 
+  // Change each of the pointers in B to the wrong thing
+  else if (string_equal("linkedout1", s)) { B->start->next = node; } 
+  else if (string_equal("linkedout2", s)) { B->start->next->next = node; }
+  else if (string_equal("linkedout3", s)) { B->point->next = node; }
+  else if (string_equal("linkedout4", s)) { B->point->next->next = node; }
+  else if (string_equal("linkedout5", s)) { B->end->prev = node; }
+  else if (string_equal("linkedout6", s)) { B->end->prev->prev = node; }
+  else if (string_equal("linkedout7", s)) { B->point->prev = node; }
+  else if (string_equal("linkedout8", s)) { B->point->prev->prev = node; }
+  else if (string_equal("linkedout9", s)) { B->start = node; }
+  else if (string_equal("linkedoutA", s)) { B->point = node; }
+  else if (string_equal("linkedoutB", s)) { B->end = node; }
+
+  // Distict nodes
+  else if (string_equal("distinct1", s)) { B->start = B->point; }
+  else if (string_equal("distinct2", s)) { B->end = B->point; }
+  else if (string_equal("distinct3", s)) { // AMBIGUOUS?!?!? -rjs 10/15/2012
+    B->start->prev = B->end->prev;
+    B->end = B->start;
+  } 
+
+  // Various cycles
+  else if (string_equal("cycle1", s)) { 
+    // Cycle start-a-start
+    B->start->prev = B->point->prev;
+    B->point->prev->next = B->start;
+  } else if (string_equal("cycle2", s)) {
+    // Cycle start-a-b-start
+    B->start->prev = B->point;
+    B->point->next = B->start;
+  } else if (string_equal("cycle3", s)) {
+    // Cycle end-c-end
+    B->end->next = B->point->next;
+    B->point->next->prev = B->end;
+  } else if (string_equal("cycle4", s)) {
+    // Cycle end-b-c-end
+    B->end->next = B->point;
+    B->point->prev = B->end;
+  }
+
+  // Only doing a finite number of tests here
+  else { 4/0; }
+  
+  assert(is_linked(B));
+  return 0;
+}

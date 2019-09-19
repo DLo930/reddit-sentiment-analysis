@@ -1,0 +1,4 @@
+clarify distinct frequencies with an example
+
+IDEA: do frequency counts from HIGH to LOW
+

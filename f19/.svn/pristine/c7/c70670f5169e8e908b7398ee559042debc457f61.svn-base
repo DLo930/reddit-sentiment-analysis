@@ -1,0 +1,128 @@
+\begin{figure}[p]
+\fbox{%
+\parbox{\linewidth}{%
+\newcommand{\mmid}{\mid\mid}
+\newcommand{\cc}[1]{\mbox{\texttt{#1}}}
+\newcommand{\tok}{\mathit{tok}}
+$$
+\begin{array}{@{}r@{\;\;\mmid\;\;}l@{\;\;\longrightarrow\;\;}r@{\;\;\mmid\;\;}ll@{}}
+   \multicolumn{2}{c}{\bf Before\hspace*{5.8em}}
+ & \multicolumn{2}{c}{\bf \hspace*{3.0em}After}
+\\ \multicolumn{1}{r@{\;\;\;\;\;\;}}{\mbox{\bf Stack}} & \mbox{\bf Queue}
+ & \multicolumn{1}{r@{\;\;\;\;\;\;}}{\mbox{\bf Stack}} & \mbox{\bf Queue}
+ & \mbox{\bf Cond/Effect} \\ \hline
+%%%%
+%%%% Already implemented
+%%%%
+   S                        & n, Q
+ & S, n                     & Q
+\\ S, n                     & \cc{print}, Q
+ & S                        & Q
+ & \mbox{See note \#1}
+\\ S                        & \cc{quit}, Q
+ & S                        & Q
+ & \mbox{See note \#2}
+\\ \hline
+%%%%
+%%%% Arith operations
+%%%%
+   S, x, y                  & \cc{+}, Q
+ & S, x\,{+}\,y             & Q
+ & \mbox{See note \#3}
+\\ S, x, y                  & \cc{-}, Q
+ & S, x\,{-}\,y             & Q
+ & \mbox{See note \#3}
+\\ S, x, y                  & \cc{*}, Q
+ & S, x \times y            & Q
+ & \mbox{See note \#3}
+\\ S, x, y                  & \cc{/}, Q
+ & S, x\,{/}\,y             & Q
+ & \mbox{See note \#4}
+\\ S, x, y                  & \cc{\%}, Q
+ & S, x\,{\%}\,y            & Q
+ & \mbox{See note \#4}
+\\ S, x, y                  & \cc{**}, Q
+ & S, x^y                   & Q
+ & \mbox{See \#3, \#4}
+\\ S, x, y                  & \cc{<}, Q
+ & S, 1                     & Q
+ & \mbox{if $x < y$}
+\\ S, x, y                  & \cc{<}, Q
+ & S, 0                     & Q
+ & \mbox{if $x \geq y$}
+\\ \hline
+%%%%
+%%%% Stack and queue manipulations
+%%%%
+   S, x                     & \cc{drop}, Q
+ & S                        & Q
+\\ S, x, y                  & \cc{swap}, Q
+ & S, y, x                  & Q
+\\ S, x, y, z               & \cc{rot}, Q
+ & S, y, z, x               & Q
+\\
+%   S, x         & \cc{dup}, Q
+% & S, x, x      & Q
+%\\
+%   S, n         & \cc{skip}, \tok_1, \ldots, \tok_n, Q
+% & S            & Q
+% & \mbox{$n \geq 0$}
+%\\
+   S, x                     & \cc{if}, Q
+ & S                        & Q
+ & \mbox{if $x \neq 0$}
+\\ S, x                     & \cc{if}, \tok_1, \tok_2, \tok_3, Q
+ & S                        & Q
+ & \mbox{if $x = 0$}
+\\ S, x_n, \ldots, x_1, n   & \cc{pick}, Q
+ & S, x_n, \ldots, x_1, x_n & Q
+ & \mbox{See note \#5}
+\\ S, n                     & \cc{skip}, \tok_1, \ldots, \tok_n, Q
+ & S                        & Q
+ & \mbox{See note \#5}
+\end{array}
+$$
+\bgroup
+\small\em
+
+Clac should raise an error whenever there are not enough tokens on the
+stack or the queue for an operation to be performed, or whenever the
+token on the top of the queue is not one of the ones listed
+above. Tokens are case sensitive, so \lstinline'Print' and \lstinline'PRINT' are
+not defined, though \lstinline'print' is.
+
+\medskip
+
+Notes:
+\begin{enumerate}
+\item%
+  The \lstinline'print' token causes $n$ to be printed, followed by a
+  newline.
+\item%
+  The \lstinline'quit' token causes the interpreter to stop. The
+  \lstinline'eval' function should then return \lstinline'false' to
+  indicate that we should just stop, rather than asking for more
+  input.
+\item%
+  This is a 32 bit, two's complement language, so addition,
+  subtraction, multiplication, and exponentiation should behave just
+  as in C0 without raising any overflow errors.
+\item%
+  Division or modulus by 0, or division/modulus of
+  \lstinline'int_min()' by -1, which would result in an arithmetic
+  error according to the definition of C0 (see page 3 of the
+  \href{http://c0.typesafety.net/doc/c0-reference.pdf}{C0 Reference}),
+  should raise an error in Clac. Negative exponents are undefined and
+  should also raise an error.
+\item%
+  The \lstinline'pick' token should raise an error if $n$, the value
+  on the top of the stack, is not strictly positive. The
+  \lstinline'skip' token should raise an error if $n$ is negative; 0
+  is acceptable.
+\end{enumerate}
+\egroup
+}}
+
+\caption{Clac reference}
+\label{fig:allclac}
+\end{figure}

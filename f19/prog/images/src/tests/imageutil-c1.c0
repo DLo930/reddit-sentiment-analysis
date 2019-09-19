@@ -1,0 +1,27 @@
+#use <conio>
+
+int main()
+{
+	bool passed = true;
+	if (get_red(0xFF10FFFF) != 0x10) passed = false;
+	if (get_red(0x0034FFFF) != 0x34) passed = false;
+	if (get_red(0x00FF0000) != 0xFF) passed = false;
+	if (get_green(0xFFFF00FF) != 0x00) passed = false;
+	if (get_green(0xFF001100) != 0x11) passed = false;
+	if (get_green(0x00FF78FF) != 0x78) passed = false;
+	if (get_blue(0xFFFFFF00) != 0x00) passed = false;
+	if (get_blue(0xFF666F01) != 0x01) passed = false;
+	if (get_blue(0xF5F00F10) != 0x10) passed = false;
+	if (get_alpha(0x31FFFFFF) != 0x31) passed = false;
+	if (get_alpha(0xFFFFFFFF) != 0xFF) passed = false;
+	if (get_alpha(0x00FFFFFF) != 0x00) passed = false;
+	
+	if(!passed)
+	{
+		println("TEST FAILED");
+		assert(false);
+	}
+
+	println("TEST PASSED");
+	return 0;
+}

@@ -1,0 +1,68 @@
+\part[1]~\vspace*{-2ex}
+\begin{lstlisting}[numbers=left]
+int f(int a)
+//@requires 0 <= a;
+{
+    int i = 2*a;
+    while (i > a)[*\label{l:safe-assert2-lg}*]
+    //@loop_invariant i >= a;
+    {
+        //@assert i > 0;      /*** Assertion A ***/[*\label{l:safe-assert2A}*]
+        a += 2;
+        i += 1;
+    }
+    //@assert i <= a;         /*** Assertion B ***/[*\label{l:safe-assert2B}*]
+    return i;
+}
+\end{lstlisting}
+
+\vfill
+\begin{framed}
+\medskip
+\lstinline'Assertion A' is: \uanswer{26.2em}{UNSUPPORTED}
+
+\medskip
+\aLine{\texttt{i > a}}{line~\ref{l:safe-assert2-lg}}
+\aLine{but \texttt{a} is modified by the loop}{}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \noans{can}/\ans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{i > 0}}{line~\ref{l:safe-assert2A}}
+\end{framed}
+
+\RUBRIC
+Part 2A
+
+Gradescope rubric:  TODO
+
+Commentary:
+Assertion A is UNSUPPORTED
+  - Because a is modified by the loop, we can't use the lower bound
+    from line 2.
+ENDRUBRIC
+
+\vfill
+\begin{framed}
+\medskip
+\lstinline'Assertion B' is: \uanswer{26.2em}{SUPPORTED}
+
+\medskip
+\aLine{\texttt{i <= a}}{line~\ref{l:safe-assert2-lg}}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \ans{can}/\noans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{i <= a}}{line~\ref{l:safe-assert2B}}
+\end{framed}
+
+\RUBRIC
+Part 2B
+
+Gradescope rubric:  TODO
+
+Commentary:
+Assertion B is SUPPORTED
+  - This is directly the negation of the loop guard
+ENDRUBRIC

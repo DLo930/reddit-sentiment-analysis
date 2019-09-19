@@ -1,0 +1,101 @@
+#use <util>
+#use <conio>
+#use <parse>
+#use <args>
+#use <string>
+
+void* w(int i) {
+  int* p = alloc(int);
+  *p = i;
+  return (void*)p;
+}
+
+void* c(char c) {
+  char* p = alloc(char);
+  *p = c;
+  return (void*)p;
+}
+
+bool __sekret__is_inclusive_segment(list* start, list* end, int i) {
+  if (i < 0) return false;
+  if (i == 0) return start == NULL;
+  if (i == 1) return start != NULL && start == end && start->next == NULL;
+  return start != NULL && start != end 
+    && __sekret__is_inclusive_segment(start->next, end, i-1);
+}
+
+bool __sekret__is_queue(queue* Q) {
+  if (Q == NULL) return false;
+  return __sekret__is_inclusive_segment(Q->front, Q->back, Q->size);
+}
+
+
+queue* construct(int[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  if (lo == hi) return alloc(queue);
+
+  queue* Q = alloc(queue);
+  Q->front = alloc(list);
+  Q->back = Q->front;
+  int* p = alloc(int);
+  *p = A[lo];
+  Q->front->data = (void*)p;
+  Q->size = hi-lo;
+  
+  for (int i = lo+1; i < hi; i++) 
+  //@loop_invariant lo+1 <= i && i <= hi;
+  //@loop_invariant __sekret__is_inclusive_segment(Q->front, Q->back, i-lo);
+  {
+    Q->back->next = alloc(list);
+    Q->back = Q->back->next;
+    p = alloc(int);
+    *p = A[i];
+    Q->back->data = (void*)p;
+  }
+
+  return Q;
+}
+
+queue* cstr(string s) {
+  return construct(parse_ints(s, 10), 0, num_tokens(s));
+}
+
+bool confirm(queue* Q, int[] A, int lo, int hi) 
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  if (!__sekret__is_queue(Q)) return false;
+  if (queue_size(Q) != hi-lo) return false;
+  if (lo == hi) return true;
+
+  list* L = Q->front;
+  //println("***");
+  for (int i = lo; i < hi; i++) 
+  //@loop_invariant lo <= i && i <= hi;
+  //@loop_invariant __sekret__is_inclusive_segment(L, Q->back, Q->size - (i - lo));
+  {
+    //printint(lo); print(" - "); printint(hi); print(" - ");
+    //@assert \hastag(int*, L->data);
+    int* p = (int*)L->data;
+    if (*p != A[i]) return false;
+    L = L->next;
+  }
+  
+  return true;
+}
+
+list*[] storage(queue* Q) 
+//@requires __sekret__is_queue(Q);
+//@ensures \length(\result) == Q->size;
+{
+  list*[] A = alloc_array(list*, Q->size);
+  list* L = Q->front;
+  for (int i = 0; i < Q->size; i++) 
+  //@loop_invariant 0 <= i && i <= Q->size;
+  //@loop_invariant __sekret__is_inclusive_segment(L, Q->back, Q->size - i);
+  {
+    A[i] = L;
+    L = L->next;
+  }
+  return A;
+}

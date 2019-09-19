@@ -1,0 +1,53 @@
+/* Selection Sort
+ *
+ * Principles of Imperative Computation, Fall 2012
+ * Frank Pfenning
+ * Ported by Ryan Sit to strings, Spring 2013
+ */
+
+#use <string>
+#use "sortutil.c0"
+#use "lib/stringsearch.c0"
+
+int min_index(string[] A, int lo, int hi)
+//@requires 0 <= lo && lo < hi && hi <= \length(A);
+{
+  int m = lo;
+  string min = A[lo];
+  for (int i = lo+1; i < hi; i++)
+    //@loop_invariant lo < i;
+    {
+      if (string_compare(A[i], min) == -1) {
+        m = i;
+        min = A[i];
+      }
+    }
+  return m;
+}
+
+void select_sort(string[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+//@ensures is_sorted(A, lo, hi);
+{
+  for (int i = lo; i < hi; i++)
+    //@loop_invariant lo <= i && i <= hi;
+    //@loop_invariant is_sorted(A, lo, i);
+    {
+      int m = min_index(A, i, hi);
+      //@assert le_seg(A[m], A, i, hi);
+      string tmp = A[i];
+      A[i] = A[m];
+      A[m] = tmp;
+    }
+  return;
+}
+
+string[] select_sort_copy(string[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+//@ensures is_sorted(\result, lo, hi);
+//@ensures \length(\result) == hi - lo;
+{
+  string[] B = copy_array(A, lo, hi);
+  select_sort(B, 0, hi-lo);
+  return B;
+}

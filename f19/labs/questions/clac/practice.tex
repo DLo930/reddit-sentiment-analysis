@@ -1,0 +1,185 @@
+\newpage
+\section*{Clac}
+
+For your next 15-122 programming assignment, you will implement a
+stack-based calculator named \emph{Clac} that evaluates postfix
+expressions.
+
+Most Clac tokens, when removed from the queue, only manipulate the
+stack.  Here is a description of a few tokens that stand for
+operations.  On each line, it shows the state of the stack before ($S$) and
+after ($S'$) the operation is performed, and any side condition or
+effect.  This is written $S \longrightarrow S'$.
+
+{\small
+$$
+\begin{array}{lclcll}
+\mbox{\bf Token} & & \mbox{\bf Before} & & \mbox{\bf After} & \mbox{\bf Condition or Effect} \\ \hline
+n & : & S & \longrightarrow & S, n & \mbox{for $-2^{31} \leq n < 2^{31}$ in decimal} \\ \hline
+\mbox{\lstinline'+'} & : & S, x, y & \longrightarrow & S, x\,{+}\,y \\
+\mbox{\lstinline'-'} & : & S, x, y & \longrightarrow & S, x\,{-}\,y \\
+\mbox{\lstinline'*'} & : & S, x, y & \longrightarrow & S, x\,{*}\,y \\
+\mbox{\lstinline'/'} & : & S, x, y & \longrightarrow & S, x\,{/}\,y &
+\mbox{error, if div by 0 or overflow} \\
+\mbox{\lstinline'\%'} & : & S, x, y & \longrightarrow & S, x\,{\%}\,y &
+\mbox{error, if mod by 0 or overflow} \\
+\mbox{\lstinline'**'} & : & S, x, y & \longrightarrow & S, x^y &
+\mbox{error, if y < 0} \\ \hline
+\mbox{\lstinline'<'} & : & S, x, y & \longrightarrow & S, 1 & \mbox{if $x < y$} \\
+\mbox{\lstinline'<'} & : & S, x, y & \longrightarrow & S, 0 & \mbox{if $x \geq y$} \\ \hline
+\mbox{\lstinline'drop'} & : & S, x & \longrightarrow & S \\
+\mbox{\lstinline'swap'} & : & S, x, y & \longrightarrow & S, y, x \\
+\mbox{\lstinline'rot'} & : & S, x, y, z & \longrightarrow & S, y, z, x \\
+\mbox{\lstinline'pick'} & : & S, x_n, \ldots, x_1, n & \longrightarrow & S, x_n, \ldots, x_1, x_n &
+\mbox{error, if $n <= 0$} \\ \hline
+\mbox{\lstinline'print'} & : & S, x & \longrightarrow & S & \mbox{print $x$ followed by newline} \\
+\mbox{\lstinline'quit'} & : & S & \longrightarrow & \_ & \mbox{exit Clac}
+\end{array}
+$$}
+
+Some operations manipulate both the stack \emph{and} the queue.  This
+kind of transformation is written %
+$S \mid\mid Q \longrightarrow S' \mid\mid Q'$ %
+plus any conditions or effect.  The
+operations \lstinline[language=]'if' and \lstinline'skip' are good
+examples of this:
+
+
+% The \lstinline[language=]'if' and \lstinline'skip' operations, on the
+% other hand, also manipulate the token queue:
+
+
+{\small
+$$
+\begin{array}{rclcrcl|l}
+\multicolumn{3}{c}{\bf Before \qquad\qquad\qquad\quad}  & & \multicolumn{3}{c}{\bf  After}\quad \\
+\mbox{\bf Stack} & & \mbox{\bf Queue} & & \mbox{\bf Stack} & & {\bf Queue} & \mbox{\bf Cond} \\ \hline
+%n & : & S & \longrightarrow & S, n & \mbox{for $-2^{31} \leq n < 2^{31}$ in decimal} \\ \hline
+%S, n & \mid\mid & \lstinline'skip', \mathit{tok}_1, \ldots, \mathit{tok}_n, Q & \longrightarrow & S & \mid\mid & Q & \mbox{$n \geq 0$}
+
+S, n & \mid\mid & \lstinline[language=]'if', Q & \longrightarrow & S & \mid\mid & Q & \mbox{$n \neq 0$}
+\\
+S, n & \mid\mid & \lstinline[language=]'if', \mathit{tok}_1, \mathit{tok}_2, \mathit{tok}_3, Q & \longrightarrow & S & \mid\mid & Q & \mbox{$n = 0$}
+\\
+S,n & \mid\mid & \lstinline'skip', \mathit{tok}_1,\ldots,\mathit{tok}_n,Q & \longrightarrow & S & \mid\mid & Q & \mbox{$n \geq 0$}
+\end{array}
+$$}
+
+\begin{part}\TAGS{c0vm, stack}
+  Using the above format, write a description of an operation, called
+  \lstinline'square', which removes the top element $x$ from the stack
+  and replaces it with $x^{2}$.
+\end{part}
+\begin{solution}
+$\lstinline'square' ~:~ S, x ~\longrightarrow~ S,x^2$
+\end{solution}
+
+A reference (i.e., completed) implementation \lstinline'clac-ref' is
+available on AFS. Use the \lstinline'-trace' option to see how the
+stack and queue change as an expression is evaluated:
+
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle, belowskip=0pt]
+% clac-ref -trace
+clac>> 2 3 * 4 +
+                                 stack || queue
+                                       || 2 3 * 4 +
+                                     2 || 3 * 4 +
+                                   2 3 || * 4 +
+                                     6 || 4 +
+                                   6 4 || +
+                                    10 ||
+\end{lstlisting}
+Note that the stack is written left (bottom) to right (top). Enter
+\lstinline'quit' to exit Clac.
+
+\begin{part}\TAGS{c0vm, stack}
+  Use \lstinline'clac-ref' to compute the value of your postfix
+  expression from Exercise 1. What is the maximum size of the stack as
+  this expression is evaluated?
+
+\twoPT
+\end{part}
+\begin{solution}
+The maximum stack size is 4.
+\end{solution}
+
+Clac is a powerful language.  Let's play with it.
+
+% The operator \lstinline'<' pops an operand $y$ off the stack, then
+% pops another operand $x$ off the stack, and pushes 1 on the stack if
+% $x < y$ or 0 if $x \ge y$.
+
+The sequence of tokens
+
+$\lstinline[language=]'if ' a \lstinline' 1 skip ' b$ \qquad (where
+$a$ and $b$ stand for integers)
+
+pops the top operand off the stack, and pushes $a$ on the stack if the
+popped value was 1 or $b$ if the popped value was 0.
+
+\begin{part}\TAGS{c0vm, stack}
+  Determine what the following Clac expression computes, substituting
+  different values for $x$ as you test it.
+
+  \lstinline'x x 0 < if -1 1 skip 1 *'
+\end{part}
+
+\begin{solution}
+This function computes the absolute value of x.
+\end{solution}
+
+
+% The Clac operator ``\lstinline[language=]'if''' can be used apart
+% from the pattern ``$\lstinline[language=]'if ' a \lstinline' 1 skip ' b$''
+% seen above.
+
+We can create new operations in Clac by using the ``\lstinline':'''
+token followed by the operation name, then the sequence of tokens that
+it stands for, and a final ``\lstinline';''' token.  For example, here
+is an operations that squares the number on top of the stack:
+
+\lstinline': square 1 pick * ;'
+
+
+\begin{part}\TAGS{c0vm, stack}
+  Implement and test an operation that performs the computation in
+  (2.c) by assuming that one copy of $x$ is on the top of the stack
+  before the function is executed.
+
+\threePT
+\end{part}
+
+\begin{solution}
+\lstinline': abs 1 pick 0 < if -1 1 skip 1 * ;'
+\end{solution}
+
+\textbf{Challenge Problems (Just for Fun):} Although Clac lacks loop
+constructs such as \lstinline'for' and \lstinline'while', it's still
+possible to create complex programs using recursion.
+
+\begin{part}\TAGS{c0vm, stack}
+Using one or more recursive helper definitions, implement the
+following Clac operation \textit{without using the built-in}
+\lstinline'**' \textit{operator}:
+$$\lstinline'powtwo' ~:~ S, x ~\longrightarrow~ S, 2^x$$
+\end{part}
+
+\begin{solution} (Many other solutions are possible)
+\begin{lstlisting}
+: powtwohelp 1 pick 1 < 7 * skip 1 - swap 2 * swap powtwohelp ;
+: powtwo 1 swap powtwohelp drop ;
+\end{lstlisting}
+\end{solution}
+
+\begin{part}\TAGS{c0vm, stack}
+Again, \textit{without using the built-in} \lstinline'**'
+\textit{operator}, implement the following Clac operation:
+$$\lstinline'pow' ~:~ S, x, y ~\longrightarrow~ S, x^y$$
+\end{part}
+
+\begin{solution} (Many other solutions are possible)
+\begin{lstlisting} (Many other solutions are possible)
+: powhelp 1 pick 1 < 8 * skip 1 - swap 3 pick * swap powhelp ;
+: pow 1 swap powhelp drop swap drop ;
+\end{lstlisting}
+\end{solution}

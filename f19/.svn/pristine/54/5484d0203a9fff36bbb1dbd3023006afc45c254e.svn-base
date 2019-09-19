@@ -1,0 +1,98 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 00             # string pool total size
+# string pool
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 04             # number of local variables = 4
+00 81             # code length = 129 bytes
+10 01    # bipush 1        # 1
+36 00    # vstore 0        # i = 1;
+# <00:loop>
+15 00    # vload 0         # i
+10 0A    # bipush 10       # 10
+A1 00 06 # if_icmplt +6    # if (i < 10) goto <01:body>
+A7 00 73 # goto +115       # goto <02:exit>
+# <01:body>
+15 00    # vload 0         # i
+BC 08    # newarray 8      # alloc_array(int*, i)
+36 01    # vstore 1        # C = alloc_array(int*, i);
+BB 04    # new 4           # alloc(int)
+36 02    # vstore 2        # dist = alloc(int);
+10 00    # bipush 0        # 0
+36 03    # vstore 3        # k = 0;
+# <03:loop>
+15 03    # vload 3         # k
+15 00    # vload 0         # i
+A1 00 06 # if_icmplt +6    # if (k < i) goto <04:body>
+A7 00 21 # goto +33        # goto <05:exit>
+# <04:body>
+15 01    # vload 1         # C
+15 03    # vload 3         # k
+63       # aadds           # &C[k]
+BB 04    # new 4           # alloc(int)
+4F       # amstore         # C[k] = alloc(int);
+15 01    # vload 1         # C
+15 03    # vload 3         # k
+63       # aadds           # &C[k]
+2F       # amload          # C[k]
+15 03    # vload 3         # k
+10 02    # bipush 2        # 2
+60       # iadd            # (k + 2)
+4E       # imstore         # *(C[k]) = (k + 2);
+15 03    # vload 3         # k
+10 01    # bipush 1        # 1
+60       # iadd            # 
+36 03    # vstore 3        # k += 1;
+A7 FF DB # goto -37        # goto <03:loop>
+# <05:exit>
+10 00    # bipush 0        # 0
+36 03    # vstore 3        # k = 0;
+# <06:loop>
+15 03    # vload 3         # k
+15 00    # vload 0         # i
+A1 00 06 # if_icmplt +6    # if (k < i) goto <07:body>
+A7 00 25 # goto +37        # goto <08:exit>
+# <07:body>
+15 01    # vload 1         # C
+15 03    # vload 3         # k
+63       # aadds           # &C[k]
+2F       # amload          # C[k]
+2E       # imload          # *(C[k])
+15 03    # vload 3         # k
+10 02    # bipush 2        # 2
+60       # iadd            # (k + 2)
+A0 00 06 # if_cmpne +6     # if (*(C[k]) != (k + 2)) goto <09:then>
+A7 00 09 # goto +9         # goto <10:else>
+# <09:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <11:endif>
+# <10:else>
+# <11:endif>
+15 03    # vload 3         # k
+10 01    # bipush 1        # 1
+60       # iadd            # 
+36 03    # vstore 3        # k += 1;
+A7 FF D7 # goto -41        # goto <06:loop>
+# <08:exit>
+15 00    # vload 0         # i
+10 01    # bipush 1        # 1
+60       # iadd            # 
+36 00    # vstore 0        # i += 1;
+A7 FF 89 # goto -119       # goto <00:loop>
+# <02:exit>
+10 00    # bipush 0        # 0
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

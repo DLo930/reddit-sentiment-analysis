@@ -1,0 +1,75 @@
+\section*{Contracts%
+\TAGS{correctness, preprocessor, safety}}
+
+Contracts are a core part of the C0 and C1 languages. Unfortunately,
+we don't have the power to build contracts into C. Don't lose hope,
+though! We provide you with a supplemental contracts library so you
+can continue to program with contracts. To use it, you'll need to put
+\lstinline[language=C]'#include "path/to/contracts.h"' at the top of
+your C file. Also, you'll need to pass the
+\lstinline[language=C]'-DDEBUG' flag instead of
+\lstinline[language=C]'-d' when you compile with gcc if you want
+contracts to be checked.
+
+The file \lstinline[language=C]'contracts.h' provides you with
+\lstinline[language=C]'REQUIRES', \lstinline[language=C]'ENSURES', and
+\lstinline[language=C]'ASSERT'. You can treat these as C
+functions\footnote{To be precise, these are actually C macros that
+  preprocessing reduces to native C \lstinline[language=C]'assert'
+  statements during compilation. Shhh, don't tell.}  that replace our
+contracts in the following way:
+\begin{enumerate}
+\item%
+  \lstinline'//@requires' can be replaced by
+  \lstinline[language=C]'REQUIRES' at the very beginning of the
+  function.
+\item%
+  \lstinline'//@ensures' can be replaced by
+  \lstinline[language=C]'ENSURES' before every return statement and/or
+  at the end of the function.
+\item%
+  \lstinline'//@loop_invariant' can be replaced by
+  \lstinline[language=C]'ASSERT' before the loop runs and at the end
+  of each loop iteration.
+  \item \lstinline'//@assert' can be replaced by \lstinline[language=C]'ASSERT'.
+\end{enumerate}
+
+
+\checkpoint*{\TAGS{correctness, preprocessor, safety}}
+
+Rewrite the following C0 function into C. Only the contracts will need
+to be changed.
+
+\begin{lstlisting}[numbers=left]
+int length(list* start, list* end)
+//@requires is_segment(start, end);
+//@ensures \result > 0;
+{
+  int length = 0;
+  while (start != end)
+  //@loop_invariant is_segment(start, end);
+  {
+    length++;
+    start = start->next;
+  }
+  return length;
+}
+\end{lstlisting}
+
+\begin{solution}
+\begin{lstlisting}[numbers=left, language=C]
+int length(list *start, list *end)
+{
+  REQUIRES(is_segment(start, end));
+  int length = 0;
+  ASSERT(is_segment(start, end));
+  while (start != end) {
+    length++;
+    start = start->next;
+    ASSERT(is_segment(start, end));
+  }
+  ENSURES(length > 0);
+  return length;
+}
+\end{lstlisting}
+\end{solution}

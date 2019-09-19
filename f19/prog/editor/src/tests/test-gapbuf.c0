@@ -1,0 +1,77 @@
+/* Testing the gap buffer in isolation by ensuring that the student's
+ * gap buffer stays in sync with the mimic.
+ *
+ * Designed for tests that will *not* violate contracts; the mimic
+ * code turns contract violations into divide-by-zero errors, which
+ * should be read as errors in the autograder. */
+
+#use <string>
+#use <file>
+#use <args>
+#use <parse>
+#use <conio>
+#use "mimic-gapbuf.c0"
+
+void visualize_gapbuf(gapbuf G)
+{
+    for (int i = 0; i < G->gap_start; i++) printchar(G->buffer[i]);
+    printchar('[');
+    for (int i = G->gap_start; i < G->gap_end; i++) printchar('.');
+    printchar(']');
+    for (int i = G->gap_end; i < G->limit; i++) printchar(G->buffer[i]);
+}
+
+void process_char(gapbuf G, gapbuf H, char c) 
+{
+  if (c == '<') { 
+    gapbuf_backward(G);
+    gapbuf_backward_(H);
+  }
+  else if (c == '>') { 
+    gapbuf_forward(G); 
+    gapbuf_forward_(H);
+  }
+  else if (c == '^') { 
+    gapbuf_delete(G); 
+    gapbuf_delete_(H);
+  } 
+  else { 
+    gapbuf_insert(G,c);
+    gapbuf_insert_(H,c);
+  }
+  visualize_gapbuf(G); print("\n");
+}
+
+int process_string(gapbuf G, gapbuf H, string s)
+{
+  int limit = string_length(s);
+  for(int i = 0; i < limit; i++) {
+    process_char(G, H, string_charat(s, i));
+    if (!gapbuf_eq_(G, H)) return 1;
+  }
+  return 0;
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 2) 4/0; // Bug in autograder!
+
+  int* ip = parse_int(args->argv[0], 10);
+  if (ip == NULL) 4/0; // Bug in autograder!
+  int i = *ip;
+  gapbuf G = gapbuf_new(i);
+  gapbuf H = gapbuf_new_(i);
+
+  file_t F = file_read(args->argv[1]);
+
+  // Argument is a command
+  if (F == NULL) return process_string(G, H, args->argv[1]);
+
+  // Argument is a file with a series of commands
+  while(!file_eof(F)) {
+    G = gapbuf_new(i);
+    H = gapbuf_new_(i);
+    if (1 == process_string(G, H, file_readline(F))) return 1;
+  }
+  return 0;
+}

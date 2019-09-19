@@ -1,0 +1,35 @@
+\section*{\lstinline'printf'%
+\TAGS{c-string}}
+
+\enlargethispage{5ex}
+C0 and C1 had different print functions for each type:
+\lstinline'printint', \lstinline'printbool', \lstinline'println', etc.
+In C, there is just one main print function:
+\lstinline'printf'. It always takes in a string,
+but you can use \emph{format specifiers} to print other types.
+%\footnote{\url{http://cplusplus.com/reference/cstdio/printf/} is a useful reference. Note that it was written for C\texttt{++}, so there may be some minor differences}
+%\footnote{Feel free to
+%search for more. \url{http://cplusplus.com/reference/cstdio/printf/}
+%is for C\texttt{++}, but is a useful reference}.
+Feel free to search online for format specifiers for more types.\footnote{The C\texttt{++} document
+  \url{http://cplusplus.com/reference/cstdio/printf} is a good
+  reference (C behaves similarly).}
+
+\checkpoint*{}
+\bgroup
+\smalllistings
+\lstinputlisting[belowskip=0pt]{\code/printing.c}
+\egroup
+
+What is the output of this program?
+
+\begin{solution}
+This program will print:\\
+\lstinline'64'\\
+\lstinline'40'\\
+\lstinline'd'\\
+\lstinline'100'\\
+\lstinline'hello'\\
+\lstinline'0xdeadbeef'\\
+\lstinline'8'\\
+\end{solution}

@@ -1,0 +1,59 @@
+#use <util>
+#use <conio>
+
+void print_gcd(int a, int b, int d) {
+  print("GCD("); printint(a); print(", "); printint(b);
+  print(") = "); printint(d); println("");
+}
+
+int GCD(int a, int b)
+//@requires a > 0 && b > 0;
+//@ensures \result >= 1;
+//@ensures a % \result == 0 && b % \result == 0;
+{
+  int d = min(a, b);
+
+  while (d > 1)
+  //@loop_invariant d >= 1;
+  {
+    if (a % d == 0 && b % d == 0)
+      return d;
+    d = d - 1;
+  }
+  return 1;
+}
+
+
+int euclid(int a, int b)
+//@requires a > 0 && b > 0;
+//@ensures \result == GCD(a, b);
+{
+  int x = a;
+  int y = b;
+
+  while (x != y)
+  //@loop_invariant x > 0 && y > 0;
+  //@loop_invariant GCD(x, y) == GCD(a, b);
+  {
+    if (x > y)
+      x = x - y;
+    else
+      y = y - x;
+  }
+  //@assert x == y;
+  return x;
+}
+
+
+int main() {
+  int hi = 100;
+
+  for (int a=1; a < hi; a++)
+    for (int b=1; b < hi; b++) {
+      int d = euclid(a, b);
+      // print_gcd(a, b, d);
+    }
+
+  println("\nTests completed!");
+  return 0;
+}

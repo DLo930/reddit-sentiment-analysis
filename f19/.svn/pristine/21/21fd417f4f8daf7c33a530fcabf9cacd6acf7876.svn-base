@@ -1,0 +1,494 @@
+/*
+ * Clac, stack-based calculator language
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+#use <util>
+
+/* From the perspective of the clac-main.c0 file, state_t is an
+ * abstract type. (typedef ____* state_t) This file contains the
+ * implementation of the state_t type. You will add new fields to this
+ * struct when you do task 4. */
+struct state_header {
+  dict_t dictionary;
+  qstack_t callstack;
+};
+typedef struct state_header* state_t;
+state_t init_state()
+//@ensures \result != NULL;
+{
+  state_t ST = alloc(struct state_header);
+  ST->dictionary = dict_new();
+  ST->callstack = qstack_new();
+  return ST;
+}
+
+// Helper function for the Add operation
+void add_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      int sum = x+y;
+      push(S,sum);
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Subtract operation
+void subtract_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      int difference = x-y;
+      push(S,difference);
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }  
+}
+
+// Helper function for the Multiply operation
+void multiply_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      int product = x*y;
+      push(S,product);
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Divide operation
+void divide_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      if (y == 0) {
+        error("division by 0");
+      }
+      else if (x == int_min() && y == -1) {
+        error("overflow exception");
+      }
+      else {
+        int quotient = x/y;
+        push(S,quotient);
+      }
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Modulus operation
+void modulus_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      if (y == 0) {
+        error("modulus by 0");
+      }
+      else if (x == int_min() && y == -1) {
+        error("overflow exception");
+      }
+      else {
+        int remainder = x%y;
+        push(S,remainder);
+      }
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the < operation
+void less_than_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      if (x < y) {
+        push(S,1);
+      }
+      else //@assert x >= y; 
+      {
+        push(S,0);
+      }
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Drop operation
+void drop_operation(stack_t S)
+//@requires S != NULL; 
+{
+  int x = 0;
+  if (!stack_empty(S)) {
+    x = pop(S);
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Swap operation
+void swap_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int y = pop(S);
+    if (!stack_empty(S)) {
+      int x = pop(S);
+      push(S,y);
+      push(S,x);
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Rotation operation
+void rot_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int z = pop(S);
+    if (!stack_empty(S)) {
+      int y = pop(S);
+      if (!stack_empty(S)) {
+        int x = pop(S);
+        push(S,y);
+        push(S,z);
+        push(S,x);
+      }
+      else {
+        error("not enough elements on stack");
+      }
+    }
+    else {
+      error("not enough elements on stack");
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the If operation
+void if_operation(stack_t S, queue_t Q)
+//@requires Q != NULL;
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int x = pop(S);
+    if (x == 0) {
+      int count = 0;
+      queue_t N = queue_new();
+      while (!queue_empty(Q) && count < 3) {
+        enq(N, deq(Q));
+        count++;
+      }
+      if (count != 3) {
+        error("unexpected end of input");
+        }
+      }
+    }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Pick operation
+void pick_operation(stack_t S)
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int n = pop(S);
+    if (n <= 0) {
+      error("pick must be positive");
+    }
+    else {
+      stack_t T = stack_new();
+      int count = 0;
+      while (!stack_empty(S) && count < n) 
+      {
+        push(T, pop(S));
+        count++;
+      }
+      int pick = pop(T);
+      push(T, pick);
+      while (!stack_empty(T))
+      {
+        push(S, pop(T));
+      }
+      if (count == n) {
+        push(S, pick);
+      }
+      else {
+        error("not enough elements on stack");
+      }
+    }
+  }
+  else {
+    error("not enough elements on stack");
+  }
+}
+
+// Helper function for the Skip operation
+void skip_operation(stack_t S, queue_t Q)
+//@requires Q != NULL;
+//@requires S != NULL; 
+{
+  if (!stack_empty(S)) {
+    int n = pop(S);
+    int count = 0;
+    if (n < 0) {
+      error("skip must be nonnegative");
+    }
+    else {
+      queue_t N = queue_new();
+      while (!queue_empty(Q) && count < n)
+      {
+        enq(N,deq(Q));
+        count++;
+      }
+      if (count != n) {
+        error("unexpected end of input");
+        }
+      }
+    }
+  else {
+    error("not enough elements on stack");
+  }
+} 
+
+// Helper function that adds a new definition to the dictionary
+void new_definition(queue_t Q, state_t ST)
+//@requires Q != NULL;
+//@requires ST != NULL; 
+{
+  queue_t Q2 = queue_new();
+  bool done = false;
+  if (!queue_empty(Q)) {
+    string name = deq(Q);
+    while (!queue_empty(Q) && !done)
+    {
+      string x = deq(Q);
+      if (!string_equal(x,":") && !string_equal(x,";")) {
+        enq(Q2,x);
+      }
+      if (string_equal(x,";")) {
+        done = true;
+      }
+    }
+    if (!done) {
+      error("unexpected end of input");
+    }
+    else {
+      dict_insert(ST->dictionary, name, Q2);
+    }
+  }
+  else {
+    error("unexpected end of input");
+  }
+}
+
+void perform_definition(stack_t S, queue_t Q, state_t ST, string tok)
+//@requires S != NULL;
+//@requires Q != NULL;
+//@requires ST != NULL;
+//@requires dict_lookup(ST->dictionary,tok) != NULL;
+{
+  queue_t def_queue = dict_lookup(ST->dictionary,tok);
+  queue_t copy = queue_read_only_copy(def_queue);
+  queue_t copyQ = queue_read_only_copy(Q);
+  qpush(ST->callstack, copyQ);
+  while (!queue_empty(Q))
+  {
+    deq(Q);
+  }
+  while (!queue_empty(copy))
+  {
+    enq(Q, deq(copy));
+  }
+}
+
+/* Main clac interpreter. */
+/* Return true: clac top-level interpreter will expect more input */
+/* Return false: clac top-level interpreter will exit */
+bool eval(queue_t Q, stack_t S, state_t ST)
+//@requires Q != NULL && S != NULL && ST != NULL;
+//@ensures \result == false || queue_empty(Q);
+{
+  while (!queue_empty(Q) || !qstack_empty(ST->callstack)) {
+      if (!queue_empty(Q)) {
+        string tok = deq(Q); /* Is this dequeue safe? */
+        //Uncommenting these lines might help with debugging:
+        //print("Read: "); print(tok); print("\n");
+        if (string_equal(tok, "print")) {
+          if (!stack_empty(S)) {
+            int x = pop(S);
+            printint(x); print("\n");
+          }
+          else {
+            error("not enough elements on stack");
+          }
+        } 
+
+        // QUIT
+        else if (string_equal(tok, "quit")) {
+          return false;
+        } 
+
+        // Addition
+        else if (string_equal(tok, "+")) {
+          add_operation(S);
+        }
+
+        // Subtraction
+        else if (string_equal(tok, "-")) {
+          subtract_operation(S);
+        }
+
+        // Multiplication
+        else if (string_equal(tok, "*")) {
+          multiply_operation(S);
+        }
+
+        // Division
+        else if (string_equal(tok, "/")) {
+          divide_operation(S);
+        }
+
+        // Modulus
+        else if (string_equal(tok, "%")) {
+          modulus_operation(S);
+        }
+
+        // Less Than
+        else if (string_equal(tok, "<")) {
+          less_than_operation(S);
+        }
+
+        // Drop
+        else if (string_equal(tok, "drop")) {
+          drop_operation(S);
+        }
+
+        // Swap
+        else if (string_equal(tok, "swap")) {
+          swap_operation(S);
+        }
+
+        // Rot
+        else if (string_equal(tok, "rot")) {
+          rot_operation(S);
+        }
+
+        // If
+        else if (string_equal(tok, "if")) {
+          if_operation(S,Q);
+        }
+
+        // Pick
+        else if (string_equal(tok, "pick")) {
+          pick_operation(S);
+        }
+
+        // Skip
+        else if (string_equal(tok, "skip")) {
+          skip_operation(S,Q);
+        }
+
+        // Definition
+        else if (string_equal(tok, ":")) {
+          new_definition(Q,ST);
+        }
+
+        else if (dict_lookup(ST->dictionary,tok) != NULL) {
+          perform_definition(S,Q,ST,tok);
+        }
+      
+        else {
+          /* Not defined as an operation name, should be an int */
+          int* p = parse_int(tok, 10);
+          if (p == NULL) { /* not an int */
+            /* call error(msg) which prints msg and aborts */
+            error(string_join("undefined token ", tok));
+          }
+          push(S, *p);
+        }
+      }
+      else {
+        //@assert ST != NULL;
+        queue_t addback = queue_new();
+        if (!qstack_empty(ST->callstack)) {
+          addback = qpop(ST->callstack);
+        }
+        while (!queue_empty(addback)) {
+          enq(Q, deq(addback));
+        }
+      }
+    }
+
+  /* When you return "true", don't pop anything off the stack! When we
+   * grade your function, we'll check that the stack contains the
+   * integers we expect. */
+
+  return true;
+}

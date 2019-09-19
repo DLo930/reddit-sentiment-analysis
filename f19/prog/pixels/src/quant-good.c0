@@ -1,0 +1,13 @@
+// Quantize good
+
+pixel_t quantize(pixel p, int q)
+//@requires 0 <= q && q < 8;
+{
+  int i;
+  int mask = (0xFF << q) & 0xFF;
+
+  return make_pixel(get_alpha(p),
+                    get_red(p) & mask,
+                    get_green(p) & mask,
+                    get_blue(p) & mask);
+}

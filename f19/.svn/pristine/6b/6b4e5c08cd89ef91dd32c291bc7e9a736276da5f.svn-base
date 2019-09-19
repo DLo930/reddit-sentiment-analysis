@@ -1,0 +1,55 @@
+//EXPECT RETURN 0
+int main() {
+  gapbuf G = alloc(struct gap_buffer);
+
+  //Test all valid 16-length gap buffers
+  G->limit = 16;
+  G->buffer = alloc_array(char, 16);
+  G->gap_start = 0;
+  G->gap_end = 16;
+
+  for(G->gap_start = 0; G->gap_start <= 16; G->gap_start++) {
+    for(G->gap_end = G->gap_start; G->gap_end <= 16; G->gap_end++) {
+      if(!is_gapbuf(G)) return 1;
+    }
+  }
+
+  //good 10-element gap buffer
+  G->limit = 10; 
+  G->buffer = alloc_array(char, 10);
+  G->gap_start = 0;
+  G->gap_end = 10;
+  if(!is_gapbuf(G)) return 1;
+
+  //bad start
+  G->gap_start = -3;
+  G->gap_end = 7;
+  if(is_gapbuf(G)) return 1;
+  
+  //bad end
+  G->gap_start = 3;
+  G->gap_end = 245;
+  if(is_gapbuf(G)) return 1;
+
+  //gap overlap
+  G->gap_start = 7;
+  G->gap_end = 3;
+  if(is_gapbuf(G)) return 1;
+
+  //reasonable gap
+  G->gap_start = 3;
+  G->gap_end = 7;
+  if(!is_gapbuf(G)) return 1;
+
+  //gap at front
+  G->gap_start = 0;
+  G->gap_end = 0;
+  if(!is_gapbuf(G)) return 1;
+
+  //gap at back
+  G->gap_start = 10;
+  G->gap_end = 10;
+  if(!is_gapbuf(G)) return 1;
+
+  return 0;
+}

@@ -1,0 +1,17 @@
+#use <string>
+
+struct x {
+  int a;
+  string b;
+  int[] c;
+};
+typedef struct x* x;
+
+int main()
+{
+  x temp = alloc(struct x);
+  temp->a = 1;
+  temp->b = string_join("hello", "world");
+  temp->c = alloc_array(int, 10);
+  return 0;
+}

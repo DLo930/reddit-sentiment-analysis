@@ -1,0 +1,77 @@
+\part[0\half]~\vspace*{-2ex}
+\begin{lstlisting}[numbers=left]
+int f(int a, int b)
+//@requires 0 <= a && a <= b;[*\label{l:safe-assert5-prec}*]
+{
+    int i = 0;
+    while (i < a)[*\label{l:safe-assert5-lg}*]
+    //@loop_invariant 0 <= i;[*\label{l:safe-assert5-LI}*]
+    {
+        //@assert 0 <= i && i < b;          /*** Assertion A ***/[*\label{l:safe-assert5A}*]
+        i += 1;
+    }
+    //@assert i <= b;                       /*** Assertion B ***/[*\label{l:safe-assert5B}*]
+    return i;
+}
+\end{lstlisting}
+
+\vfill
+\begin{framed}
+\lstinline'Assertion A' is: \underline{SUPPORTED}
+%\medskip
+%\lstinline'Assertion A' is: \uanswer{26.2em}{SUPPORTED}
+
+\medskip
+\aLine{\texttt{0 <= i}}{line~\ref{l:safe-assert5-LI}}
+\aLine{\texttt{i < a}}{line~\ref{l:safe-assert5-LI}}
+\aLine{\texttt{a <= b}}{line~\ref{l:safe-assert5-prec}}
+\aLine{\texttt{i < b}}{math}
+\aLine{}{}
+%Therefore we \ans{can}/\noans{cannot} conclude that\\[0.6ex]
+Therefore we \textbf{can} conclude that\\[0.6ex]
+\aLine[-2ex]{0 <= i \&\& i < b}{math}
+\end{framed}
+
+\RUBRIC
+Part 5A
+
+Gradescope rubric:
++ 0.1 pts 0 <= i from line 6
++ 0.15 pts i < b from lines 5 and 2
+
+Commentary:
+Assertion A is SUPPORTED
+  - 0 <= i from line 6
+  - i < b from lines 5 and 2 - (i < a) && (a <= b) => i < b
+ENDRUBRIC
+
+\vfill
+\begin{framed}
+\lstinline'Assertion B' is: \underline{UNSUPPORTED}
+%\medskip
+%\lstinline'Assertion B' is: \uanswer{26.2em}{UNSUPPORTED}
+
+\medskip
+\aLine{\texttt{i >= a}}{line~\ref{l:safe-assert5-lg}}
+\aLine{\texttt{a <= b}}{line~\ref{l:safe-assert5-prec}}
+\aLine{that doesn't tell us how \texttt{i} and \texttt{b} are related}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \textbf{cannot} conclude that\\[0.6ex]
+%Therefore we \textbf{can}/\textbf{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{i <= b}}{line~\ref{l:safe-assert5B}}
+\end{framed}
+
+\RUBRIC
+Part 5B
+
+Gradescope rubric:
++ 0.1 pts i >= a from line 5
++ 0.15 pts Cannot conclude that i <= b
+
+Commentary:
+Assertion B is UNSUPPORTED
+   - We know i >= a from line 5,
+     so i >= a,
+      but that doesn't mean it's < b.
+ENDRUBRIC

@@ -1,0 +1,51 @@
+#use <conio>
+#use <string>
+#use <util>
+
+string salute(int code)
+//@requires 0 <= code && code < 4;
+{
+  string new =
+     "MERHABA"      // F19
+  // "WASSUP"       // S19
+  // "BUENOS DIAS"  // F18
+  // "BUONGIORNO"   // S18
+  // "GOOD MORNING" // F17
+  // "ALOHA"        // S17, F16
+  // "WELCOME"      // S16, ...
+  ;
+
+  if (code == 0) {
+    return "Hello";
+  } else if (code == 1) {
+    return "Greetings";
+  } else if (code == 2) {
+    return "Howdy";
+  } else {
+    return new;
+  }
+}
+
+int factorial(int n)
+//@requires n >= 0;
+{
+  int result = 1;      /* line 1 */
+  int i = 1;           /* line 2 */
+  while (i <= n) {     /* line 3 */
+    result = result*i; /* line 4 */
+    i = i+1;           /* line 5 */
+  }
+  return result;       /* line 6 */
+}
+
+string greet(string salutation, string entity) {
+  string str = salutation;
+  str = string_join(str, ", ");
+  str = string_join(str, entity);
+  str = string_join(str, "!");
+  return str;
+}
+
+string who_we_shall_greet() {
+  return "Rob";
+}

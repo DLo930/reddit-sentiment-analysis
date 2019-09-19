@@ -1,0 +1,79 @@
+%\part[0]~\vspace*{-2ex}
+\begin{lstlisting}[numbers=left]
+int f(int a, int b)
+//@requires 1 <= a && a < b;
+{
+    int i = 1;
+    while (i < a)
+    //@loop_invariant i >= 1;
+    {
+        //@assert i < b;        /*** Assertion 1 ***/
+        i += 1;
+    }
+    //@assert i == a;           /*** Assertion 2 ***/
+    //@assert i != 0;           /*** Assertion 3 ***/
+    return i;
+}
+\end{lstlisting}
+
+%\vfill
+\begin{framed}
+\topsep=0.25ex
+\partopsep=0.25ex
+\lstinline'Assertion 1' is: \underline{SUPPORTED}
+\begin{tabbing}
+--~~\= \lstinline'i < a'\qquad\= (line 5)\\
+--\> \lstinline'a < b'\> (line 2) and \lstinline'a' and \lstinline'b' not changed by loop
+\end{tabbing}
+Therefore, we \textbf{can} conclude that
+\begin{tabbing}
+--~~\= \lstinline'i < b'\qquad\= since \lstinline'i < a' and \lstinline'a < b' implies \lstinline'i < b'
+\end{tabbing}
+
+(\emph{Long version}: Because the assignables \lstinline'a' and
+\lstinline'b' are not modified by the loop, the assertion %
+\lstinline'a < b' from line 2 can be used at line 6. Because we are inside the
+loop, we know the loop guard held at the beginning of the loop, so
+line 5 gives us that \lstinline'i < a'. The facts \lstinline'i < a'
+and \lstinline'a < b' together imply \lstinline'i < b'.)
+\end{framed}
+
+\vfill
+\begin{framed}
+\topsep=0.25ex
+\partopsep=0.25ex
+\lstinline'Assertion 2' is: \underline{UNSUPPORTED}
+
+\begin{tabbing}
+--~~\= \lstinline'!(i < a)'\qquad\= (line 5)\\
+--\>   \lstinline'i >= a'\qquad\> (by math)
+\end{tabbing}
+Therefore, we \textbf{cannot} conclude that
+\begin{tabbing}
+--~~\= \lstinline'i == a'\qquad\quad\= (does not follow logically from any fact we know)
+\end{tabbing}
+
+% At line 9, we know that the loop guard \lstinline'i < a' is false ---
+% that is, we know that \lstinline'!(i < a)', which is the same thing as
+% saying \lstinline'i >= a'. We can't conclude, from this, that \lstinline'i' is
+% equal to \lstinline'a'.
+\end{framed}
+
+\vfill
+\begin{framed}
+\topsep=0.25ex
+\partopsep=0.25ex
+\lstinline'Assertion 3' is: \underline{SUPPORTED}
+
+\begin{tabbing}
+--~~\= \lstinline'i >=1'\qquad\= (line 6)
+\end{tabbing}
+Therefore, we \textbf{can} conclude that
+\begin{tabbing}
+--~~\= \lstinline'i != 0'\qquad\= (by math)
+\end{tabbing}
+
+% After the loop, we know that the loop invariant \lstinline'i >= 1'
+% still holds. We can conclude from this, that \lstinline'i' is not
+% equal to \lstinline'0'.
+\end{framed}

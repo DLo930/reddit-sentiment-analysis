@@ -1,0 +1,17 @@
+#use <conio>
+/* tests wrong array dimensions */
+
+pixel[] apply_mask(pixel[] p, int width, int height, int[] mask, int maskwidth);
+int main() {
+    int[] inpixels;
+    int[] mask;
+    int[] resultpixels;
+   
+    inpixels = alloc_array(int, 25);
+    mask = alloc_array(int, 9);
+  
+    resultpixels = apply_mask(inpixels, 5, 6, mask, 3);
+
+	println("EXPECTED ANNOTATION FAILURE");
+    return 0;
+}

@@ -1,0 +1,139 @@
+#use <args>
+#use <conio>
+#use <util>
+
+bool singleton_test(int i, int j) {
+  sortedlist* S = alloc(sortedlist);
+  S->start = alloc(list);
+  S->start->data = i;
+  delete(S, j);
+  if (i == j && S->start != NULL) return false;
+  if (i != j && (S->start == NULL || S->start->data != i)) return false;
+  return true;
+}
+
+bool singleton_tests(int i) {
+  if (!singleton_test(i, int_max())) return false;
+  if (!singleton_test(i, int_min())) return false;
+  for (int j = -122; j <= 122; j++) {
+    if (!singleton_test(i, j)) return false;
+  }
+  return true;
+}
+
+/* Cons-pointer. */
+sortedlist* cp(int i, sortedlist* S) 
+//@requires S != NULL;
+{
+  list* l = alloc(list);
+  l->data = i;
+  l->next = S->start;
+  S->start = l;
+  return S;
+}
+
+/* Duplicate-pointer. */
+sortedlist* dp(sortedlist* S) 
+//@requires S != NULL;
+{
+  sortedlist* Q = alloc(sortedlist);
+  Q->start = S->start;
+  return Q;
+}
+
+/* Cons-check. */
+sortedlist* ck(sortedlist* S, int i) {
+  if (S == NULL) return NULL;
+  if (S->start == NULL) return NULL;
+  if (S->start->data != i) return NULL;
+  S->start = S->start->next;
+  return S;
+}
+
+/* Nil-check. */
+sortedlist* nk(sortedlist* S) {
+  if (S == NULL) return NULL;
+  if (S->start != NULL) return NULL;
+  return S;
+}
+
+
+int main() {
+  sortedlist* S = alloc(sortedlist);
+  
+  /* Deletion from the empty list */
+  delete(S, int_min()); if (S->start != NULL) return 1;
+  delete(S, -5       ); if (S->start != NULL) return 1;
+  delete(S, -1       ); if (S->start != NULL) return 1;
+  delete(S, 0        ); if (S->start != NULL) return 1;
+  delete(S, 1        ); if (S->start != NULL) return 1;
+  delete(S, 10       ); if (S->start != NULL) return 1;
+  delete(S, int_max()); if (S->start != NULL) return 1;
+  println("Deletion from the empty list passed!");
+
+  /* Check several singletons */
+  if (!singleton_tests(int_min())) return 1;
+  if (!singleton_tests(int_max())) return 1;
+  if (!singleton_tests(-5)) return 1;
+  if (!singleton_tests(-1)) return 1;
+  if (!singleton_tests(0)) return 1;
+  if (!singleton_tests(1)) return 1;
+  if (!singleton_tests(10)) return 1;
+  println("Singleton tests completed!");
+
+  /* Check several two-element lists */
+  S = cp(-12, cp(12, alloc(sortedlist)));
+  delete(S, int_min()); if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  delete(S, -15);       if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  delete(S, -12);       if (nk(ck(dp(S), 12)) == NULL) return 1;
+  S = cp(-12, cp(12, alloc(sortedlist)));
+  delete(S, -1);        if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  delete(S, 0);         if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  delete(S, 1);         if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  delete(S, 12);        if (nk(ck(dp(S), -12)) == NULL) return 1;
+  S = cp(-12, cp(12, alloc(sortedlist)));
+  delete(S, 122);       if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  delete(S, int_max()); if (nk(ck(ck(dp(S), -12), 12)) == NULL) return 1;
+  println("-12+12 passes");
+
+  int imi = int_min();
+  int ima = int_max();
+  S = cp(imi, cp(ima, alloc(sortedlist)));
+  delete(S, int_min()); if (nk(ck(dp(S), ima)) == NULL) return 1;
+  S = cp(imi, cp(ima, alloc(sortedlist)));
+  delete(S, -15);       if (nk(ck(ck(dp(S), imi), ima)) == NULL) return 1;
+  delete(S, -1);        if (nk(ck(ck(dp(S), imi), ima)) == NULL) return 1;
+  delete(S, 0);         if (nk(ck(ck(dp(S), imi), ima)) == NULL) return 1;
+  delete(S, 1);         if (nk(ck(ck(dp(S), imi), ima)) == NULL) return 1;
+  delete(S, 122);       if (nk(ck(ck(dp(S), imi), ima)) == NULL) return 1;
+  delete(S, int_max()); if (nk(ck(dp(S), imi)) == NULL) return 1;
+
+  println("Two-element lists passed!");
+
+  /* Longer list */
+  S = cp(0, cp(1, cp(2, cp(3, cp(4, cp(5, cp(6, alloc(sortedlist))))))));
+  delete(S, -1);
+  if (nk(ck(ck(ck(ck(ck(ck(ck(dp(S),0),1),2),3),4),5),6)) == NULL) return 1;
+  delete(S, 5);
+  if (nk(ck(ck(ck(ck(ck(ck(dp(S),0),1),2),3),4),6)) == NULL) return 1;
+  delete(S, 1);
+  if (nk(ck(ck(ck(ck(ck(dp(S),0),2),3),4),6)) == NULL) return 1;
+  delete(S, 1);
+  if (nk(ck(ck(ck(ck(ck(dp(S),0),2),3),4),6)) == NULL) return 1;
+  delete(S, 0);
+  if (nk(ck(ck(ck(ck(dp(S),2),3),4),6)) == NULL) return 1;
+  delete(S, 6);
+  if (nk(ck(ck(ck(dp(S),2),3),4)) == NULL) return 1;
+  delete(S, 3);
+  if (nk(ck(ck(dp(S),2),4)) == NULL) return 1;
+  delete(S, 4);
+  if (nk(ck(dp(S),2)) == NULL) return 1;
+  delete(S, 1);
+  if (nk(ck(dp(S),2)) == NULL) return 1;
+  delete(S, 2);
+  if (nk(dp(S)) == NULL) return 1;
+
+  println("All tests passed!");
+
+  return 0;
+}

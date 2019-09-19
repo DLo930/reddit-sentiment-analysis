@@ -1,0 +1,12 @@
+#use <conio>
+
+/* annotation fail */
+int main() {
+  pixel[] p = alloc_array(pixel, 9);
+  pixel[] q;
+  int i = 0;
+
+  q = quantize(p, 4, -1, 4);
+  println("EXPECTED ANNOTATION FAILURE");
+  return 0;
+}

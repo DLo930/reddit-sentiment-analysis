@@ -1,0 +1,209 @@
+\clearpage
+\Question{AVL Trees}
+
+\begin{parts}
+\newcommand{\insseqA}{B}%{E}{C}%{3}%{11}%{15}
+\newcommand{\insseqB}{G}%{J}{H}%{16}%{42}%{53}
+\newcommand{\insseq}  % Vary from time to time
+%{\insseqA, \insseqB, 71, 58, 129, 37, 97}
+%{\insseqA, \insseqB, 61, 56, 122, 47, 99}
+%{\insseqA, \insseqB, 68, 65,  83, 57, 74}
+ {\insseqA, \insseqB,  M,  K,   W,  J,  S}
+%{\insseqA, \insseqB,  N,  L,   X,  K,  T}
+%{\insseqA, \insseqB,  O,  M,   Y,  L,  U}
+
+
+%%%%% change the details !!!!!!!! %%%%%%%%%
+
+\part[2]\TAGS{avl}
+ Draw the AVL trees that result after successively
+inserting the following keys into an initially empty tree, in the
+order shown:
+
+\bigskip
+\begin{center}\tt
+\insseq
+\end{center}
+\bigskip
+
+Show the tree after each insertion and subsequent re-balancing (if
+any) is completed: the tree after the first element,
+\texttt{\insseqA}, is inserted into an empty tree, then the tree after
+\texttt{\insseqB} is inserted into the first tree, and so on for a
+total of seven trees.  Make it clear what order the trees are in.
+
+Be sure to maintain and restore the BST invariants and the additional
+balance invariant required for an AVL tree after each insert.
+\begin{framed} % Paste the appropriate version
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\smallbasicstyle\color{\answerColor}]
+(1) (2)     (3)      (4)          (5)           (6)           (7)
+
+                      G           G             K            K
+                    /   \       /   \         /   \        /   \
+      B      G     B     M     B     M       G     M      G     S
+       \    / \         /           / \     / \     \    / \   / \
+ B      G  B   M       K           K   W   B   J     W  B   J M   W
+\end{lstlisting}
+\else~\vspace{6in}\fi
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: avl
+
+Gradescope rubric:
++2pt   EITHER -- All correct
++1.5pt     OR -- One mistake
++1pt       OR -- 2 or 3 small mistakes
++0.5pt     OR -- More than 3 mistakes, but first 3 trees are correct
+
+Commentary:
+Don't sweat too much trying to give points to grossly
+wrong answers. If you can easily identify a correct rotation, fine,
+give them some credit (see below).
+
+(1) (2)     (3)      (4)          (5)           (6)           (7)
+
+                      G           G             K            K
+                    /   \       /   \         /   \        /   \
+      B      G     B     M     B     M       G     M      G     S
+       \    / \         /           / \     / \     \    / \   / \
+ B      G  B   M       K           K   W   B   J     W  B   J M   W
+
+[Older variant with numbers]
+(1) (2)     (3)      (4)          (5)           (6)           (7)
+
+                      16          16             58            58
+                    /   \        /  \           /  \          /  \
+     3      16     3    71      3    71       16    71      16    97
+       \    /  \        /           /  \     /  \     \    /  \   / \
+ 3     16  3   71     58           58  129  3   37   129  3   37 71 129
+
+ 2pt:   all correct
+ 1.5pt:   clearly just one mistake
+ 1pt:   2-3 small mistakes
+ 0.5pt: Many mistakes, but got as far as (3) above
+ENDRUBRIC
+
+\medskip
+\newpage
+\part\TAGS{avl, complexity}
+Recall our definition for the height $h$ of a tree:
+\begin{quote}\em
+  The height of a tree is the maximum number of nodes on a path from the root
+  to a leaf. So the empty tree has height 0, the tree with one node has height
+  1, and a balanced tree with three nodes has height 2.
+\end{quote}
+The minimum and maximum number of nodes $m$ in a valid AVL tree is
+related to its height. The goal of this question is to quantify this
+relationship.
+
+\begin{subparts}
+\subpart[1] %
+Let $m(h)$ be the minimum number of nodes in an AVL tree
+of height $h$. Fill in the table below relating $h$ and $m(h)$:
+
+\medskip\medskip
+\begin{center}
+\newcommand{\ans}[1]{\answer{5em}{\centering\ensuremath #1}}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|@{\hspace{1.5em}}c@{\hspace{1.5em}}|c|}
+       \hline $h$ & $m(h)$
+\\[5pt]\hline   0 & $0$
+\\[5pt]\hline   1 & $1$
+\\[5pt]\hline   2 & $2$
+\\[5pt]\hline   3 & \ans{4}
+\\[5pt]\hline   4 & \ans{7}
+\\[5pt]\hline   5 & \ans{12}
+\\[5pt]\hline   6 & \ans{20}
+\\[5pt]\hline
+\end{tabular}
+\end{center}
+
+\RUBRIC
+Part (b i)
+TAGS: avl, complexity
+
+Gradescope rubric:
++1pt -- EITHER -- All correct: 4, 7, 12, 20
++0.5pt -- OR -- One error (may result in more than one incorrect number)
+
+Commentary:
+Two points. Give one point if one arithmetic error (one
+arithmetic error could result in more than one incorrect number.)
+ 0 0
+ 1 1
+ 2 2
+ 3 4
+ 4 7
+ 5 12
+ 6 20
+ENDRUBRIC
+
+
+\medskip
+\subpart[1]
+Guided by the table in part (i), give an expression for $m(h)$.
+
+\enlargethispage{5ex}
+Here's a hint: recall that the $n$th Fibonacci number $F(n)$ is defined by:
+\bgroup\small
+\begin{align*}
+F(0) &= 0 \\
+F(1) &= 1 \\
+F(n) &= F(n-1) + F(n-2), \qquad n > 1
+\end{align*}
+\egroup
+You may find it useful to use the Fibonacci function $F(n)$ in your
+answer.  Your answer \underline{does not} need to be a closed form
+expression; it could be a recursive definition like the one for
+$F(n)$.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}%
+\vspace{-2ex}%
+\begin{align*}
+m(0) &= 0 \\
+m(1) &= 1 \\
+m(h) &= 1 + m(h - 1) + m(h-2), \qquad h > 1
+\end{align*}
+\vspace{-3ex}%
+}\else~\vspace{2.5cm}\fi
+\end{framed}
+
+\RUBRIC
+Part (b ii)
+
+Gradescope rubric:
++1pt -- EITHER -- m(h) = 1 + m(h - 1) + m(h-2)
++1pt -- OR -- m(h) = m(h-1) + F(h)
++1pt -- OR -- m(h) = F(h+2) - 1
+
+Commentary:
+All or nothing
+  m(h) = m(h-2) + m(h-1) + 1
+ENDRUBRIC
+
+
+\subpart[0\half] %
+Give a closed form expression (non-recursive) for $M(h)$, the
+\emph{maximum} number of nodes in a valid AVL tree of height $h$.
+
+\begin{framed}
+\bigskip
+$M(h) = \answer{28em}{$2^h-1$}$
+\end{framed}
+
+\RUBRIC
+Part (b iii)
+
+Gradescope rubric:
++0.5pt 2^h - 1
+
+Commentary:
+All or nothing
+  M(h) = (2**h)-1
+ENDRUBRIC
+
+\end{subparts}
+\end{parts}

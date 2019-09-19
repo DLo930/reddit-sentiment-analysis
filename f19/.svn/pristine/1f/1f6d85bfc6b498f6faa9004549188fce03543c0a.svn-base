@@ -1,0 +1,20 @@
+#use <conio>
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = NULL;
+
+  //nullity test
+  if(!(is_linked(B) == false)){
+    passed = false;
+    // error("accepted null tbuf");
+  }
+
+  //just in case this segfaults...
+  
+  //report
+  if(passed) return 0; else return 1;
+}

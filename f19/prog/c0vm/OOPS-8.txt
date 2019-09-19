@@ -1,0 +1,7 @@
+The VM should be run with ulimit so that memory problems can't use all of the
+Autolab VM's memory and lead to the grader getting killed.
+
+Test that stack-blowing recursion5 blows the stack.
+
+Minor/long term structural improvement: make valgrind report the
+number of bytes lost, check that 8 bytes are lost for NEW 8, etc.

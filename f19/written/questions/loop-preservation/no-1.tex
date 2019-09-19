@@ -1,0 +1,36 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (x < y && x <= 15122)
+//@loop_invariant x <= y;
+{
+    if (0 <= z && z < 10) {
+        x = x + z;
+    }
+}
+\end{lstlisting}
+\begin{framed}
+\newcommand{\ans}[1]{\fbox{\rule[-0.5ex]{0em}{3ex}\answer{5.5em}{\texttt{#1}}}}
+NOT ALWAYS PRESERVED
+
+\bigskip
+Counterexample: $x$ = \ans{-4} , $y$ = \ans{4} , $z$ = \ans{9}.
+
+The loop invariant and loop guard are satisfied at the start of the
+iteration but the loop invariant is not satisfied at the end of that
+iteration.
+\end{framed}
+
+\RUBRIC
+Part (<n1>)
+
+Gradescope rubric:
++0.5 pts Valid counterexample [Ex: -4, 4, 9]
+
+Commentary:
+ - Counterexample: 0 <= z < 10, and x and y differ by less than z
+   for example:
+     (x = -4, y = 4, z = 9)
+     (x = 15121, y = 15122, z = 2)
+
+  All or nothing.
+ENDRUBRIC

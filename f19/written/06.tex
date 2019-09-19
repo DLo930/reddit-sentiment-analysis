@@ -1,0 +1,34 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{6}
+\newcommand{\duedate}{\formatdate{7}{10}{\YEAR}} % day-month-year
+\newcommand{\shortdesc}{This written homework covers doubly-linked lists.}
+
+\input{inc/preamble}
+\begin{document}
+\input{inc/frontmatter}
+
+\begin{questions}
+\inputQuestion{composite-return} % F19 S19 F18 S18 F17 S17 F16 S16
+\inputQuestion[questions/linked-lists/]{main} % See file
+\inputQuestion[questions/dl-lists/]{main} % See file
+\end{questions}
+
+\RUBRIC
+
+Learning Objectives (AKA Evaluation Summary)
+* using pointers to return values from functions
+* reasoning about linked lists
+* working with double-linked list
+
+Gradescope rubric (no points, first two are always the same):
+-0pt EXCELLENT JOB!!!
+-0pt There are several concepts you have doubts about (see below): please consider going to office hours.
+
+-0pt You still don't seem comfortable using pointers to return values from functions
+-0pt You look a bit confused about reasoning about linked lists
+-0pt You seem to have difficulties working with double-linked list
+
+ENDRUBRIC
+
+\input{inc/backmatter}
+\end{document}

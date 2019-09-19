@@ -1,0 +1,110 @@
+#include <conio>
+
+
+typedef struct list_node list;
+struct list_node {
+  int data;
+  list* next;
+};
+
+struct list_header {
+  list* start;
+  list* end;
+};
+typedef struct list_header* linkedlist;
+
+
+bool is_segment(list* s, list* e) {
+  if (s == NULL) return false;
+  if (e == NULL) return false;
+  if (s->next == e) return true;
+  list* c = s;
+  while (c != e && c != NULL) {
+    c = c->next;
+  }
+  if (c == NULL)
+    return false;
+  return true;
+}
+
+
+void mystery(linkedlist a, linkedlist b)
+//@requires a != NULL;
+//@requires b != NULL;
+//@requires is_segment(a->start, a->end);
+//@requires is_segment(b->start, b->end);
+{
+  list* t1 = a->start;
+  list* t2 = b->start;
+  while (t1 != a->end && t2 != b->end)
+  //@loop_invariant is_segment(t1, a->end);
+  //@loop_invariant is_segment(t2, b->end);
+  {
+    list* t = t2;
+    t2 = t2->next;
+    t->next = t1->next;
+    t1->next = t;
+    t1 = t1->next->next;
+  }
+  b->start = t2;
+}
+
+void print_list(string name, linkedlist L)
+//@requires L != NULL;
+//@requires is_segment(L->start, L->end);
+{
+  print(name); print(": ");
+  for (list* t = L->start; t != L->end; t = t->next)
+  //@loop_invariant is_segment(t, L->end);
+    {
+      printint(t->data);
+      print("->");
+    }
+  println("X");
+}
+
+list* mk_node(int data) {
+  list* l = alloc(list);
+  l->data = data;
+  return l;
+}
+
+int main() {
+  linkedlist L1 = alloc(struct list_header);
+  L1->start = mk_node(1);
+  L1->start->next = mk_node(2);
+  L1->start->next->next = mk_node(3);
+  L1->start->next->next->next = mk_node(4);
+  L1->start->next->next->next->next = mk_node(42);
+  L1->end = L1->start->next->next->next->next;
+
+  linkedlist L2 = alloc(struct list_header);
+  L2->start = mk_node(6);
+  L2->start->next = mk_node(7);
+  L2->start->next->next = mk_node(43);
+  L2->end = L2->start->next->next;
+
+  linkedlist L3 = alloc(struct list_header);
+  L3->start = mk_node(1);
+  L3->start->next = mk_node(2);
+  L3->start->next->next = mk_node(44);
+  L3->end = L3->start->next->next;
+
+  linkedlist L4 = alloc(struct list_header);
+  L4->start = mk_node(4);
+  L4->start->next = mk_node(5);
+  L4->start->next->next = mk_node(6);
+  L4->start->next->next->next = mk_node(7);
+  L4->start->next->next->next->next = mk_node(45);
+  L4->end = L4->start->next->next->next->next;
+
+  mystery(L1, L2);
+  print_list("L1", L1);
+  print_list("L2", L2);
+
+  mystery(L3, L4);
+  print_list("L3", L3);
+  print_list("L4", L4);
+
+  return 1;
+}

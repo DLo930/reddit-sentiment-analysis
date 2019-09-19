@@ -1,0 +1,8 @@
+TITLE: Lights Out is Difficult -- Start Early
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+<strong>A word of warning</strong>: Lights Out is a difficult assignment. You should really consider <strong>at least</strong> reading the writeup today or tomorrow to get a sense of what you need to do. This is especially true if you have no grace days remaining. (See @[TBD]).
+
+We typically see large numbers of students at office hours in the days before the due date, so it will benefit you (and the TAs) to take advantage of office hours earlier (i.e. today/Friday/Saturday) rather than later (Sunday/Monday/Tuesday).

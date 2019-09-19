@@ -1,0 +1,69 @@
+#use <conio>
+#use "sol-tbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = tbuf_new_();
+  tbuf sol = tbuf_new_();
+
+  //split on right
+  insert_char_(B, 'a');
+  insert_char_(B, 'b');
+  insert_char_(B, 'c');
+  insert_char_(B, 'd');
+  insert_char_(B, 'e');
+  insert_char_(B, 'f');
+  insert_char_(B, 'g');
+  insert_char_(B, 'h');
+  insert_char_(B, 'i');
+  insert_char_(B, 'j');
+  insert_char_(B, 'k');
+  insert_char_(B, 'l');
+  insert_char_(B, 'm');
+  insert_char_(B, 'n');
+  insert_char_(B, 'o');
+  insert_char_(B, 'p');
+
+  insert_char_(sol, 'a');
+  insert_char_(sol, 'b');
+  insert_char_(sol, 'c');
+  insert_char_(sol, 'd');
+  insert_char_(sol, 'e');
+  insert_char_(sol, 'f');
+  insert_char_(sol, 'g');
+  insert_char_(sol, 'h');
+  insert_char_(sol, 'i');
+  insert_char_(sol, 'j');
+  insert_char_(sol, 'k');
+  insert_char_(sol, 'l');
+  insert_char_(sol, 'm');
+  insert_char_(sol, 'n');
+  insert_char_(sol, 'o');
+  insert_char_(sol, 'p');
+
+
+  for(int i = 0; i < 5; i++) {
+    gapbuf_backward_(B->point->data);
+    gapbuf_backward_(sol->point->data);
+  }
+
+  split_point(B);
+
+  tbuf_split_point_(sol);
+  
+  // get contents
+  contents B_c = tbuf_contents(B);
+  contents sol_c = tbuf_contents(sol);
+
+  //check exact positioning
+  if (!(sol_c->cursor == B_c->cursor && string_equal(B_c->str, sol_c->str))) {
+    passed = false;
+    // error("there was a discrepancy in the split output");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

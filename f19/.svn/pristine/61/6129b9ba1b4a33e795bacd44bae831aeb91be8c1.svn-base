@@ -1,0 +1,67 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+CC0=cc0 lib/*.c0 -o
+CC0D=cc0 -d lib/*.c0 -o
+
+all:
+	$(MAKE) extract -s
+	$(MAKE) compile -is
+	$(MAKE) grade -s
+
+extract:
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar
+	tar -mkxzvf handin.tgz
+	echo ""
+
+compile:
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(MAKE) spelltests -s --stop
+	$(CC0)  analyze speller.c0 analysis.c0
+	$(CC0)  spl   speller.c0 speller-grade.c0
+	$(CC0D) spl-d speller.c0 speller-grade.c0
+
+spelltests:
+	$(CC0D) spl-stu-impl speller.c0 speller-test.c0
+	$(CC0D) spl-our-impl checkword-ref.c0 checkbetter-ref.c0 speller-test.c0
+
+	$(CC0D) spl-cw-bug0 checkword-bug0.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug1 checkword-bug1.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug2 checkword-bug2.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug3 checkword-bug3.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug4 checkword-bug4.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug5 checkword-bug5.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug6 checkword-bug6.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug7 checkword-bug7.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug8 checkword-bug8.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bug9 checkword-bug9.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bugA checkword-bugA.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bugB checkword-bugB.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bugC checkword-bugC.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bugD checkword-bugD.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bugE checkword-bugE.c0 checkbetter-ref.c0 speller-test.c0
+	$(CC0D) spl-cw-bugF checkword-bugF.c0 checkbetter-ref.c0 speller-test.c0
+
+	$(CC0D) spl-cb-bug0 checkword-ref.c0 checkbetter-bug0.c0 speller-test.c0
+	$(CC0D) spl-cb-bug1 checkword-ref.c0 checkbetter-bug1.c0 speller-test.c0
+	$(CC0D) spl-cb-bug2 checkword-ref.c0 checkbetter-bug2.c0 speller-test.c0
+	$(CC0D) spl-cb-bug3 checkword-ref.c0 checkbetter-bug3.c0 speller-test.c0
+	$(CC0D) spl-cb-bug4 checkword-ref.c0 checkbetter-bug4.c0 speller-test.c0
+	$(CC0D) spl-cb-bug5 checkword-ref.c0 checkbetter-bug5.c0 speller-test.c0
+	$(CC0D) spl-cb-bug6 checkword-ref.c0 checkbetter-bug6.c0 speller-test.c0
+	$(CC0D) spl-cb-bug7 checkword-ref.c0 checkbetter-bug7.c0 speller-test.c0
+	$(CC0D) spl-cb-bug8 checkword-ref.c0 checkbetter-bug8.c0 speller-test.c0
+	$(CC0D) spl-cb-bug9 checkword-ref.c0 checkbetter-bug9.c0 speller-test.c0
+	$(CC0D) spl-cb-bugA checkword-ref.c0 checkbetter-bugA.c0 speller-test.c0
+	$(CC0D) spl-cb-bugB checkword-ref.c0 checkbetter-bugB.c0 speller-test.c0
+	$(CC0D) spl-cb-bugC checkword-ref.c0 checkbetter-bugC.c0 speller-test.c0
+	$(CC0D) spl-cb-bugD checkword-ref.c0 checkbetter-bugD.c0 speller-test.c0
+	$(CC0D) spl-cb-bugE checkword-ref.c0 checkbetter-bugE.c0 speller-test.c0
+	$(CC0D) spl-cb-bugF checkword-ref.c0 checkbetter-bugF.c0 speller-test.c0
+	$(CC0D) spl-cb-bugG checkword-ref.c0 checkbetter-bugG.c0 speller-test.c0
+
+grade:
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

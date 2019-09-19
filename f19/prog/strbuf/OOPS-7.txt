@@ -1,0 +1,30 @@
+cstring-test.c0 still has some TODOs
+
+=====
+
+Preserved for evil code example: In the future, write some really evil
+length tests but make it okay if they assertion error OR return
+false. Example that we should make segfault:
+
+bool is_strbuf(struct strbuf* sb)
+{
+  if (sb == NULL) {
+    return false;
+  } else if (sb->limit <= sb->len) {
+    return false;
+  } else if (sb->len < 0) {
+    return false;
+  } else if (sb->limit <= 0) {
+    return false;
+  } else {
+    for(int i = 0; i < sb->len; i++)
+    {
+      if (sb->buf[i] == '\0') return false;
+    }
+  }
+  if (sb->buf[sb->len] != '\0') return false;
+  //@assert(sb->limit == \length(sb->buf));
+  return true;
+}
+
+

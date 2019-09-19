@@ -1,0 +1,139 @@
+
+
+bool is_leq(int []A, int lower, int upper, int x)
+//@requires 0 <= lower && upper <= \length(A);
+{
+  for (int i = lower ; i < upper; i++) 
+  //@loop_invariant 0 <= i;
+    if (A[i] > x) return false;
+  return true;
+}
+
+bool is_geq(int []A, int lower, int upper, int x)
+//@requires 0 <= lower && upper <= \length(A);
+{
+  for (int i = lower ; i < upper; i++) 
+  //@loop_invariant 0 <= i;
+    if (A[i] < x) return false;
+  return true;
+}
+
+bool is_sorted(int []A, int lower, int upper)
+//@requires 0 <= lower && lower <= upper  && upper <= \length(A);
+{
+  for(int i = lower; i < upper - 1; i++)
+  //@loop_invariant lower <= i;
+  { if (A[i] > A[i+1]) return false; }
+  return true;
+}
+
+void insert(int []A, int lower, int upper, int x)
+//@requires 0 <= lower && lower < upper && upper < \length(A);
+//@requires is_sorted(A,lower,upper);
+//@ensures is_sorted(A,lower,upper+1);
+{
+  int i;
+  for (i = lower; i < upper && A[i] <= x; i++)
+  //@loop_invariant lower <= i && i <= upper;
+  //@loop_invariant is_leq(A,lower,i,x);
+  {}
+
+  int tmp = x;
+  for (; i < upper ; i++)
+  //@loop_invariant lower <= i && i <= upper;
+  //@loop_invariant is_sorted(A,lower,i);
+  //@loop_invariant is_sorted(A,i,upper);
+  //@loop_invariant is_leq(A,lower,i,tmp);
+  //@loop_invariant is_geq(A,i,upper,tmp);
+  {
+    int y = A[i];
+    A[i] = tmp;
+    tmp = y;
+  }
+  A[upper] = tmp;
+  return;
+}
+
+void sort(int []A, int lower, int upper)
+//@requires 0 <= lower && lower <= upper && upper <= \length(A);
+//@ensures is_sorted(A,lower,upper);
+{
+  if (upper - lower <= 1) return;
+  for (int i = 1; i < upper - lower; i++)
+  //@loop_invariant 1 <= i && i <= upper - lower;
+  //@loop_invariant is_sorted(A,lower,lower+i);
+  {
+    int x = A[i];
+    insert(A,lower,lower+i,x);
+  }
+  return;
+}
+
+void swap(int []A, int i, int j)
+//@requires 0 <= i && i < \length(A);
+//@requires 0 <= j && j < \length(A);
+{
+  int tmp = A[i];
+  A[i] = A[j];
+  A[j] = tmp;
+  return;
+}
+
+bool is_in(int []A, int lower, int upper, int x)
+{
+  for (int i = lower ; i < upper ; i++)
+  //@loop_invariant lower <= i;
+  {
+    if (A[i] == x) return true;
+  }
+  return false;
+}
+
+int partition(int []A, int lower, int upper, int x)
+//@requires 0 <= lower && lower < upper && upper <= \length(A);  // exists i. A[i] == x && lower <= i < upper;
+//@ensures lower <= \result && \result < upper && is_leq(A,lower,\result,x) && is_geq(A,\result+1,upper,x) && A[\result] == x;
+{
+  int j = upper;
+  int i = lower;
+  while (i < j)
+  //@loop_invariant lower <= i && i <= j && j <= upper;
+  //@loop_invariant is_leq(A,lower,i,x) && is_geq(A,j,upper,x) && !is_in(A,j,upper,x);
+  {
+    if(A[i] > x) 
+    {
+      swap(A,i,j-1);
+      j--;
+    }
+    else i++;
+  }
+  return i-1;
+}
+
+void kmin(int []A, int lower, int upper, int k)
+//@requires 0 <= lower && lower < upper && upper <= \length(A);
+//@requires lower <= k && k < upper;
+//@ensures is_leq(A, lower, k, A[k]);
+//@ensures is_geq(A, k+1, upper, A[k]);
+{
+  int m = (upper - lower) / 5;
+  if (m == 0)
+  {
+    sort(A,lower,upper);
+    return;
+  }
+  int []B = alloc_array(int, m);
+  int Bi = 0;
+  for (int j = lower; j <= upper - 5; j+=5)
+  {
+    sort(A,j,j+5);
+    B[Bi] = A[j+2];
+    Bi++;
+  }
+  kmin(B,0,m,m/2);
+  m = partition(A,lower,upper,B[m/2]);
+  if (m == k) return;
+  if (m < k) { kmin(A,m+1,upper,k); return; }
+  else { kmin(A,lower,m,k); return; }
+}
+
+

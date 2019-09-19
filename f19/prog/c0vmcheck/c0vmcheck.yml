@@ -1,0 +1,29 @@
+---
+general:
+  name: c0vmcheck
+  description: Use this Autolab instance only for the CHECKPOINT of the c0vm homework.
+  display_name: The C0VM (Checkpoint)
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: c0vm-handout.tgz
+  writeup: c0vm-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: 20
+  has_svn: false
+  category_name: Programming
+problems:
+- name: arithmetic
+  description: ''
+  max_score: 15.0
+  optional: false
+- name: locals
+  description: ''
+  max_score: 10.0
+  optional: false
+autograder:
+  autograde_timeout: 180
+  autograde_image: rhel.img
+  release_score: true

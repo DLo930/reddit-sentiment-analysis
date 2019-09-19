@@ -1,0 +1,499 @@
+#use <args>
+#use <conio>
+#use <file>
+#use <string>
+#use <rand>
+
+// Resets the ith element in the gap buffer
+// Unsafe, should only be done on autograder-controlled buffers
+void set_ith (tbuf* B, int n, gapbuf* G) {
+  dll* l = B->start->next;
+  for (int i = 0; i < n; i++) {
+    l = l->next;
+  }
+  l->data = G;
+}
+
+// Acquires the ith element in the gap buffer
+// Unsafe, should only be done on autograder-controlled buffers
+gapbuf* get_ith (tbuf* B, int n) {
+  dll* l = B->start->next;
+  for (int i = 0; i < n; i++) {
+    l = l->next;
+  }
+  return l->data;
+}
+
+bool is_good_split(tbuf* B)
+//@requires size_tbuf__(B) > 0;
+//@requires gapbuf_full_mimic(B->point->data);
+{
+  int size = size_tbuf__(B);
+  gapbuf* G1 = replay_tbuf(B);
+  tbuf_split_pt(B);
+  if (size_tbuf__(B) != size) return false;
+  if (gapbuf_full_mimic(B->point->data)) return false;
+  gapbuf* G2 = replay_tbuf(B);
+  if (!gapbuf_equal(G1, G2)) return false;
+  return true;
+}
+
+int main() {
+  string* contents = alloc(string);
+  *contents = "abc-de|fgh-ijklmnop-q";
+  args_string("-contents", contents);
+
+  args_t args = args_parse();
+  if (args->argc != 1) error("Too few args");
+  string arg = args->argv[0];
+  
+  if (string_equal(arg, "good1")) {
+    // Test that is_tbuf returns true on all length 1 chains
+    for (int start = 0; start <= 16; start++) 
+      //@loop_invariant 0 <= start;
+      for (int end = start; end <= 16; end++)
+        //@loop_invariant 0 <= end;
+        {
+          tbuf* B = master_one(start, end);
+          if (!is_tbuf(B)) return 1;
+        }
+  } else if (string_equal(arg, "good2")) {
+    // Test that is_tbuf returns true on all chains of length 2
+    for (int gap_code = 0; gap_code < 256; gap_code++)
+      //@loop_invariant 0 <= gap_code;
+      {
+        int[] A = decode(2,gap_code);
+        for (int cursor_loc = 0; cursor_loc < 2; cursor_loc++) 
+          //@loop_invariant 0 <= cursor_loc;
+          for (int depth = 0; depth <= 16 - A[cursor_loc]; depth++) 
+            //@loop_invariant 0 <= depth;
+            if (!is_tbuf(master(A, 2, cursor_loc, depth))) return 1;
+      }
+  } else if (string_equal(arg, "good3")) {
+    // Test that is_tbuf returns true on all chains of length 3
+    for (int gap_code = 0; gap_code < 4096; gap_code++)
+      //@loop_invariant 0 <= gap_code;
+      {
+        int[] A = decode(3,gap_code);
+        for (int cursor_loc = 0; cursor_loc < 3; cursor_loc++) 
+          //@loop_invariant 0 <= cursor_loc;
+          for (int depth = 0; depth <= 16 - A[cursor_loc]; depth++) 
+            //@loop_invariant 0 <= depth;
+            if (!is_tbuf(master(A, 3, cursor_loc, depth))) return 1;
+      }
+  } else if (string_equal(arg, "good8")) {
+    // Test that is_tbuf returns true on several thousand chains of length 8
+    rand_t r = init_rand(0xDEADBEEF);
+    for (int i = 0; i < 500; i++) {
+      int[] A = decode(8,rand(r));
+        for (int cursor_loc = 0; cursor_loc < 8; cursor_loc++) 
+          //@loop_invariant 0 <= cursor_loc;
+          for (int depth = 0; depth <= 16 - A[cursor_loc]; depth++) 
+            //@loop_invariant 0 <= depth;
+            if (!is_tbuf(master(A, 8, cursor_loc, depth))) return 1;
+    }
+  } else if (string_equal(arg, "null")) {
+    tbuf* B = NULL;                                         
+    if (is_tbuf(B)) return 1;
+  } else if (string_equal(arg, "alloc")) {
+    tbuf* B = alloc(struct dll_pt_header);                    
+    if (is_tbuf(B)) return 1;
+  } else if (string_equal(arg, "nullgap")) {
+    for (int i = 0; i < 8; i++) 
+      //@loop_invariant 0 <= i;
+      for (int j = 0; j < 8; j++) {
+        tbuf* B = master(decode(8, 0xDEADBEEF),8,i,0);
+        set_ith(B, j, NULL);
+        if (is_tbuf(B)) return 1;
+      }    
+  } else if (string_equal(arg, "allocgap")) {
+    for (int i = 0; i < 8; i++) 
+      //@loop_invariant 0 <= i;
+      for (int j = 0; j < 8; j++) {
+        tbuf* B = master(decode(8, 0xDEADBEEF),8,i,0);
+        set_ith(B, j, alloc(struct gapbuf_header)); 
+        if (is_tbuf(B)) return 1;
+      }
+ 
+  // size 
+  } else if (string_equal(arg, "size")) {
+    tbuf* B = master_one(3, 13);
+    B->point->data = gapbuf_new_mimic(8);
+    if (is_tbuf(B)) return 1;
+  } else if (string_equal(arg, "mixedsize")) { 
+    gapbuf* G = gapbuf_new_mimic(8);
+    gapbuf_insert_mimic(G, 'c');
+    gapbuf_insert_mimic(G, 'd');
+    gapbuf_backward_mimic(G);
+    for (int i = 0; i < 8; i++) 
+      //@loop_invariant 0 <= i;
+      for (int j = 0; j < 8; j++) {
+        tbuf* B = master(decode(8,0xDEADBEEF),8,i,0);
+        set_ith(B, j, G);  // May trigger alignment first, that's fine
+        if (is_tbuf(B)) return 1;
+      }
+
+  // Empty-or-full 
+  } else if (string_equal(arg, "full-empty")) {
+    for (int i = 0; i < 8; i++)
+      //@loop_invariant 0 <= i;
+      for (int j = 0; j < 8; j++) {
+        tbuf* B = master(decode(8,0xDEADBEEF),8,i,0);
+        set_ith(B, j, gapbuf_new_mimic(16));
+        if (is_tbuf(B)) return 1;
+      }
+  } else if (string_equal(arg, "empty-empty")) {
+    tbuf* B = master(decode(2, 0xFF), 2, 1, 1);
+    gapbuf_delete_mimic(B->point->data);
+    gapbuf_delete_mimic(B->point->prev->data);
+    if (is_tbuf(B)) return 1;
+    
+
+  // Alignment
+  } else if (string_equal(arg, "aligned1")) {
+    tbuf* B = master(decode(8,0xDEADBEEF),8,2,1);
+    gapbuf_backward_mimic(B->point->prev->data);
+    gapbuf_backward_mimic(B->point->prev->data);
+    // Now right aligned
+    //@assert gapbuf_at_left(B->point->prev->data);
+    if (is_tbuf(B)) return 1;
+  } else if (string_equal(arg, "aligned2")) {
+    for (int i = 0; i < 8; i++)
+      //@loop_invariant 0 <= i;
+      for (int j = 0; j < 8; j++) {
+        tbuf* B = master(decode(8,0xDEADBEEF),8,i,0);
+        if (j < i) {
+          gapbuf* G = get_ith(B, j);
+          gapbuf_backward_mimic(G);
+          if (is_tbuf(B)) return 1;
+        } else if (j > i) {
+          gapbuf* G = get_ith(B, j);
+          gapbuf_forward_mimic(G);
+          if (is_tbuf(B)) return 1;
+        }
+      }
+ 
+  // New and empty
+  } else if (string_equal(arg, "new")) {
+    if (size_tbuf__(tbuf_new()) != 0) return 1;
+
+    /*
+  } else if (string_equal(arg, "empty1")) {
+    // Test tbuf_empty on every text buffer with one node 1
+    for (int start = 0; start <= 16; start++) 
+      //@loop_invariant 0 <= start;
+      for (int end = start; end <= 16; end++) 
+        //@loop_invariant start <= end;
+        {
+          tbuf B = master_one(start,end);
+          if (start == 0 && end == 16) {
+            if (!tbuf_empty(B)) return 1;
+          } else {
+            if (tbuf_empty(B)) return 1;
+          }
+        }
+  } else if (string_equal(arg, "empty8")) {
+    // Test tbuf_empty on thousands of text buffers with 8 nodes
+    rand_t r = init_rand(0xDEADBEEF);
+    for (int i = 0; i < 500; i++) {
+      int[] A = decode(8,rand(r));
+        for (int cursor_loc = 0; cursor_loc < 8; cursor_loc++) 
+          //@loop_invariant 0 <= cursor_loc;
+          for (int depth = 0; depth <= 16 - A[cursor_loc]; depth++) 
+            //@loop_invariant 0 <= depth;
+            if (tbuf_empty(master(A, 8, cursor_loc, depth))) return 1;
+    }
+    */
+
+  } else if (string_equal(arg, "split_pt1")) {
+    // All the splits on a 1 node gap buffer
+    for (int i = 0; i <= 16; i++) 
+      //@loop_invariant 0 <= i;
+      if (!is_good_split(master_one(i, i))) return 1;
+  } else if (string_equal(arg, "split_pt_dense8")) {
+    for (int i = 0; i < 8; i++)
+      //@loop_invariant 0 <= i;
+      for (int j = 0; j <= 16; j++) 
+        //@loop_invariant 0 <= j;
+        if (!is_good_split(master(decode(8,0), 8, i, j))) return 1;
+  } else if (string_equal(arg, "split_pt_sparse8")) {
+    int code = 0xFFFFFFF0;
+    for (int i = 0; i < 8; i++)
+      //@loop_invariant 0 <= i;
+      {
+        for (int j = 0; j <= 16; j++) 
+          //@loop_invariant 0 <= j;
+          if (!is_good_split(master(decode(8,code), 8, i, j))) return 1;
+
+        code = (code << 4) | 0xF;
+      }
+
+  } else if (string_equal(arg, "forward")) {
+    // Empty text buffer
+    tbuf* E = master_one(0, 16);
+    tbuf_forward(E);
+    if (size_tbuf__(E) != 0) return 1;
+
+    // All non-empty text buffers of size 1-3
+    for (int n = 1; n <= 3; n++) 
+      for (int code = 0; code < (1 << (n*4)); code++) 
+        //@loop_invariant 0 <= code;
+        {
+          int[] A = decode(n, code);
+          for (int cursor = 0; cursor < n; cursor++) 
+            //@loop_invariant 0 <= cursor;
+            for (int depth = 0; depth <= 16 - A[cursor]; depth++)
+              //@loop_invariant 0 <= depth;
+              {
+                tbuf* B = master(A, n, cursor, depth);
+                gapbuf* G = replay_tbuf(B);
+                if (!gapbuf_at_right(G)) gapbuf_forward(G);
+                
+                int size = size_tbuf__(B);
+                tbuf_forward(B);
+                if (size_tbuf__(B) != size) return 1;
+                if (!gapbuf_equal(G, replay_tbuf(B))) return 1;
+              }
+        }
+
+  } else if (string_equal(arg, "backward")) {
+    // Empty text buffer
+    tbuf* E = master_one(0, 16);
+    tbuf_backward(E);
+    if (size_tbuf__(E) != 0) return 1;
+
+    // All non-empty text buffers of size 1-3
+    for (int n = 1; n <= 3; n++) 
+      for (int code = 0; code < (1 << (n*4)); code++) 
+        //@loop_invariant 0 <= code;
+        {
+          int[] A = decode(n, code);
+          for (int cursor = 0; cursor < n; cursor++) 
+            //@loop_invariant 0 <= cursor;
+            for (int depth = 0; depth <= 16 - A[cursor]; depth++)
+              //@loop_invariant 0 <= depth;
+              {
+                tbuf* B = master(A, n, cursor, depth);
+                gapbuf* G = replay_tbuf(B);
+                if (!gapbuf_at_left(G)) gapbuf_backward(G);
+                
+                int size = size_tbuf__(B);
+                tbuf_backward(B);
+                if (size_tbuf__(B) != size) return 1;
+                if (!gapbuf_equal(G, replay_tbuf(B))) return 1;
+              }
+        }
+
+  } else if (string_equal(arg, "insert")) {
+    // Empty text buffer
+    tbuf* E = master_one(0, 16);
+    tbuf_insert(E, ' ');
+    if (size_tbuf__(E) != 1) return 1;
+    if (!gapbuf_at_right_mimic(E->point->data)) return 1;
+
+    // All non-empty text buffers of size 1-3
+    for (int n = 1; n <= 3; n++) 
+      for (int code = 0; code < (1 << (n*4)); code++) 
+        //@loop_invariant 0 <= code;
+        {
+          int[] A = decode(n, code);
+          for (int cursor = 0; cursor < n; cursor++) 
+            //@loop_invariant 0 <= cursor;
+            for (int depth = 0; depth <= 16 - A[cursor]; depth++)
+              //@loop_invariant 0 <= depth;
+              {
+                tbuf* B = master(A, n, cursor, depth);
+                gapbuf* G = replay_tbuf(B);
+                gapbuf_insert(G, ' ');
+                
+                int size = size_tbuf__(B);
+                tbuf_insert(B, ' ');
+                if (size_tbuf__(B) != size+1) return 1;
+                if (!gapbuf_equal(G, replay_tbuf(B))) return 1;
+              }
+        }
+
+  } else if (string_equal(arg, "delete")) {
+    // Empty text buffer
+    tbuf* E = master_one(0, 16);
+    tbuf_delete(E);
+    if (size_tbuf__(E) != 0) return 1;
+
+    // All non-empty text buffers of size 1-3
+    for (int n = 1; n <= 3; n++) 
+      for (int code = 0; code < (1 << (n*4)); code++) 
+        //@loop_invariant 0 <= code;
+        {
+          int[] A = decode(n, code);
+          for (int cursor = 0; cursor < n; cursor++) 
+            //@loop_invariant 0 <= cursor;
+            for (int depth = 0; depth <= 16 - A[cursor]; depth++)
+              //@loop_invariant 0 <= depth;
+              {
+                tbuf* B = master(A, n, cursor, depth);
+                int size = size_tbuf__(B);
+
+                gapbuf* G = replay_tbuf(B);
+                if (!gapbuf_at_left(G)) {
+                  gapbuf_delete(G);
+                  size--;
+                }
+
+                tbuf_delete(B);
+                if (size_tbuf__(B) != size) return 1;
+                if (!gapbuf_equal(G, replay_tbuf(B))) return 1;
+              }
+        }
+  
+    /*
+  // Contracts on empty - tested pretty sparingly 
+  } else if (string_equal(arg, "empty_bad1")) {
+    tbuf_empty(NULL);
+  } else if (string_equal(arg, "empty_bad2")) {
+    tbuf_empty(alloc(struct dll_pt_header));
+  } else if (string_equal(arg, "empty_bad3")) {
+    tbuf B = master(decode(8,0xDEADBEEF),8,0,0);
+    set_ith(B, 0, NULL);
+    tbuf_empty(B);    
+  } else if (string_equal(arg, "empty_bad4")) {
+    tbuf B = master(decode(8,0xDEADBEEF),8,2,0);
+    set_ith(B, 2, NULL);
+    tbuf_empty(B);    
+  } else if (string_equal(arg, "empty_bad3")) {
+    tbuf B = master(decode(8,0xDEADBEEF),8,0,0);
+    set_ith(B, 0, alloc(struct gapbuf_header));
+    tbuf_empty(B);    
+  } else if (string_equal(arg, "empty_bad4")) {
+    tbuf B = master(decode(8,0xDEADBEEF),8,2,0);
+    set_ith(B, 2, alloc(struct gapbuf_header));
+    tbuf_empty(B);
+*/
+
+  // Contracts on other functions: slightly more aggressive
+  } else if (string_equal(arg, "split_pt_bad1")) {
+    tbuf_split_pt(NULL);
+  } else if (string_equal(arg, "split_pt_bad2")) {
+    tbuf_split_pt(alloc(struct dll_pt_header));
+  } else if (string_equal(arg, "split_pt_bad3")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 0, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_bad4")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 1, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_bad5")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 2, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_bad6")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_bad7")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,0,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_bad8")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,1,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_bad9")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,3,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+  } else if (string_equal(arg, "split_pt_badA")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,4,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_split_pt(B);    
+
+  } else if (string_equal(arg, "forward_bad1")) {
+    tbuf_forward(NULL);
+  } else if (string_equal(arg, "forward_bad2")) {
+    tbuf_forward(alloc(struct dll_pt_header));
+  } else if (string_equal(arg, "forward_bad3")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 0, alloc(struct gapbuf_header));
+    tbuf_forward(B);    
+  } else if (string_equal(arg, "forward_bad4")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 1, alloc(struct gapbuf_header));
+    tbuf_forward(B);    
+  } else if (string_equal(arg, "forward_bad5")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 2, alloc(struct gapbuf_header));
+    tbuf_forward(B);    
+  } else if (string_equal(arg, "forward_bad6")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_forward(B);    
+
+  } else if (string_equal(arg, "backward_bad1")) {
+    tbuf_backward(NULL);
+  } else if (string_equal(arg, "backward_bad2")) {
+    tbuf_backward(alloc(struct dll_pt_header));
+  } else if (string_equal(arg, "backward_bad3")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 0, alloc(struct gapbuf_header));
+    tbuf_backward(B);    
+  } else if (string_equal(arg, "backward_bad4")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 1, alloc(struct gapbuf_header));
+    tbuf_backward(B);    
+  } else if (string_equal(arg, "backward_bad5")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 2, alloc(struct gapbuf_header));
+    tbuf_backward(B);    
+  } else if (string_equal(arg, "backward_bad6")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_backward(B);    
+
+  } else if (string_equal(arg, "insert_bad1")) {
+    tbuf_insert(NULL, ' ');
+  } else if (string_equal(arg, "insert_bad2")) {
+    tbuf_insert(alloc(struct dll_pt_header), ' ');
+  } else if (string_equal(arg, "insert_bad3")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 0, alloc(struct gapbuf_header));
+    tbuf_insert(B, ' ');    
+  } else if (string_equal(arg, "insert_bad4")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 1, alloc(struct gapbuf_header));
+    tbuf_insert(B, ' ');    
+  } else if (string_equal(arg, "insert_bad5")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 2, alloc(struct gapbuf_header));
+    tbuf_insert(B, ' ');    
+  } else if (string_equal(arg, "insert_bad6")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_insert(B, ' ');    
+
+  } else if (string_equal(arg, "delete_bad1")) {
+    tbuf_delete(NULL);
+  } else if (string_equal(arg, "delete_bad2")) {
+    tbuf_delete(alloc(struct dll_pt_header));
+  } else if (string_equal(arg, "delete_bad3")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 0, alloc(struct gapbuf_header));
+    tbuf_delete(B);    
+  } else if (string_equal(arg, "delete_bad4")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 1, alloc(struct gapbuf_header));
+    tbuf_delete(B);    
+  } else if (string_equal(arg, "delete_bad5")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 2, alloc(struct gapbuf_header));
+    tbuf_delete(B);    
+  } else if (string_equal(arg, "delete_bad6")) {
+    tbuf* B = master(decode(8,0xDE0DBEEF),8,2,0);
+    set_ith(B, 3, alloc(struct gapbuf_header));
+    tbuf_delete(B);    
+
+  } else {
+    error("Bad argument");
+  }
+
+  return 0;
+}

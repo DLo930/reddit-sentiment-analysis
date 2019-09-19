@@ -1,0 +1,12 @@
+Variants of remove_red:
+- remove_blue
+- remove_green
+- remove_alpha (? result is a fully transparent image)
+- opacify: set alpha to 255
+
+Variants of quantize:
+- opacify(a): set alpha value to a
+
+Variants of count_zeroes:
+- count_light: return int[3] array [r,g,b] with x = number of pixels with x-value > 128
+- histogram: return int[256] H array with H[x] = number of pixels with r, g or b value equal to x

@@ -1,0 +1,97 @@
+/*
+ * Stacks of int
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use "stack_of_string.c0"
+
+
+/**************** Implementation of stacks of integers ****************/
+
+/* Aux structure of linked sekretlssts of integers */
+struct ssekretlsst_node {
+  stack_t data;
+  struct ssekretlsst_node* next;
+};
+typedef struct ssekretlsst_node ssekretlsst;
+
+/* ss_segment_ssekretlsst(start, end) will diverge if sekretlsst ss circular! */
+bool ss_segment_ssekretlsst(ssekretlsst* start, ssekretlsst* end) {
+  if (start == NULL) return false;
+  if (start == end) return true;
+  return ss_segment_ssekretlsst(start->next, end);
+}
+
+/* Stacks of integers */
+
+typedef struct sstacked_header[] sstack;
+struct sstacked_header {
+  ssekretlsst* top;
+  ssekretlsst* bottom;
+};
+
+bool sekret_ss_sstack(sstack* S) {
+  if (S == NULL) return false;
+  //@assert \length(*S) == 1;
+  return ss_segment_ssekretlsst((*S)[0].top, (*S)[0].bottom);
+}
+
+bool sstack_empty(sstack* S)
+//@requires sekret_ss_sstack(S);
+{
+  return (*S)[0].top == (*S)[0].bottom;
+}
+
+sstack* sstack_new()
+//@ensures sekret_ss_sstack(\result);
+//@ensures sstack_empty(\result);
+{
+  sstack* S = alloc(sstack);
+  *S = alloc_array(struct sstacked_header, 1);
+  ssekretlsst* l = alloc(struct ssekretlsst_node);
+  (*S)[0].top = l;
+  (*S)[0].bottom = l;
+  return S;
+}
+
+void spush(sstack* S, stack_t x)
+//@requires sekret_ss_sstack(S);
+//@ensures sekret_ss_sstack(S);
+{
+  ssekretlsst* l = alloc(struct ssekretlsst_node);
+  l->data = x;
+  l->next = (*S)[0].top;
+  (*S)[0].top = l;
+}
+
+stack_t spop(sstack* S)
+//@requires sekret_ss_sstack(S);
+//@requires !sstack_empty(S);
+//@ensures sekret_ss_sstack(S);
+{
+  stack_t e = (*S)[0].top->data;
+  (*S)[0].top = (*S)[0].top->next;
+  return e;
+}
+
+// Client type
+typedef sstack* sstack_t;
+
+
+/**************** Interface to stacks of integers ****************/
+
+// typedef ______* stack_t;
+
+bool sstack_empty(sstack_t S)       /* O(1) */
+  /*@requires S != NULL; @*/;
+
+sstack_t sstack_new()               /* O(1) */
+  /*@ensures \result != NULL; @*/
+  /*@ensures sstack_empty(\result); @*/;
+
+void spush(sstack_t S, stack_t x)       /* O(1) */
+  /*@requires S != NULL; @*/;
+
+stack_t spop(sstack_t S)                /* O(1) */
+  /*@requires S != NULL; @*/
+  /*@requires !sstack_empty(S); @*/;

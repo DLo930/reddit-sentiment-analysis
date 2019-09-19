@@ -1,0 +1,4 @@
+   remove-green.c0       - You can modify this to respect the pixel/imageutil
+                           interfaces if you'd like
+   remove-green-main.c0  - Runs remove_green()
+   remove-green-test.c0  - Some unit tests for remove_green()

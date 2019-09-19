@@ -1,0 +1,45 @@
+\newpage
+\checkpoint*{\TAGS{amortized-cost}}
+
+Right after an array resize, we should assume we'll have no tokens in
+reserve for an array with size $k$ and length $3k/2$ (let's assume $k$
+is even).
+
+We might have to resize again after as few as
+\shortanswerline{\hspace{1em}$k/2$\hspace{1em}} \lstinline'uba_add'
+operations.
+
+That next resize would force us to use
+\shortanswerline{\hspace{1em}$3k/2$\hspace{1em}} tokens to copy
+everything into a larger array (with size $9k/4$).  The adds that we
+do in the meantime add elements to the last third of the array.
+
+Each cell in that last third therefore needs to have
+\shortanswerline{\hspace{1em}3\hspace{1em}} tokens associated with it.
+
+This gives \lstinline'uba_add' an amortized cost of
+\shortanswerline{\hspace{1em}4\hspace{1em}} tokens, because we
+need one token to do the initial write whenever we call
+\lstinline'uba_add'.
+
+
+\checkpoint*{\TAGS{amortized-cost}}
+
+Our analysis indicates that a smaller resizing factor gives us a
+higher amortized cost, even if it's still in $O(1)$. This indicates
+that doing $n$ operations on this array, while still in $O(n)$, has a
+higher constant attached to it. Does this make sense?
+
+\answerline{}
+
+\answerline{}
+
+\answerline{}
+
+\begin{solution}
+Yes! Over a long series of operations, we're likely to be resizing the array more times if we have a smaller resizing constant.
+\end{solution}
+
+You will find in the course of your study in algorithms that, like in
+this example, achieving higher space efficiency often necessitates a
+tradeoff in time efficiency, and vice versa.

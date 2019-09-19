@@ -1,0 +1,30 @@
+\part[0\half]%~\vspace{-2ex}
+In this task, you know nothing about what \lstinline'f' computes.
+\begin{lstlisting}[numbers=left]
+while (a < 700)
+//@loop_invariant a + b == f(a,b);
+{
+    int c = f(a,b);
+    a += 1;
+    b = c - a - 1;
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  NOT ALWAYS PRESERVED.
+
+  Counterexample: a=0, b=0, f(a,b)=a*b.
+}\else~\vspace{2.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<n5>)
+
+Gradescope rubric:
++ 1 pt Valid counterexample [Ex: 0, 0, f(a,b)=a*b]
+
+Commentary:
+  NOT always preserved: a = 0, b = 0, f(a,b) = a. a' = 1, b' = -1.
+  For any counterexample, it must be the case that f(a,b) = a+b, that
+  f(a+1,b-1) != a+b.
+ENDRUBRIC

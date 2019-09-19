@@ -1,0 +1,20 @@
+int main() {
+  for (int i = 1; i < 10; i++) {
+    int[] A = alloc_array(int, i);
+    char[] B = alloc_array(char, i);
+    int*[] C = alloc_array(int*, i);
+    for (int k = 0; k < i; k++) {
+      A[k] = k+1;
+      B[k] = 'a';
+      C[k] = alloc(int);
+      *C[k] = k+2;
+    }
+
+    for (int k = 0; k < i; k++) {
+      if (A[k] != k+1) return 1;
+      if (B[k] != 'a') return 1;
+      if (*C[k] != k+2) return 1;
+    }
+  }
+  return 0;
+}

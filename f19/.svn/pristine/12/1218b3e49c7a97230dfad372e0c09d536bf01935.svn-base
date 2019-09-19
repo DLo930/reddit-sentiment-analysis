@@ -1,0 +1,38 @@
+#use <string>
+#use "lib/readfile.c0"
+#use "lib/stringsearch.c0"
+#use "duplicates.c0"
+#use "lib/stringsort.c0"
+
+int count_vocab(string[] vocab, int[] freq, int v,
+		string tweetfile,
+		bool fast)
+//@requires v == \length(vocab) && v == \length(freq);
+//@requires is_sorted(vocab, 0, v) && all_distinct(vocab, v);
+{
+  // read the tweet file
+  string_bundle tweetstring_bundle = read_words(tweetfile);
+  string[] tweetstrings = string_bundle_array(tweetstring_bundle);
+  int tweet_len = string_bundle_length(tweetstring_bundle);
+  
+  int result = 0;
+  for ( int i = 0 ; i < tweet_len ; i++ )
+    //@loop_invariant 0 <= i;
+    {
+      int index;
+      if ( fast ) {
+	index = binsearch(tweetstrings[i], vocab, v );
+      }
+      else {
+	index =  linsearch(tweetstrings[i], vocab, v );
+      }
+      if ( index >= 0 ) {
+	freq[index]++;
+      }
+      else {
+	result++;
+      }
+    }
+  return result;
+}
+  

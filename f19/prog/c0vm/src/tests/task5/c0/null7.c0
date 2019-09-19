@@ -1,0 +1,12 @@
+
+struct X {
+  int a;
+  int b;
+};
+
+int main()
+{
+  struct X * a = NULL;
+  return a->b;
+}
+

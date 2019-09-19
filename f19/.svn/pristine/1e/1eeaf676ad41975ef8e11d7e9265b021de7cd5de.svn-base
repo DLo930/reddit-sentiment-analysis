@@ -1,0 +1,28 @@
+#use <conio>
+#use "sol-tbuf.c0"
+#use "make-tbuf.c0"
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = make_tbuf("abcdefghx|ijklm");
+  
+  //now make it split
+  for(int i = 0; i < 2; i++)
+    insert_char(B, 'x');
+
+  //@assert gapbuf_full_(B->point->data);
+  tbuf_split_point_(B); //so the student code doesn't have to
+
+  insert_char(B, 'x');
+  
+  if (!(string_equal("abcdefgh-xxxx|ijklm", tbuf_to_string(B)))) {
+    passed = false;
+    // error("insert_char yielded wrong tbuf after we split it");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}  
+

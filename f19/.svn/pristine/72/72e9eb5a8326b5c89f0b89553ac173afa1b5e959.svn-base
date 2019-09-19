@@ -1,0 +1,358 @@
+LAST: priority queues/heaps
+TODAY:
+- implementation
+- restoring invariants
+NEXT: part III -- C
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[3] PQ/heap review
+[4] Bounded PQs
+[5] Heap ordering invariant
+[1] Constant-time operations
+[5] pq_add code
+[4] pq_add safety
+[5] pq_add correctness
+[1] pq_rem
+
+
+PQ/heap review
+==============
+- priority queue: a work list where elements are retrieved based on priority
+      --------------
+       2 4 4 7 8 9 |
+      --------------
+- heap: a tree-based implementation of pq's subject to
+  . ordering invariant
+  . shape invariant
+  e.g.,
+          2
+        /   \
+       4     8
+      / \   /
+     7   4 9
+- insertion
+  . place element in leftmost open position of last level to satisfy shape invariant
+  . sift up to restore ordering invariant
+- deletion
+  . replace root with rightmost filled position on last level to satisfy shape invariant
+  . sift down to restore ordering invariant
+- can be implemented as array
+       0   1   2   3   4   5   6   7   8   9
+      -----------------------------------------
+      | X | 2 | 4 | 8 | 7 | 4 | 9 | X | X | X |
+      -----------------------------------------
+  . unbounded pq's rely on unbounded arrays
+  . bounded pq's have fixed capacity (= array size)
+
+Bounded PQ interface [file heap-template.c1, from last lecture]
+====================
+typedef void* elem;
+
+// f(e1,e2) returns true if e1 has STRICTLY higher priority than e2
+typedef bool has_higher_priority_fn(elem e1, elem e2);
+
+// typedef ______* pq_t;
+
+bool pq_empty(pq_t Q)
+  /*@requires Q != NULL; @*/ ;
+
+bool pq_full(pq_t Q)
+  /*@requires Q != NULL; @*/ ;
+
+pq_t pq_new(int capacity, has_higher_priority_fn* prior)
+  /*@requires capacity > 0 && prior != NULL; @*/
+  /*@ensures \result != NULL && pq_empty(\result); @*/ ;
+
+void pq_add(pq_t Q, elem x)
+  /*@requires Q != NULL && !pq_full(Q); @*/
+  /*@ensures               !pq_empty(Q); @*/ ;
+
+elem pq_rem(pq_t Q)
+  /*@requires Q != NULL && !pq_empty(Q); @*/
+  /*@ensures               !pq_full(Q); @*/ ;
+
+elem pq_peek(pq_t Q)
+  /*@requires Q != NULL && !pq_empty(Q); @*/
+  /*@ensures               !pq_empty(Q); @*/ ;
+
+Implementing heaps -- types and basic invariants [file heap-template.c1, from last lecture]
+================================================
+- types
+      typedef struct heap_header heap:
+      struct heap_header {
+        int limit;                     // limit == capacity+1
+        elem[] data;                   // \length(data) == limit
+        int next;                      // 1 <= next && next <= limit
+        has_higher_priority_fn* prior; // != NULL
+      };
+- basic safety invariants:
+      bool is_heap_safe(heap* H) {
+        return H != NULL
+            && 1 < H->limit && H->limit < int_max()/2      // to prevent overflow (we do 2*i+1)
+            && is_array_expected_length(H->data, H->limit)
+            && 1 <= H->next && H->next <= H->limit
+            && H->prior != NULL;
+      }
+- shape invariant automatically enforced by using array segment
+
+Heap ordering invariant
+=======================
+- (version A -- child-centric)
+  priority of a child is lower than or equal to priority of parent
+      [min-heap version] value of a child is >= value of parent
+- (version B -- parent-centric)
+  priority of parent is higher than or equal to priority of children
+      [min-heap version] value of parent is <= value of children
+- to avoid confusion between generic pq's and min-heaps, we use an abstraction
+  . e1 is OK ABOVE e2 if e1 being the parent of e2 would satisfy the ordering invariant
+    ==> priority of e2 is lower than or equal to priority of e1
+        [min-heap version] value of e2 is >= value of e1
+  . but we don't have "lower than or equal to", only "strictly higher than"
+    <=> priority of e2 is NOT strictly higher than priority of e1
+        [min-heap version] value of e2 is NOT < value of e1
+  . turn into a function
+      bool ok_above(heap* H, int i1, int i2)
+      //@requires is_heap_safe(H);
+      //@requires 1 <= i1 && i1 < H->next;
+      //@requires 1 <= i2 && i2 < H->next;
+      {
+        elem e1 = H->data[i1];
+        elem e2 = H->data[i2];
+        return !(*H->prior)(e2, e1);
+      }
+  . then, no need ever to refer to H->prior [simplifies discussion]
+  . write prototype on board
+- ordering invariant: every parent is ok above each of its children
+  . take point of view of CHILDREN -- indices [2, H->next)
+      bool is_heap_ordered(heap* H)
+      //@requires is_heap_safe(H);
+      {
+        for (int child = 2; child < H->next; child++)
+        //@loop_invariant 2 <= child;
+        {
+          int parent = child/2;
+          if (!ok_above(H, parent, child)) return false;
+        }
+        return true;
+      }
+  . require basic safety invariants hold
+    . only ordering invariant is in question
+  . loop starts at 2 because root is at index 1, so first child is at index 2
+
+Constant-time operations [from heap-c1.template, spend very little time or even skip]
+========================
+- discuss pq_empty, pq_full, pq_peek [no need to look at code]
+- review code for pq_new [flash code]
+
+pq_add (no loop invariants)
+===========================
+- [develop live from interface]
+      void pq_add(heap* H, elem e)
+      //@requires is_heap(H) && !pq_full(H);
+      //@ensures  is_heap(H) && !pq_empty(H);
+      {
+        H->data[H->next] = e;
+        (H->next)++;
+
+        int i = H->next - 1;          // added element
+        while (i > 1) // sifting up
+        {
+          int parent = i/2;
+          if (ok_above(H, parent, i)) return; // No more violations
+
+          swap_up(H, i);
+          i = parent;
+        }
+      }
+  [can be written in many different ways]
+
+pq_add (loop invariants for safety)
+===================================
+- go over every place where there could be a safety violation [split-screen helps]
+- adding element
+  . H->data[H->next] = e
+  . (H->next)++
+    . ok because !pq_full(H) (and is_heap(H))
+  . record that H satisfies safety invariants
+          //@assert is_heap_safe(H);    // basic invariants hold
+    . subsumes shape invariant (kind of trivially)
+  . but ordering invariant may be violated
+- ok_above(H, parent, i)
+  . refer to prototype of ok_above
+    . is_heap_safe(H) by assertion
+    . 1 <= i && i < H->next by ??
+      . add new loop invariant
+        //@loop_invariant 1 <= i && i < H->next;
+    . 1 <= parent && parent < H->next by loop guard (i > 1) and new LI
+      . since parent = i/2
+- swap_up(H, i)
+  . write/show prototype of swap_up
+    . is_heap_safe(H)          by assertion
+    . 2 <= i && i < H->next    by loop guard and new LI
+    . !ok_above(H, parent, i)  by conditional
+
+pq_add (correctness -- I)
+=========================
+- we want to be able to prove is_heap(H)
+  . !pq_empty(H) is easy [skip]
+- we don't have a loop invariant that implies it
+- attempt 1: add
+      //@loop_invariant is_heap(H);
+  . cannot hold because the whole point of sifting up is to eliminate an ordering violation
+  . but there is at most 1 violation
+    . between node we are looking at (i) and parent
+- attempt 2: introduce new invariant that allows exception at node i
+           /\
+          /  \
+         / /? \     <== possible violation
+        / o    \    <== node i
+       /     ___\
+      /_____/
+  [copy is_heap_ordered and make it skip over exception]
+      bool is_heap_except_up(heap* H, int i)    // ADDED PARAMETER i
+      //@requires is_heap_safe(H);
+      //@requires 1 <= i && i < H->next;        // ADDED
+      {
+        for (int child = 2; child < H->next; child++)
+        //@loop_invariant 2 <= child;
+        {
+          int parent = child/2;
+          if (!(child == i ||                   // ADDED, SKIP OVER POSSIBLE EXCEPTION
+                ok_above(H, parent, child))) return false;
+        }
+        return true;
+      }
+- add new loop invariant in pq_add
+    //@loop_invariant is_heap_except_up(H, i);
+- INIT
+  . possible exception is element we just added, at original H->next
+       /\
+      /  \
+     /  __\    <== possible violation
+    /__/o      <== node i == H->next
+  . original is_heap(H) check all other elements
+
+- EXIT (return inside the loop)
+  . possible exception was at i
+  . but conditional says ok_above(H, parent, i)
+  . so i is not an exception after all
+    . ordering invariant holds throughout, so is_heap(H) is true
+- EXIT (final return)
+  . loop guard and first LI imply that i == 1
+    . record as
+       //@assert i == 1;
+  . is_heap_except_up(H, 1) is equivalent to is_heap(H)
+    . because loop starts at 2
+- TERMINATION
+  . i strictly decreases at each iteration of the loop and can't go below 1
+
+pq_add (correctness -- II)
+==========================
+- what about preservation?
+  . TO SHOW: if is_ok_except_up(H, i) holds at arbitrary iteration,
+             then is_ok_except_up(H, i') holds at next iteration
+- proof has many cases based on
+  . where current element being swapped up is wrt parent
+  . whether it has children and how may
+  . whether we are at the root, ...
+- let's look at one (fairly general) case [min-heap]
+  . before/after picture
+         a                             a
+          \          swap x up          ?
+           b         ========>           x
+          # \                           / \
+   i ->  x   c                         b   c
+        / \                           / \
+       c1  c2                        c1  c2
+  . before/after ordering proof
+    1. a <= b  (order)            1'. a ? x   (allowed exception)
+    2. b <= c  (order)            2'. x <= c  (by 3 and 2)
+    3. x < b   (since we swap)    3'. x <= b  (by 3)
+    4. x <= c1 (order)            4'. b <= c1 (???)
+    5. x <= c2 (order)            5'. b <= c1 (???)
+- we cannot complete the proof of (4') and (5')!
+- what can the issue be?
+  . current invariants are insufficient (incorrect or too weak)
+  . algorithm is incorrect
+- counterexample
+         1                             1
+          \          swap 5 up          ?
+          10         ========>           5
+          # \                           / \
+   i ->  5   42                       10   42
+        / \                           / \
+       7   8                         7   8
+  . but on previous swap up, either 8 or 7 were below 10
+    . there would have been a violation then! ==> is_ok_except_up would have failed
+  . intuitively, we need to have 10 <= 7 and 10 <= 8
+    . new loop invariant
+        //@loop_invariant grandparent_check(H, i);
+      [no need to show code]
+  . revised before/after ordering proof
+    1. a <= b  (order)            1'. a ? x   (allowed exception)
+    2. b <= c  (order)            2'. x <= c  (by 3 and 2)
+    3. x < b   (since we swap)    3'. x <= b  (by 3)
+    4. x <= c1 (order)            4'. b <= c1 (by 6)
+    5. x <= c2 (order)            5'. b <= c1 (by 7)
+    6. b <= c1 (gp check)         6'. a <= b  (by 1)
+    7. b <= c2 (gp check)         7'. a <= c  (by 1 and 2)
+  . F and G are new proof obligations
+
+pq_rem [generally no time to do it -- refer to lecture notes]
+======
+- code
+      elem pq_rem(heap* H)
+      //@requires is_heap(H) && !pq_empty(H);
+      //@ensures  is_heap(H) && !pq_full(H);
+      {
+        elem min = H->data[1];
+        (H->next)--;
+
+        if (H->next > 1) {
+          H->data[1] = H->data[H->next];  // Swap last element in
+          //@assert is_heap_safe(H);      // basic invariants hold
+          // but ordering invariant may be violated
+          sift_down(H);
+        }
+        return min;
+      }
+- complication of sift_down is accounting for all cases
+  . ordering invariant has been restored (including at leaf)
+  . ordering violation fixed by swapping left child up
+  . ordering violation fixed by swapping right child up
+      void sift_down(heap* H)
+      //@requires is_heap_safe(H);
+      //@requires H->next > 1 && is_heap_except_down(H, 1);
+      //@ensures is_heap(H);
+      {
+        int i = 1;
+
+        while (2*i < H->next)
+        //@loop_invariant 1 <= i && i < H->next;
+        //@loop_invariant is_heap_except_down(H, i);
+        //@loop_invariant grandparent_check(H, i);
+        {
+          int left = 2*i;
+          int right = left+1;
+
+          if (ok_above(H, i, left)                // All good on the left, and
+              && (right >= H->next ||             // no right child or
+                  ok_above(H, i, right))) {       // all good on the right too
+            // Nothing to do: invariant is restored already!
+            return;
+          } else if (right >= H->next ||          // No right child, or
+                     ok_above(H, left, right)) {  // left child is smaller or equal
+            // We need to push the new element down to the left
+            swap_up(H, left);
+            i = left;
+          } else {                                // right child is smaller
+            //@assert right < H->next && ok_above(H, right, left);
+            swap_up(H, right);
+            i = right;
+          }
+        }
+
+        //@assert i < H->next && 2*i >= H->next;
+        //@assert is_heap_except_down(H, i);
+      }

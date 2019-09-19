@@ -1,0 +1,47 @@
+int main(){
+
+  println("expecting nothing to print:");
+  print_genlist(NULL);
+
+  genlist* L = alloc(genlist);
+  int* i1 = alloc(int);
+  *i1 = 15;
+  L->data = (void*)i1;
+  L->tag = "an_int";
+  L->next = NULL;
+  println("expecting to print 15:");
+  print_genlist(L);
+  L->next = alloc(genlist);
+  string* s1 = alloc(string);
+  *s1 = "122";
+  L->next->data = (void*)s1;
+  L->next->tag = "a_string";
+  L->next->next = NULL;
+  println("expecting to print 15 122:");
+  print_genlist(L);
+
+  genlist* L1 = NULL;
+  for(int i=0; i<10; i++){
+    genlist* p = alloc(genlist);
+    p->next = L1;
+    int* i2 = alloc(int);
+    *i2 = i;
+    p->data = (void*)i2;
+    p->tag = "an_int";
+    L1 = p;
+    
+    p = alloc(genlist);
+    p->next = L1;
+    string* s2 = alloc(string);
+    *s2 = string_fromint(i);
+    p->data = (void*)s2;
+    p->tag = "a_string";
+    L1 = p;
+  }
+
+  println("expecting to print 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0 0:");
+  print_genlist(L1);
+
+  println("All tests passed!");
+  return 0;
+}

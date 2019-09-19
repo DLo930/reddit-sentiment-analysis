@@ -1,0 +1,172 @@
+\clearpage
+\Question{Multiple Return Values}
+
+One of the difficulties that both structs and pointers can solve in
+different ways is the problem of returning more than one piece of
+information from a function. For instance, a function that tries to
+parse a string as an integer needs to return both the
+successfully-parsed integer and information about whether that parse
+succeeded. Because \emph{any} number could be the result of a
+successful parse, if the function only returns an \lstinline'int', there's
+no way to distinguish a failed parse from a successful one.
+
+\begin{lstlisting}
+int parse_int(string str) {
+   int n;
+   bool parse_successful;
+   ...
+   if (parse_successful) return n;
+   return ???; /* What do we do now? */
+}
+\end{lstlisting}
+
+In each of the following exercises, a \lstinline'main' function wants to print
+the value that \lstinline'parse_int' is storing in the assignable
+variable \lstinline'n', but \emph{only} when the boolean value stored in
+\lstinline'parse_successful' is \lstinline'true'; otherwise we want to print out
+\textit{``Parse error''}.
+
+
+You don't have to use all the blank lines we have provided, but you
+shouldn't use any extra lines. \textbf{Double-check your syntax; we
+  will be picky about syntax errors for this question.}
+
+\begin{parts}
+\part[2]\TAGS{aliasing, pointer, safety}
+Finish this program so that the code will parse the first command-line
+argument as an \lstinline|int| if possible.  Make sure all your
+pointer dereferences are provably safe.
+
+\begin{framed}
+\begin{lstlisting}
+int* parse_int(string str) {
+    int n;
+    bool parse_successful;
+    // Omitted code that tries to parse the string. It puts the
+    // result in the local variable n and sets parse_successful
+    // to true if it can, otherwise sets parse_successful to
+    // false.
+
+    if (parse_successful) {
+
+        [*\uanswer{32em}{int*~p = alloc(int)\hfill}*];
+
+        [*\uanswer{32em}{*p = n\hfill}*];
+
+        return [*\uanswer{27.8em}{p}*];
+    }
+    return [*\uanswer{30.2em}{NULL}*];
+}
+\end{lstlisting}
+\end{framed}
+
+\begin{framed}
+\begin{lstlisting}[aboveskip=0ex, belowskip=-0.8ex]
+int main() {
+    args_t A = args_parse();
+    if (A->argc != 1) error("Wrong number of arguments");
+    int* p = parse_int(A->argv[0]);
+
+    if ([*\uanswer{12.2em}{p != NULL}*]) printint([*\uanswer{12.5em}{*p}*]);
+    else error("Parse error");
+    return 0;
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (a) -- divide as two Gradescope questions
+TAGS: aliasing, pointer, safety
+
+Gradescope rubric for parse_int:
++0.5pt Allocation: int* p = alloc(int)
++0.5pt Assign and return: *p = n; return p;
++0.5pt If parse unsuccessful: return NULL
+
+Gradescope rubric for main:
++0.5pt if (p != NULL) printint(*p);
+
+Commentary:
+Each line is half a point
+ - if (parse_successful) {
+       int* p = alloc(int);       // Half point for allocation
+       *p = n;                    // Half point for assignment
+       return p;                  //    AND return
+   }
+   return NULL;                   // Half point
+ - if (p != NULL) printint(*p);   // Half point
+ENDRUBRIC
+
+\enlargethispage{5ex}
+\part[2]\TAGS{aliasing, pointer, safety}
+Complete another program that works the same way, but that gives a
+different type to \lstinline'parse_int'. The missing argument should
+be a pointer.  Make sure all your pointer dereferences are provably
+safe.
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+bool parse_int(string str, [*\uanswer{20.4em}{int*~p}*])
+
+//@requires [*\uanswer{29.5em}{p != NULL}*];
+{
+    int n;
+    bool parse_successful;
+    // Same omitted code...
+
+    if (parse_successful) {
+
+        [*\uanswer{32em}{*p = n\hfill}*];
+
+        return [*\uanswer{27.8em}{true}*];
+    }
+    return [*\uanswer{30.2em}{false}*];
+}
+
+int main() {
+    args_t A = args_parse();
+    if (A->argc != 1) error("Wrong number of arguments");
+
+    [*\uanswer{34.3em}{int*~p = alloc(int)\hfill}*];
+
+    bool res = parse_int(A->argv[0], [*\uanswer{14.0em}{p}*]);
+
+    if ([*\uanswer{12em}{res}*]) printint([*\uanswer{12.9em}{*p}*]);
+    else error("Parse error");
+    return 0;
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: aliasing, pointer, safety
+
+Gradescope rubric:
++0.5pt Second argument to parse_int: int* p and Precondition: //@requires p != NULL
++0.5pt if (parse_successful) { *p = n;
++0.5pt return true }; else return false;
++0.5pt int * p = alloc(int); bool res = parse_int(A->argv[0], p); if (res) printint(*p)
+
+Commentary:
+ - bool parse_int(string str, int* p)  // Half point for argument
+   //@requires p != NULL;              //            AND precondition
+ - if (parse_successful) {
+       *p = n;                         // Half point for assignment
+       return true;                    // Half point for return true
+   }                                   //            AND return false
+   return false;                       //            AND the if statement
+                                       //                later on being
+                                       //                consistent with this
+ - int* p = alloc(int);                // Half point for allocation
+ - bool res = parse_int(A->argv[0], p) //            AND passing the argument
+ - if (res)
+     printint(*p);                     // ...and then the dereference
+
+Alternate acceptable 1(b) answer:
+   if (parse_successful) { *p = n; return false; }
+   return true;
+   ...
+   if (!res) printint(*p)
+ENDRUBRIC
+
+\end{parts}

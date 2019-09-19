@@ -1,0 +1,230 @@
+#use <img>
+#use <parse>
+#use <args>
+#use <conio>
+#use <file>
+#use <string>
+
+/* tests if two images a and b are equal */
+bool image_equal(image_t a, image_t b) {
+		int aheight = image_height(a);
+    int bheight = image_height(b);
+    if (aheight != bheight)
+        return false;
+
+    int awidth = image_width(a);
+    int bwidth = image_width(b);
+    if (awidth != bwidth)
+        return false;
+
+    pixel[] arra = image_data(a);
+    pixel[] arrb = image_data(b);
+   
+    for(int i = 0; i < awidth*aheight; i++)
+    {
+        if(arra[i] != arrb[i])
+            return false;
+    }
+
+		return true;
+}
+
+
+int isqrt (int n)
+//@requires n >= 0;
+//@ensures 0 <= \result*\result && \result*\result <= n;
+//@ensures n < (\result+1)*(\result+1) || (\result+1)*(\result+1) < 0;
+//@ensures \result >= 0;
+{ int i = 0; int k = 0;
+  while (0 <= k && k <= n)
+    //@loop_invariant k == i * i;
+    //@loop_invariant i == 0 || (i > 0 && (i-1)*(i-1) <= n);
+    {
+      k = k + 2*i + 1;
+      i = i + 1;
+    }
+  return i-1;
+}
+
+int direction (int y, int x)
+{
+  if (x == 0 && y == 0)
+    return 0;
+
+  if (x == 0)
+    return 90;
+
+  int q = 10000 * y / x;
+  if (q > -4142 && q <= 4142)
+    return 0;
+  else if (q > 4142 && q <= 24142)
+    return 45;
+  else if (q > -24142 && q <= -4142)
+    return -45;
+  else
+    return 90;
+}
+
+int main() {
+  image_t source;
+  image_t dest;
+  image_t expected_image;
+  string *expected = alloc(string);
+  int width;
+  int height;
+  pixel[] inpixels;
+  int[] maskval;
+  int[] blurval;
+  pixel[] blurpix;
+  int[] sobelX;
+  int[] sobelY;
+  int nmask = 3;
+  int[] masksize = alloc_array(int, nmask);
+  int[] masksum = alloc_array(int, nmask);
+  pixel[] outpixels;
+  pixel[] newpixels;
+  string[] masks = alloc_array(string, nmask);
+  masks[0] = "blurmask.txt";
+  masks[1] = "sobelX.txt";
+  masks[2] = "sobelY.txt";
+  int[][] maskdata = alloc_array(int[], nmask);
+  int D;
+  int[] G;
+  string type = "mask";
+  string[] args;
+  int i;
+  int j;
+  int tmp;
+
+  *expected = "./images/carnegie-mask2.png"; 
+
+  source = image_load("images/carnegie.png");
+  width = image_width(source);
+  height = image_height(source);
+
+  print("Loaded image.  Dimensions are ");
+  printint(width);
+  print(" by ");
+  printint(height);
+  println(".");
+
+  for (i = 0; i < nmask; i++)
+    {
+      file_t file = file_read(masks[i]);
+      tmp = 0;
+
+      if (file == NULL) {
+	println("Unable to read mask file. Try again.");
+      }
+
+      int* size = parse_int(file_readline(file),10);
+      if (size == NULL) {
+	println("Invalid blur mask size");
+	return 1;
+      }
+      printint(*size); println("");
+      if (size == NULL || (*size < 0) || (*size % 2 != 1)) {
+	println("Invalid blur mask size");
+	return 1;
+      }
+      maskdata[i] = alloc_array(int, *size * *size);
+      j = 0;
+      while (!file_eof(file)) {
+	int* value = parse_int(file_readline(file),10);
+	if (value == NULL) {
+	  print("Invalid weight in mask file on line ");
+	  printint(j+2);
+	  return 1;
+	}
+	maskdata[i][j] = *value;
+	tmp += *value;
+	j++;
+      }
+      if (j != *size * *size) {
+	println("Not enough weights in mask file");
+	return 1;
+      }
+
+      masksize[i] = *size;
+      masksum[i] = tmp;
+    }
+
+  dest = image_create(width, height);
+  inpixels = image_data(source);
+  outpixels = image_data(dest);
+
+  print("Running blur...");
+  blurval = apply_mask(inpixels, width, height, maskdata[0], masksize[0]);
+  println("");
+
+  blurpix = alloc_array(pixel, width * height);
+  for (i = 0; i < width * height; i++) {
+    tmp = blurval[i] / masksum[0];
+    blurpix[i] = (inpixels[i] & -16777216) | (tmp << 16) |
+      (tmp << 8) | tmp;
+  }
+
+  print("Running Sobel Operator X...");
+  sobelX = apply_mask(blurpix, width, height, maskdata[1], masksize[1]);
+  println("");
+
+  print("Running Sobel Operator Y...");
+  sobelY = apply_mask(blurpix, width, height, maskdata[2], masksize[2]);
+  println("");
+
+  G = alloc_array(int, height * width);
+  for (i = 0; i < height * width; i++)
+    G[i] = isqrt(sobelY[i] * sobelY[i] + sobelX[i] * sobelX[i]);
+
+  int s = 1;
+  int t = 1;
+
+  for (i = 0; i < height; i++)
+    {
+      for (j = 0; j < width; j++)
+	{
+	  int index = get_index(i, j, width, height);
+	  D = direction(sobelY[index], sobelX[index]);
+	  if (i == 0 || j == 0 || i == height - 1 || j == width - 1)
+	    outpixels[index] = -16777216;
+	  else if (D == 0 &&
+		   s * G[index] > t * G[get_index(i, j - 1, width, height)] &&
+		   s * G[index] > t * G[get_index(i, j + 1, width, height)])
+	    outpixels[index] = -1;
+	  else if (D == 90 &&
+		   s * G[index] > t * G[get_index(i - 1, j, width, height)] &&
+		   s * G[index] > t * G[get_index(i + 1, j, width, height)])
+	    outpixels[index] = -1;
+	  else if (D == 45 &&
+		   s * G[index] > t * G[get_index(i - 1, j - 1,
+						  width, height)] &&
+		   s * G[index] > t * G[get_index(i + 1, j + 1, width, height)])
+	    outpixels[index] = -1;
+	  else if (D == -45 &&
+		   s * G[index] > t * G[get_index(i + 1, j - 1,
+						  width, height)] &&
+		   s * G[index] > t * G[get_index(i - 1, j + 1, width, height)])
+	    outpixels[index] = -1;
+	  else
+	    outpixels[index] = -16777216;
+	}
+    }
+
+  expected_image = image_load(*expected);
+  bool result = image_equal(dest, expected_image);
+//  print("Saving output...");
+//  image_save(dest, *output);
+//  println("");
+  image_destroy(dest);
+  image_destroy(source);
+
+  if(!result)
+	{
+		println("TEST FAILED");
+        assert(false);
+	}
+
+	println("TEST PASSED");
+  return 0;
+}
+

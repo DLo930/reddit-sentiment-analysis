@@ -1,0 +1,8 @@
+#use <conio>
+
+int main()
+{
+	make_pixel(256,256,256,256);
+	println("EXPECTED ANNOTATION FAILURE");
+	return 0;
+}

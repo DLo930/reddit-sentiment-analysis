@@ -1,0 +1,663 @@
+\chapter{Data Structures in C}
+\label{ch:cstructure}
+
+\newcommand{\lecnum}{19}
+%\newcommand{\lectitle}{Data Structures in C}
+\newcommand{\lecturer}{Rob Simmons}
+
+\chapterTAGS{aliasing, c-memory, compilation, correctness, interface, preprocessor, safety}
+\maketitle
+
+\begin{preamble}
+\noindent
+In this lecture, we begin our transition to
+C~\cite{kernighan88book}\index{C}. In many ways, the lecture is
+therefore about knowledge rather than principles, a return to the
+emphasis on programming that we had at the very beginning of the
+semester.  In future lectures, we will explore some deeper issues in
+the context of C. Today's lecture is designed to get you to the point
+where you can translate a simple C0/C1 program or library (one that
+doesn't use arrays, which we'll talk about in the next lecture) from
+C0/C1 to C. An important complement to this lecture is the ``C for C0
+programmers'' tutorial:
+\begin{center}
+\url{http://c0.typesafety.net/tutorial/From-C0-to-C:-Basics.html}
+\end{center}
+\end{preamble}
+
+There are two big ideas you need to know about. First, C has a whole
+separate language wrapped around it, the \emph{C preprocessor
+  language}. The preprocessor language
+%is \emph{big} and \emph{complicated} and
+can be used for a bunch of things%
+% that aren'tC
+: you only need to understand a couple of ways that it gets used:
+\begin{itemize}
+\item%
+  \emph{Macro constant definitions}: you'll need to know how these are used in
+  the \lstinline'<limits.h>' and \lstinline'<stdbool.h>' libraries.
+\item%
+  \emph{Macro function definitions}: you'll need to know how these are used to
+  implement the \lstinline'"lib/contracts.h"' library, and you'll need to know
+  why they're generally a dangerous idea.
+\item%
+  \emph{Conditional compilation}: you need to know how \lstinline'#ifdef' and
+  \lstinline'#ifndef' are used, along with macro constant definitions, to make
+  \emph{separate compilation} of libraries work in C.
+\end{itemize}
+Second, C has a different notion of allocating memory than C0. In particular,
+C is not garbage collected, so whenever we allocate memory, we have to make
+sure that memory eventually gets \emph{freed}.
+
+\clearpage
+\section{Running Example}
+\label{sec:cstructure:running_example}
+\TAGS{interface}
+
+Our discussion will center around translating a very simple
+C0 interface and implementation, and a little program that uses that
+interface.
+
+\subsection{A simple interface \texttt{simple.c0}}
+\label{sec:cstructure:running_example_library}
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+#use <util>
+
+/*** Interface ***/
+int absval(int x)
+/*@requires x > int_min(); @*/
+/*@ensures \result >= 0; @*/ ;
+
+struct point2d {
+  int x;
+  int y;
+};
+
+/*** Implementation ***/
+int absval(int x)
+//@requires x > int_min();
+//@ensures \result >= 0;
+{
+  int res = x < 0 ? -x : x;
+  return res;
+}
+\end{lstlisting}
+
+
+\subsection{A simple test program: \texttt{test.c0}}
+\label{sec:cstructure:running_example_client}
+\begin{lstlisting}[language={[C0]C}]
+#use <conio>
+int main() {
+  struct point2d* P = alloc(struct point2d);
+  P->x = -15;
+  P->y = P->y + absval(P->x * 2);
+  assert(P->y > P->x && true);
+  print("x coord: "); printint(P->x); println("\n");
+  return 0;
+}
+\end{lstlisting}
+We can compile this program by running: \lstinline'cc0 -d simple.c0 test.c0'
+
+
+\clearpage
+\section{Introducing the Preprocessor Language}
+\label{sec:cstructure:preprocessor}
+\TAGS{preprocessor}
+
+In C0 programs, just about the only time we typed the '\lstinline'#'' key was
+to include a built-in library like \lstinline'conio' by writing:
+\lstinline'#use <conio>'.  The C preprocessor language is built around
+different directives that all start with '\lstinline'#''. The first two you
+need to know about are \lstinline'#include' and \lstinline'#define'.
+
+The \lstinline'#include' directive is what replaces \lstinline'#use' in C0.
+Here are some common \lstinline'#include' directives you'll see in C programs:
+\begin{lstlisting}[language=c]
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+\end{lstlisting}
+The \lstinline'<stdlib.h>' library is related to C0's
+\lstinline'<util>' library, \lstinline'<stdio.h>' is related to
+\lstinline'<conio>' in C0, and \lstinline[language=c]'<string.h>' is
+related to \lstinline[language=c]'<string>' in C0.
+
+The \lstinline'<stdbool.h>' file is also important: the type \lstinline'bool'
+and the constants \lstinline'true' and \lstinline'false' aren't automatically
+included in C, so this library includes them. We'll talk more about libraries,
+and in particular the \lstinline'.h' extension, later.
+
+
+\section{Macro Definitions}
+\label{sec:cstructure:macros}
+\TAGS{preprocessor}
+
+C0 has a very simple rule: an interface can describe types, structs, and
+functions. This leads to some weirdnesses, though: the C0 \lstinline'<util>'
+library has to give you a \emph{function}, \lstinline'int_max()', for
+referring to the maximum representable 32-bit two's complement integer.
+
+The \lstinline'#define' macro gives you a way to define this as a
+\emph{constant} in C.
+\begin{lstlisting}[language=c]
+#define INT_MAX 0x7FFFFFFF
+\end{lstlisting}
+In C, the directives of the preprocessor language are used by a
+\emph{preprocessor}, a component that gets executed \emph{before} the C
+compiler.  The preprocessor does a textual replacement of all macro
+definitions with the expression they are defined as.  So, whenever the
+preprocessor sees \lstinline'INT_MAX' in your program, it replaces it with
+\lstinline'0x7FFFFFFF'.  The C compiler itself will never see
+\lstinline'INT_MAX'.
+% , because the text \lstinline'INT_MAX' will have been flat-out replaced by
+% \lstinline'0x7FFFFFFF' by the time the compiler sees it.
+
+This textual replacement must be done very carefully: for instance,
+this is a valid, if needlessly verbose, definition of \lstinline'INT_MIN':
+\begin{lstlisting}[language=c]
+#define INT_MIN -1 ^ 0x7FFFFFFF
+\end{lstlisting}
+Then imagine that later in the program we wrote \lstinline'INT_MIN / 256',
+which ought to be equal to $-2^{31} / 2^8 = -2^{23} = -16777216$. This
+would get expanded by the C preprocessor language to
+\lstinline'-1 ^ 0x7FFFFFFF / 256', which the compiler would happily treat
+as \lstinline'-1 ^ (0x7FFFFFFF / 256)', which is $-8388608$. The problem is that
+the preprocessor doesn't know or care about the order of operations in C:
+it's just blindly substituting text. Parentheses would fix this
+particular problem:
+\begin{lstlisting}[language=c]
+#define INT_MIN (-1 ^ 0x7FFFFFFF)
+\end{lstlisting}
+The best idea is to use \lstinline'#define' sparingly and mostly get your macro
+definitions from standard libraries. The definitions
+\lstinline'INT_MIN' and \lstinline'INT_MAX' are already provided by the standard
+C library \lstinline'<limits.h>'.
+
+
+\section{Conditional Compilation}
+\label{sec:cstructure:conditional_compilation}
+\TAGS{preprocessor}
+
+Another very powerful but very-easy-to-get-wrong feature of the macro
+language is \emph{conditional compilation}. Based on whether a
+symbol is defined or not, the preprocessor can choose to ignore a
+whole section of text or choose between separate sections of
+text. This is used in a couple of different ways. Sometimes we use
+\lstinline'#ifndef' (if \emph{not} defined) to make sure we're not
+defining something twice:
+
+\begin{lstlisting}[language=c]
+#ifndef INT_MIN
+#define INT_MIN (~0x7FFFFFFF)
+#endif
+\end{lstlisting}
+
+We can also use \lstinline'#ifdef' and \lstinline'#else' to pick between
+different pieces of code to define. The code below is very different
+from C0/C code with a condition \lstinline'if (version_one)' statement,
+because only one of the two print statements below will ever even get
+compiled. The other one will be cut out of the program by the
+preprocessor before the compiler even sees it!
+\begin{lstlisting}[language=c]
+#ifdef VERSION_ONE
+printf("This is version 1\n");
+#else
+printf("This is not version 1\n");
+#endif
+\end{lstlisting}
+
+One interesting thing about this example is that we don't care what
+\lstinline'VERSION_ONE' is defined to be: we're just using the information
+about whether it is defined or not.  We'll use the \lstinline'DEBUG'
+symbol in some of our C programs to include certain pieces of code
+only when \lstinline'DEBUG' is defined.
+
+\begin{lstlisting}[language=c]
+#ifdef DEBUG
+printf("Some helpful debugging information\n");
+#endif
+\end{lstlisting}
+
+
+\section{Macro Functions}
+\label{sec:cstructure:macro_functions}
+\TAGS{preprocessor}
+
+A more powerful version of macro definition is the \emph{macro function}. For
+example:
+\begin{lstlisting}[language=c]
+#define MULT(x,y) ((x)*(y))
+\end{lstlisting}
+Using parentheses defensively is very important here, because
+otherwise the precedence issues we described before will only get
+worse. The only place we'll use macro functions in 15-122 is to define
+something like C0 contracts in C. The macro functions \lstinline'ASSERT',
+\lstinline'REQUIRES', and \lstinline'ENSURES' turn into assertions when the
+\lstinline'DEBUG' symbol is present, but otherwise they are replaced by
+\lstinline'((void)0)', which just tells the compiler to do nothing at all.
+
+\begin{lstlisting}[language=c]
+#ifndef DEBUG
+
+#define ASSERT(COND) ((void)0)
+#define REQUIRES(COND) ((void)0)
+#define ENSURES(COND) ((void)0)
+
+#else
+
+#define ASSERT(COND) assert(COND)
+#define REQUIRES(COND) assert(COND)
+#define ENSURES(COND) assert(COND)
+
+#endif
+\end{lstlisting}
+
+The code above isn't something you have to write yourself: it's provided
+for you in the file \lstinline'contracts.h' that will be in the \lstinline'lib' directory
+of all of our C projects in 15-122. Therefore, we write:
+\begin{lstlisting}[language=c]
+#include "lib/contracts.h"
+\end{lstlisting}
+in order to include these macro-defined contracts in our
+programs. When we use quotes instead of angle brackets for
+\lstinline'#include', as we do here, it just means that we're looking for a
+library we wrote ourselves and are using locally, not a standard library
+that we expect the compiler will find wherever it stores its standard
+library interfaces.
+
+\section{C0 Contracts in C}
+\label{sec:cstructure:contracts}
+\TAGS{correctness, preprocessor, safety}
+
+There's no assertion language in C: everything starting with \lstinline'//@'
+and everything written inside \lstinline'/*@ ... @*/' is just a treated as
+a comment and ignored. We'll still write C0-style contracts in our interfaces,
+but those contracts are now just comments, good for documentation, but
+not for runtime checking.
+
+All contracts, including preconditions and postconditions, have to
+be written inside of the function if we want them to be checked at runtime.
+
+\begin{lstlisting}[language=c]
+int absval(int x) {
+  REQUIRES(x > INT_MIN);
+  int res = x < 0 ? -x : x;
+  ENSURES (res >= 0);
+  return res;
+}
+\end{lstlisting}
+
+There's not a good replacement for loop invariants in C; they just have to
+be replaced with careful uses of \lstinline'ASSERT'.
+
+\section{Memory Allocation}
+\label{sec:cstructure:memory_allocation}
+\TAGS{c-memory}
+
+In C0, we allocate pointers of a particular \emph{type}; in C, we allocate
+pointers of a particular \emph{size}: the preprocessor function
+\lstinline'sizeof' takes a type and returns the number of bytes in this type,
+and it is this size that we pass to the allocation function. The default way
+of allocating a struct or integer (or similar) in C is to use the function
+\lstinline'malloc', provided in the standard \lstinline'<stdlib.h>' library.
+
+\begin{lstlisting}[language={[C0]C}]
+C0: int* x = alloc(int);
+C:  int* x = malloc(sizeof(int));
+\end{lstlisting}
+
+One quirk with \lstinline'malloc' is that it \emph{does not initialize
+  memory}, so dereferencing \lstinline'x' before storing some integer into
+\lstinline'x' could return an arbitrary value. (The computer is able to
+allocate memory slightly more efficiently if it doesn't have to initialize
+that memory.) This is \emph{different} from C0, where allocated memory was
+always initialized to a default value: \lstinline'NULL' for pointers, 0 for
+integers, \lstinline'""' for strings, and so on.
+
+Another quirk with \lstinline'malloc' is that it is allowed to return
+\lstinline'NULL'. Ultimately there is only a finite amount of memory accessible
+to the computer, and \lstinline'malloc' will return \lstinline'NULL' when there is
+no memory left to allocate. Therefore, we will usually use a 15-122 library
+\lstinline'"lib/xalloc.h"', which provides the function \lstinline'xmalloc'.
+The \lstinline'xmalloc' function
+provided by this library works the same way \lstinline'malloc' does, except
+that the result is sure not to be \lstinline'NULL'.
+
+\begin{lstlisting}[language=c]
+C:  int* x = xmalloc(sizeof(int)); // x is definitely not NULL
+\end{lstlisting}
+
+By replacing \lstinline'alloc' with \lstinline'xmalloc' and \lstinline'sizeof', we
+can now translate our \lstinline'test.c0' file into \lstinline'test.c'.
+The series of print statements has been replaced by a single function
+\lstinline'printf'.
+% , which is a powerful way of writing C functions that we
+% won't talk about yet.
+\begin{lstlisting}[language=c, numbers=left]
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include "lib/xalloc.h"
+
+int main() {
+    struct point2d* P = xmalloc(sizeof(struct point2d));
+    P->x = -15;
+    P->y = 0;
+    P->y = P->y + absval(P->x * 2);
+    assert(P->y > P->x && true);
+    printf("x coord: %d\n", P->x);
+    return 0;
+}
+\end{lstlisting}
+
+We needed an extra line, \lstinline'P->y = 0;', that wasn't present in the
+original file to cope with the fact that the \lstinline'malloc'-ed \lstinline'y'
+field isn't initialized to 0 the way it was in C0.
+
+\section{Compiling}
+\label{sec:cstructure:compiling}
+\TAGS{compilation}
+
+Our code won't actually compile yet, but we can try to compile it now that
+we've translated both \lstinline'simple.c' and \lstinline'test.c'.  When we
+call \lstinline'gcc', the C compiler, we'll give it a long series of flags:
+\begin{lstlisting}[language={[coin]C}]
+% gcc -Wall -Wextra -Wshadow -Werror -std=c99 -pedantic -g -DDEBUG ...
+\end{lstlisting}
+
+The flags \lstinline'-Wall', \lstinline'-Wextra', and \lstinline'-Wshadow' represent
+a bunch of optional compilation \underline{W}arnings we want to get from the
+compiler, and \lstinline'-Werror' means that if we get any warnings the
+code should not be compiled. The flag \lstinline'-std=c99' means that the
+version of C we are using is the one that was written down as the C99
+standard, a standard we want to adhere to in a \lstinline'-pedantic' way.
+
+The flag \lstinline'-g' keeps information in the compiled program which will
+be helpful for the \lstinline'valgrind' utility tool (see below after the
+discussion of \lstinline'free').  The flag \lstinline'-DDEBUG' means that we
+want the preprocessor to run with the \lstinline'DEBUG' symbol
+\underline{D}efined. As we talked about before, this means that contracts will
+actually be checked at runtime: \lstinline'-DDEBUG' is the C version of the
+\lstinline'-d' flag for the C0 compiler and interpreter.
+
+
+\section{Separate Compilation}
+\label{sec:cstructure:separate_compilation}
+\TAGS{c-memory, compilation, interface}
+
+If we try to compile the translated C files we have so far, it won't work:
+
+\begin{lstlisting}[language={[coin]C}]
+% gcc ...all those flags... lib/*.c simple.c test.c
+test.c: In function "main":
+test.c:8:38: error: invalid application of sizeof to incomplete type...
+   struct point2d* P = xmalloc(sizeof(struct point2d));
+                                      ^
+test.c:10:3: error: implicit declaration of function absval...
+   P->y = P->y + absval(P->x * 2);
+   ^
+\end{lstlisting}
+If compiling C worked like compiling C0, \lstinline'test.c' would be able to see
+the interface from \lstinline'simple.c', which includes the definition of
+\lstinline'struct point2d' and the type of \lstinline'absval', because
+\lstinline'simple.c' came ahead of \lstinline'test.c' on the command
+line. However, C doesn't work this way: \emph{every C file is
+  compiled separately from all the other C files}.
+
+To get our code to compile, we want to split up the \lstinline'simple.c'
+file into two parts: the interface, which will go in the
+\underline{h}eader file \lstinline'simple.h', and the implementation, which
+will stay in \lstinline'simple.c' and will \lstinline'#include' the interface
+\lstinline'"simple.h"'. Then, we can also \lstinline'#include' the simple interface
+in \lstinline'test.c'.
+
+This is actually a good thing from the perspective of respecting the
+interface: \lstinline'test.c' will have access to the interface in
+\lstinline'simple.h', but couldn't accidentally end up relying on extra
+things defined in \lstinline'simple.c'.
+
+
+\clearpage
+\subsection{Interface: \texttt{simple.h}}
+\label{sec:cstructure:separate_compilation_interface}
+
+In addition to containing the interface from \lstinline'simple.c0', the
+header file containing the \lstinline'simple.h' interface, like all C
+header files, needs to use \lstinline'#ifndef', \lstinline'#define', and
+\lstinline'#endif'. These three preprocessor declarations, in combination,
+make sure that we can only end up including this code one time, even
+if we intentionally or accidentally write \lstinline'#include "simple.h"'
+more than once.
+
+\begin{lstlisting}[language=c, numbers=left]
+#ifndef _SIMPLE_H_
+#define _SIMPLE_H_
+
+int absval(int x)
+/*@requires x >= INT_MIN; @*/
+/*@ensures \result >= 0; @*/ ;
+
+struct point2d {
+    int x;
+    int y;
+};
+
+#endif
+\end{lstlisting}
+
+\subsection{Implementation: \texttt{simple.c}}
+\label{sec:cstructure:separate_compilation_implementation}
+
+The C file will include both the necessary libraries and the
+interface.  \emph{The implementation should always} \lstinline'#include'
+\emph{the interface}.
+
+\begin{lstlisting}[language=c, numbers=left]
+#include <limits.h>
+#include "lib/contracts.h"
+#include "simple.h"
+
+int absval(int x) {
+    REQUIRES(x > INT_MIN);
+    int res = x < 0 ? -x : x;
+    ENSURES(res >= 0);
+    return res;
+}
+\end{lstlisting}
+
+\clearpage
+\subsection{Main file: \texttt{test.c}}
+\label{sec:cstructure:separate_compilation_client}
+
+\begin{lstlisting}[language=c, numbers=left]
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include "lib/xalloc.h"
+#include "simple.h"
+
+int main() {
+    struct point2d* P = xmalloc(sizeof(struct point2d));
+    P->x = -15;
+    P->y = 0;
+    P->y = P->y + absval(P->x * 2);
+    assert(P->y > P->x && true);
+    printf("x coord: %d\n", P->x);
+    return 0;
+}
+\end{lstlisting}
+At this point, compilation will proceed without errors.
+
+\bigskip
+
+\section{Memory Leaks}
+\label{sec:cstructure:memory_leaks}
+\TAGS{c-memory}
+
+Unlike C0, C does not automatically manage memory.  Thus, programs
+have to free the memory they allocate explicitly; otherwise,
+long-running or memory-intensive programs are likely to run out of
+space.  For that, the C standard library provides the function
+\lstinline'free', declared with
+\begin{lstlisting}[language=c]
+void free(void* p);
+\end{lstlisting}
+The restrictions as to its proper use are
+\begin{enumerate}
+\item%
+  It is only called on pointers that were returned from
+  \lstinline'malloc' or \lstinline'calloc' (possibly indirectly via
+  the \lstinline'xalloc' library).\footnote{or \lstinline'realloc',
+    which we have not discussed.}
+\item%
+  After memory has been freed, it is no longer referenced by the
+  program in any way.
+\end{enumerate}
+Freeing memory counts as referencing it, so the restrictions imply
+that you should not free memory twice.  And, indeed, in C the behavior
+of freeing memory that has already been freed is undefined and may be
+exploited by an adversary.  If these rules are violated, the result of
+the operations is undefined.  The \lstinline'valgrind' tool will catch
+dynamically occurring violations of these rules, but it cannot check
+statically if your code will respect these rules when executed.
+
+Managing memory in your C programs means walking the narrow way
+between two pitfalls: all allocated memory should be freed after it is
+no longer used, but no allocated memory should be referenced after it
+is freed! Falling into the first pit causes \emph{memory leaks},
+which cause long-running programs to run out of unallocated
+memory. Falling into the second one causes undefined,
+i.e. unpredictable, behavior.
+
+The \emph{golden rule of memory management} in C is
+\begin{quote}\em
+  You allocate it, you free it!
+\end{quote}
+By inference, if you \emph{didn't} allocate it, you are \emph{not}
+allowed to free it! But this rule is tricky in practice, because sometimes
+we do need to transfer ownership of allocated memory so that it ``belongs''
+to a data structure.
+
+Binary search trees are one example. When client code adds an element
+to the binary search tree, is it in charge of freeing that element, or
+should the library code free it when it frees the binary search tree?
+There are arguments to be made for both of these options. If we want
+the library code for the BST to ``own'' the reference, and therefore
+be in charge of freeing it, we can write the following function that
+frees a binary search tree, given a function pointer that frees
+elements.  The library can allow this function pointer to be
+\lstinline'NULL': if it's \lstinline'NULL' the library code doesn't
+own the elements, and doesn't do anything to them.  We also show the
+function that frees a dictionary implemented as a binary search tree.
+\begin{lstlisting}[language=c]
+typedef void entry_free_fn(entry e);
+
+void tree_free(tree *T, entry_free_fn *Fr) {
+  REQUIRES(is_bst(T));
+  if (T != NULL) {
+    if (Fr != NULL) (*Fr)(T->data);
+    tree_free(T->left, Fr);
+    tree_free(T->right, Fr);
+    free(T);
+  }
+  return;
+}
+
+void dict_free(dict* B, entry_free_fn *Fr) {
+  REQUIRES(is_dict(B));
+  tree_free(B->root, Fr);
+  free(B);
+  return;
+}
+\end{lstlisting}
+
+We should never free elements allocated elsewhere; rather, we should
+use the appropriate function provided in the interface to free the
+memory associated with the data structure.  Freeing a data structure,
+for instance by calling \lstinline'free(T)', is something the client
+itself cannot do reliably, because it would need to be privy to the
+internals of the data structure implementation. If the client called
+\lstinline'free(B)' on a dictionary it would only free the header; the
+tree itself would be irrevocably leaked memory.
+
+
+\section{Detecting Memory Mismanagement}
+\label{sec:cstructure:valgrind}
+\TAGS{aliasing, c-memory}
+
+Memory leaks can be quite difficult to detect by inspecting the code.
+To discover whether memory leaks may have occurred
+at runtime, we can use the \lstinline'valgrind' tool.
+
+For example, our \lstinline'test.c' program that allocates but does not
+free memory, like this,
+\begin{lstlisting}[language=c]
+int main() {
+  struct point2d* P = xmalloc(sizeof(struct point2d));
+  P->x = -15;
+  P->y = 0;
+  P->y = P->y + absval(P->x * 2);
+  assert(P->y > P->x && true);
+  printf("x coord: %d\n", P->x);
+  return 0;
+}
+\end{lstlisting}
+gets a report from \lstinline'valgrind' like this, indicating a memory
+leak:
+
+\begin{lstlisting}[language={[coin]C}]
+% valgrind ./a.out
+...
+HEAP SUMMARY:
+==40284==     in use at exit: 8 bytes in 1 blocks
+==40284==   total heap usage: 1 allocs, 0 frees, 8 bytes allocated
+==40284==
+==40284== LEAK SUMMARY:
+==40284==    definitely lost: 8 bytes in 1 blocks
+...
+\end{lstlisting}
+
+If we add code to free \lstinline'P' just before the \lstinline'return'
+statement, we get a clean bill of health from \lstinline'valgrind':
+\begin{lstlisting}[language={[coin]C}]
+...
+HEAP SUMMARY:
+==41495==     in use at exit: 0 bytes in 0 blocks
+==41495==   total heap usage: 1 allocs, 1 frees, 8 bytes allocated
+==41495==
+==41495== All heap blocks were freed --- no leaks are possible
+...
+\end{lstlisting}
+
+If, on the other hand, we free \lstinline'P' at the wrong point in our
+code, like this:
+\begin{lstlisting}[language=c]
+int main() {
+    struct point2d* P = xmalloc(sizeof(struct point2d));
+    ...
+    free(P);
+    printf("x coord: %d\n", P->x);
+    return 0;
+}
+\end{lstlisting}
+
+\lstinline'valgrind' detects that we have referenced memory after freeing it (this
+is our second pitfall):
+\begin{lstlisting}[language={[coin]C}]
+...
+==43895== Invalid read of size 4
+==43895==    at 0x400886: main (test.c:25)
+==43895==  Address 0x51f6040 is 0 bytes inside a block of size 8 free'd
+...
+\end{lstlisting}
+\lstinline'valgrind' is capable of flagging errors in code that didn't appear
+to have any errors when run without \lstinline'valgrind'.  It slows down
+execution, but if at all feasible you should test all your C code in this
+manner to uncover memory problems.  For best error messages, you should pass
+the \lstinline'-g' flag to \lstinline'gcc' which preserves some correlation
+between binary and source code.

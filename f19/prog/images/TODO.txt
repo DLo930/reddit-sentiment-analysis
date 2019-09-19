@@ -1,0 +1,36 @@
+A good "second assignment" (rotate, reflect) would be moving the origin. You could have two versions, one that imagines an infinite tiling of the plane
+
+A B C
+D E F
+G H I
+J K L
+
+--> move 1,1
+
+L K J
+C A B
+F D E
+I G H
+
+--> move -2, 0
+
+B C A
+E F D
+H I G
+K L J
+
+and one that imagines the rest of the plane is full of transparent white pixels.
+
+--> move 1,1
+
+B C X
+E F X
+H I X
+X X X
+
+--> move -2, 0
+
+X X A
+X X D
+X X G
+X X J

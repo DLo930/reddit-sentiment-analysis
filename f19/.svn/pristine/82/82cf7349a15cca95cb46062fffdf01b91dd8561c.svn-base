@@ -1,0 +1,148 @@
+\part[1]\TAGS{void-star}
+Write a character comparison function \lstinline'compare_chars' that
+can be used with this generic sorting function.  Characters are
+compared based on their ASCII value.  The contracts on your
+\lstinline'compare_chars' function \emph{must} be sufficient to ensure
+that no precondition-passing call to \lstinline'compare_chars' can
+possibly cause a memory error.  Depending on how you write your
+solution, you may or may not need the extra space at the beginning of
+this function.
+
+\begin{framed}
+\begin{lstlisting}
+int compare_chars(void* x, void* y)
+
+//@requires x != NULL && \hastag([*\uanswer{17em}{char*, x}*]);
+
+//@requires y != NULL && \hastag([*\uanswer{17em}{char*, y}*]);
+//@ensures -1 <= \result && \result <= 1;
+{
+                                       // Extra space if needed
+  [*\answer{33em}{int x\_ascii = char\_ord(*(char*)x);\hfill}*]
+  [*\answer{33em}{int y\_ascii = char\_ord(*(char*)y);\hfill}*]
+
+
+
+  if ([*\uanswer{17em}{x\_ascii < y\_ascii}*]) return [*\uanswer{11em}{-1}*];
+
+  if ([*\uanswer{17em}{x\_ascii > y\_ascii}*]) return [*\uanswer{11em}{1}*];
+
+  return [*\uanswer{31.5em}{0}*];
+}
+\end{lstlisting}
+\end{framed}
+
+
+\RUBRIC
+Part (b)
+TAGS: void-star
+
+Gradescope rubric:
++0.25 Correctly invokes \hastag
++0.25 Correctly casts
++0.25 Correctly dereferences char pointers
++0.25 Correct returns
+
+Commentary:
+* 1/4 point for correctly handling the possibility of NULL
+* 1/4 point for correctly handing \hastag
+* 1/4 point for casting and dereferencing int pointer
+* 1/4 point for getting the return (-1, 0, 1) correct
+
+int compare_helper(void* x, void* y)
+//@requires x != NULL && \hastag(char*, x);
+//@requires y != NULL && \hastag(char*, y);
+{
+  int x_ascii = char_ord(*(char*)x);
+  int y_ascii = char_ord(*(char*)y);
+
+  if (x_ascii < y_ascii) return -1;
+  if (x_ascii > y_ascii) return 1;
+  return 0;
+}
+ENDRUBRIC
+
+
+\newpage
+\part[2]\TAGS{array, function-pointer, genericity, void-star}
+Using \lstinline'sort_generic' (which you may assume has already been
+written) and \lstinline'compare_chars', fill in the body of the
+\lstinline'sort_chars' function below so that it will sort the array
+\lstinline'A' of characters.  You can omit loop invariants.  But of
+course, when you call \lstinline'sort_generic', the preconditions of
+\lstinline'compare_chars' must be satisfied by any two elements of the
+array \lstinline'B'.
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+void sort_chars(char[] A, int n)
+//@requires \length(A) == n;
+{
+  // Allocate a temporary generic array of the same size as A
+
+  void*[] B = [*\uanswer{20em}{alloc\_array(void*, n)}*];
+
+  // Store a copy of each element in A into B
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   for (int i = 0; i < n; i++) {
+     char* p = alloc(char);
+     *p = A[i];
+     B[i] = (void*)p;
+   }
+\end{lstlisting}
+\else~\vspace{2.0in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+  // Sort B using sort_generic and compare_chars from task 2
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   sort_generic(B, 0, n, &compare_helper);
+\end{lstlisting}
+\else~\vspace{0.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+  // Copy the sorted chars in your generic array B into array A
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   for (int i = 0; i < n; i++) {
+      A[i] = *(char*)B[i];
+   }
+\end{lstlisting}
+\else~\vspace{2.0in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: array, function-pointer, genericity, void-star
+
+Gradescope rubric:
++0.5 Correctly allocate array
++0.5 Correctly copying A elements into B
++0.5 Correctly calls sort_generic
++0.5 Correctly copies sorted chars back into A
+
+Commentary:
+     void*[] B = alloc_array(void*, n);  // 1/2 point
+     for (int i = 0; i < n; i++) {
+        char* p = alloc(char);           // 1/2 point, correctly initializing
+        *p = A[i];                       // an INT pointer in the loop,
+        B[i] = (void*)p;                 // then casting to void
+     }
+     sort_generic(B, 0, n, &compare_helper);
+                                         // 1/2 point, correct call to sort
+                                         // (MUST include address-of &)
+     for (int i = 0; i < n; i++) {
+        A[i] = *(char*)B[i];             // 1/2 point for casting back
+     }
+
+
+Alternative first loop body:
+      B[i] = (void*) alloc(char);
+      char* x = (char*) B[i];
+      *x = A[i];
+ENDRUBRIC

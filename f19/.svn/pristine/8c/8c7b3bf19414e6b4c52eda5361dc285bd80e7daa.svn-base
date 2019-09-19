@@ -1,0 +1,34 @@
+---
+general:
+  name: labsorted
+  display_name: "Lab Activity: Sorted linked lists"
+  description: ""
+  handin_filename: sorted-lists.c0
+  handin_directory: handin
+  max_grace_days: 0
+  handout_filename: ""
+  writeup_filename: ""
+  allow_unofficial: false
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  category: Ungraded
+problems:
+- name: is_in
+  description: ""
+  max_score: 1.0
+  optional: false
+- name: delete
+  description: ""
+  max_score: 1.0
+  optional: false
+- name: insert
+  description: ""
+  max_score: 1.0
+  optional: false
+scoreboard: {}
+
+autograde:
+  autograde_image: rhel122.img
+  autograde_timeout: 180
+  release_score: true

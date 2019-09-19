@@ -1,0 +1,316 @@
+LAST: linked lists
+TODAY:
+- amortized analysis
+- unbounded arrays
+NEXT: hashing
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] amortized analysis
+[5] n-bit counter
+[5] unbounded arrays
+
+NOTE: there are just 3 or 4 data structures that use amortized analysis and are simple enough
+      for 15-122.  It is important that we talk about the n-bit counter and unbounded arrays
+      only (the other 1-2 are hw topics).
+
+Review
+======
+. Linked lists vs. arrays
+          (UNSORTED) ARRAYS       LINKED LISTS
+  PROS    * O(1) access           * self-resizing
+          * built-in              * O(1) insertion (given right pointers)
+                                  * O(1) deletion (given right pointers)
+  CONS    * fixed size            * no built-in support
+          * O(n) insertion        * O(n) access
+
+Dreaming of unbounded arrays
+============================
+- a data structure that combines the best properties of arrays and linked lists
+  . accesses are (about) constant time
+  . grows and shrinks as needed, and efficiently
+- concrete scenario: doslingos/speller
+  . store all the words in a file into an array-like data structure [we did it for them]
+  . use an array?
+    . we don't know how big to make it!
+    . too small: run out of space
+    . too big: waste (lots of) space
+  . use a linked list?
+    . access is O(n)
+- an UNBOUNDED ARRAY achieves both
+  . mechanics are very simple
+  . showing that the operations are (ABOUT) CONSTANT time requires a new form of complexity
+    analysis
+    . AMORTIZED ANALYSIS
+    . one of the topics students find hardest
+    . we start on a simpler example
+
+n-bit counter
+=============
+- setup [Rob has a new mysterious startup.  Each time he gets a new user, he increments a
+  giant stone counter his VC erected in downtown SF -- that's a sequence of 6 stone tablets
+  with 0 on one side and 1 on the other.  Every time a user signs up, he increments the
+  counter.  But the power company charges him $1 each time he turns a tablet.  He is tight
+  on venture capital, so he needs to pass that cost to the users.  He wants to charge users
+  as little as possible to cover his cost (the VC promised to erect new tablets as his user
+  base grows).  How much should he charge each new user?]
+
+            FEE CHARGED          REAL COST
+     user ---------------> Rob -------------> power company
+              (income)           (expenses)
+
+- over the next few steps (s), incrementally draw the following table:
+
+     savings  2$_total  cost_total  cost  user        counter
+       (3)       (2)        (1)      (0)   (0)          (0)     <--- presentation step
+                                                    0 0 0 0 0 0
+           1         2           1     1     1     (
+                                                    0 0 0 0 0 1
+           1         4           3     2     2     (
+                                                    0 0 0 0 1 0
+           2         6           4     1     3     (
+                                                    0 0 0 0 1 1
+           1         8           7     3     4     (
+                                                    0 0 0 1 0 0
+           2        10           8     1     5     (
+                                                    0 0 0 1 0 1
+           2        12          10     2     6     (
+                                                    0 0 0 1 1 0
+           3        14          11     1     7     (
+                                                    0 0 0 1 1 1
+           1        16          15     4     8     (
+                                                    0 0 1 0 0 0
+                                                        ...
+
+- (0) draw a few steps -- see below [counter = state, sign-up = transition between states]
+  . write user/step # and cost of transition/step
+    . unit of cost = 1 bit flip
+  . observe that steps have different COSTS [cannot charge users different amounts, though]
+    . every other step is inexpensive
+    . expensive steps are further and further apart
+  . max cost is O(n) [cannot charge them that much -- nobody would sign up]
+    . cost of k increments would be O(kn)
+- (1) write the total cost column and find relation among the 3 columns
+  . after an expensive step, total = 2*user - 1
+  . in general, total <= 2*user - 1
+  . (total+1)/user <= 2, so cost per user is about $2
+- (2) let's see what happens if we CHARGE each user $2 fixed price
+  . write total income in $2_total column
+- (3) put the difference in SAVINGS
+  . that's the difference between (true) total cost and total income
+  . if income is enough to pay for operation, do it and put extra in savings
+  . otherwise, take the difference from savings
+- Terminology:
+  . COST = actual (internal) cost of each operation
+  . CHARGE = apparent (external) cost of each operation
+
+Analysis of n-bit counter
+=========================
+- seems to work: savings never go negative
+  . after an expensive step we seem to go back to $1 in savings
+- this gives us a strong sense that $2 is the right amount to charge
+  . intuitively right, but we cannot point to specific reason it works
+  . akin to operational reasoning -- intuition on examples but not general proof
+  . we want something akin to point-to reasoning
+- view counter as a DATA STRUCTURE
+  . increment is an OPERATION
+  . we are looking for something like a DATA STRUCTURE INVARIANT
+- what do savings correspond to in state of counter? [audience participation]
+  . number of bits set to 1 (invariant)
+    . as if we have an extra meta-data field in data structure
+  . associate a TOKEN to each 1-bit (= 1 token for each saved $)
+- show that charging $2 per increment preserves this invariant
+  . typical state has the form b..b01..1  (e.g., 100111)
+    . each of the 1's on the right has a token on top of it
+  . increment operation ($2 = 2 tokens) changes state to b..b10..0
+    . use 1st token to flip the 0-bit
+    . use the tokens on top of the 1-bits before it to cover the cost of flipping them
+    . put 2nd token on top of new 1-bit
+      . this is what it will cost to turn that 1-bit into a 0-bit in the future
+      . PRE-PAY FUTURE COST
+      . INEXPENSIVE OPERATIONS PAY FOR EXPENSIVE ONES
+    . the invariant has been restored (tokens on top of b-bits on the left are unchanged)
+    [this works particularly well if we have tokens of 2 colors:
+     . 1 color to put on top of 1-bits (to turn 1 into 0)
+     . 1 color to turn a 0 into a 1]
+- note that although amortized cost is O(1), worst case can be O(n)
+
+Reflecting on this analysis
+===========================
+- DATA STRUCTURE (counter) on which we perform a SEQUENCE of operations (increment)
+              AMORTIZED COST             ACTUAL COST
+     Client -----------------> Library --------------> Computer
+
+- each particular operation has a different real COST (bounded by O(n) -- n = # bits)
+- a sequence of k increments has cost O(k) -- even though worst cost says O(kn)
+  . as if each increment had cost O(1)
+  . the "average" cost of an increment is O(1)
+- very different notion of average than in the past:
+  . quicksort: average cost was O(n log n)
+    . very unlikely to systematically pick bad pivots
+    . had to do with chance, luck
+    . average over a probability distribution of input
+  . here: no chance
+    . this is an exact analysis -- no luck involved
+    . average over time/sequence of operation
+- this is called AMORTIZED ANALYSIS
+  . invent a notion of tokens that stand in for the resource we're interested in
+  . determine what to charge for each operation so that we never go in the red
+    . ACCOUNTING METHOD: maximum of total cost divided step number (take ceiling)
+    . just like we use operational reasoning and then solidify that as a loop invariant
+    . do that for any operation of interest
+    . this is the AMORTIZED COST
+  . specify, for any instance of the data structure, how many tokens need to be held in
+    reserve as part of the data structure invariant
+  . prove that, for any operation we might perform on the data structure, the amortized
+    cost + the tokens held in reserve suffice to do whatever work needs to be done and
+    then restore the data structure invariant
+
+<break>
+
+Unbounded arrays
+================
+- to model doslingos/speller, we need the interface of ssa (minus sortedness)
+  + an add operation (append element at the end of array)
+  + a rem operation (discussed in recitation)
+  . unbounded array interface (ssa -> uba)
+      // typedef ______* uba_t;
+
+      int uba_len(uba_t A)
+      /*@requires A != NULL; @*/ ;
+
+      uba_t uba_new(int size)
+      /*@requires 0 <= size; @*/
+      /*@ensures \result != NULL; @*/
+      /*@ensures uba_len(\result) == size; @*/ ;
+
+      string uba_get(uba_t A, int i)
+      /*@requires A != NULL; @*/
+      /*@requires 0 <= i && i < uba_len(A); @*/ ;
+
+      void uba_set(uba_t A, int i, string x)
+      /*@requires A != NULL; @*/
+      /*@requires 0 <= i && i < uba_len(A); @*/ ;
+
+      void uba_add(uba_t A, string x)                  // ADDED
+      /*@requires A != NULL; @*/ ;
+
+      string uba_rem(uba_t A)                          // ADDED but not considered
+      /*@requires A != NULL; @*/
+      /*@requires 0 < uba_len(A); @*/ ;
+
+Towards an implementation
+=========================
+- uba_add based on ssa implementation
+    . user view: A-|->[4,7]
+    . implementation view: A-|->{2,*}-->[4,7]  -- length=2, array = [4,7]
+  . add 5:
+    . user view: A-|->[4,7,5]
+    . implementation view: A-|->{3,*}-->[4,7,5]  -- [4,7] to be garbage-collected
+    . cost O(n)
+  . remove 5:
+    . user view: A-|->[4,7]
+    . create new 2-element array and copy [4,7] back to it -- O(n), OR
+    . change length to 2 and keep old array -- O(1)
+      . works if we change length == \length(A->data) to length <= \length(A->data)
+    . implementation view: A-|->{2,*}-->[4,7,5]
+  . add 9:
+    . we would like to change implementation to: A-|->{3,*}-->[4,7,9]
+    . problem: we don't know the real length of array!
+    . no way to know if we are safe
+- replace length with 2 fields
+  . SIZE: size of array reported to user
+  . LIMIT: actual length of underlying array
+      typedef struct uba_header uba;
+      struct uba_header {
+        int size;          // 0 <= size && size < limit
+        int limit;         // 0 < limit
+        string[] data;     // \length(data) == limit
+      };
+   . convenient to have size < limit rather than size <= limit
+     [amortized analysis is much cleaner this way]
+   . implement some of the operations (uba_new, uba_add) [if desired/time]
+   . visualization: A-|->{size,limit,*}-->data
+- then,
+    . user view: A-|->[4,7]
+    . implementation view: A-|->{2,4,*}-->[4,7,X,X]  -- X = doesn't matter
+  . add 5:
+    . user view: A-|->[4,7,5]
+    . implementation view: A-|->{3,4,*}-->[4,7,5,X]
+    . cost O(1)
+  . remove 5:
+    . user view: A-|->[4,7]
+    . implementation view: A-|->{2,4,*}-->[4,7,5,X]
+    . cost O(1)
+  . add 9:
+    . user view: A-|->[4,7,9]
+    . implementation view: A-|->{3,4,*}-->[4,7,9,X]
+    . cost O(1)
+
+Resizing the array
+==================
+- what should we do if we add 8 next?
+  . create a new bigger array and copy the elements of the old array (and change limit)
+- how big should the new array be?
+  . so far, all operations are O(1) -- except possibly uba_new, but OS can play tricks
+    . our notion of cost is an ARRAY WRITE
+  . we would like arr_add to APPEAR to have constant cost too
+    . worst cost O(1)? impossible because resizing array has cost O(n)
+    . amortized cost O(1)
+      . already O(1) if resizing not needed
+      . arrange so that resizing happens rarely
+  . making new array of length n+1 won't work:
+    . k adds from empty uba would have cost O(k^2), with amortized cost per add = O(k)
+  . making new array of length n+c for fixed c has similar problem
+  . DOUBLE size of array
+    . we will show that this has amortized cost O(1)
+
+Accounting method for UBA [use slides]
+=========================
+- cost of each add as a number of writes
+- compute total cost of adds and sequence number of each add
+- each time we resize, total cost = 3 * sequence # of this add <- box it
+- in general, total cost <= 3 * sequence number of current add
+- hypothesis: we need 3 tokens per add
+
+Amortized analysis of UBA [use slides or colored magnets on blackboard]
+=========================
+- what are the 3 tokens for?
+- start with size-2 array that has just been resized to size-4
+  . A-|->{2,4,*}-->[4,7,X,X]
+  . claim/assume there are no tokens on reserve
+- add 9 (3 tokens charged):
+  . A-|->{3,4,*}-->[4,7,9,X]
+    . 1 token to write 9 now
+    . remaining 2 tokens are saved for next time we resize
+      . 1 token to copy 9 to new array (9 is first element of second half of array)
+      . 1 token to copy matching element (4) from first half of array
+- add 5 (3 tokens charged):
+  . A-|->{4!,4,*}-->[4,7,9,5]
+    . 1 token to write 5
+    . 1 token to copy 5 to new array
+    . 1 token to copy matching element (7) from first half of array
+  . but size == limit: we need to resize now!
+    . we have 1 token for each element
+    . A-|->{4,8,*}-->[4,7,9,5,X,X,X,X]
+    . we have consumed all tokens -- back at the start
+- data structure invariant
+  . 1 token in reserve for each element in 2nd half of array
+  . 1 token in reserve for matching element in 1st half of array
+  . at any time, 2 * size - limit tokens in storage
+- general analysis:
+  . start with 0 tokens in reserve just after resizing array from k to 2k
+    -----------------------
+    |  (full)  |  (empty) |  (each half has size k; 2k total)
+    -----------------------
+  . after 2k adds, we have filled the 2nd half and put a token on every position
+    . 2k tokens
+    -oooooooooo-oooooooooo-
+    |  (full)  |  (full)  |  (each half has size k; 2k total)
+    -----------------------
+  . we need to resize: copy 2k elements
+    ---------------------------------------------
+    |        (full)       |        (empty)      |  (each half has size 2k; 4k total)
+    ---------------------------------------------
+  . invariant is preserved
+    . we have 0 tokens in reserve just after resizing array

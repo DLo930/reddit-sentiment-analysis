@@ -1,0 +1,80 @@
+/* test the correctness of blur based on provided test images */
+
+#use <img>
+#use <parse>
+#use <args>
+#use <conio>
+#use <file>
+#use <string>
+#use <util>
+
+struct mask_header {
+  int size;
+  int[] data;
+};
+
+typedef struct mask_header mask;
+
+mask* load_mask(string mask_filename) {
+  /* Load mask */
+  file_t file = file_read(mask_filename);
+  mask* m = alloc(mask);
+
+  int* size = parse_int(file_readline(file),10);
+  if (size == NULL || (*size < 0) || (*size % 2 != 1)) {
+    error("Invalid blur mask size");
+  }
+  m->size = *size;
+  m->data = alloc_array(int, *size * *size);
+  int i = 0;
+  while (!file_eof(file))
+    {
+      int* value = parse_int(file_readline(file),10);
+      if (value == NULL || *value < 0) {
+        print("Line ");
+        printint(i+2);
+        error(" has invalid weight");
+      }
+      m->data[i] = *value;
+      i++;
+    }
+  if (i != *size * *size) {
+    error("Not enough weights in mask file");
+  }
+  if (m->data[(*size / 2) * *size + (*size / 2)] == 0) {
+    error("Origin of mask has value 0");
+  }
+
+  return m;
+}
+
+int main() {
+  /* Get args */
+  args_t args = args_parse();
+  if (args->argc != 3) error("Wrong number of args");
+
+  image_t source = image_load(args->argv[0]);
+  if (source == NULL) error("Could not load source");
+  int width = image_width(source);
+  int height = image_height(source);
+
+  image_t target = image_load(args->argv[1]);
+  if (target == NULL) error("Could not load target");
+  if (!(width == image_width(target))) error("Target has wrong width");
+  if (!(height == image_height(target))) error("Target has wrong height");
+
+  mask* m = load_mask(args->argv[2]);
+
+  /* Apply transformation to source */
+  pixel_t[] inpixels = image_data(source);
+  pixel_t[] outpixels = image_data(target);
+  pixel_t[] resultpixels = blur(inpixels, width, height, m->data, m->size);
+  //@assert resultpixels != inpixels;
+  //@assert \length(resultpixels) == \length(outpixels);
+
+  for(int i = 0; i < width*height; i++)
+    //@loop_invariant 0 <= i;
+    if(outpixels[i] != resultpixels[i]) return 1;
+
+  return 0;
+}

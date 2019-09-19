@@ -1,0 +1,14 @@
+int main() {
+  pixel_t[] I = alloc_array(pixel_t,4);
+  I[0] = make_pixel(255,10,0,0);
+  I[1] = make_pixel(255,0,10,0);
+  I[2] = make_pixel(255,0,0,10);
+  I[3] = make_pixel(255,0,0,0);
+  pixel_t[] J = reflect(I, 2, 2);
+//  pixel_t[] J = rotate(I, 2, 2);
+  //@assert \length(J) == 16;
+  //assert(J[0] == make_pixel(255,0,10,0));
+  //assert(J[1] == make_pixel(255,0,0,0));
+
+  return 0;
+}

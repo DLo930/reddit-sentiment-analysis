@@ -1,0 +1,118 @@
+/*
+ * Peg solitaire solver
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use <conio>
+#use <util>
+
+
+/* Compact boards */
+struct compact_board {
+  int i1;         // key 1: Upper half of board
+  int i2;         // key 2: Lower half of board
+  int min_pegs;   // value: Smallest number of pegs left
+};
+typedef struct compact_board cboard;
+
+
+/* board compression for hash table purposes */
+/* blocked positions are arbitrarily coded as bit 1 */
+cboard* compress (board B)
+//@requires is_board(B);
+{
+  cboard* C = alloc(cboard);
+
+  int lower = 1;
+  for (int i = 0; i < 32; i++)
+    lower = ((lower << 1) | (B[i] & 1));
+  C->i2 = lower;
+
+  int upper = 1;
+  for (int i = 32; i < 8*8; i++)
+    upper = ((upper << 1) | (B[i] & 1));
+  C->i1 = upper;
+
+  return C;
+}
+
+/* Client side implementation for hashtables: see lib/hdict.c0 */
+
+/* see universal_hash_function on Wikipedia */
+int cboard_hash(key e)
+//@requires e != NULL && \hastag(cboard*, e);
+{
+  cboard* C = (cboard*) e;
+  int a1 = -361576843;           /* odd random number */
+  int b1 = 32;                   /* = 1086498128 >> 25 */
+  int a2 = 956250223;            /* odd random number */
+  int b2 = 42;                   /* = 1421347586 >> 25 */
+  int h1 = (C->i1*a1+b1)>>7;     /* assume M <= 25, w = 32, w-M = 7 */
+  int h2 = (C->i2*a2+b2)>>7;     /* take high order bits */
+  return h1+h2;
+}
+
+bool cboard_eq(key e1, key e2)
+//@requires e1 != NULL && \hastag(cboard*, e1);
+//@requires e2 != NULL && \hastag(cboard*, e2);
+{
+  cboard* C1 = (cboard*)e1;
+  cboard* C2 = (cboard*)e2;
+  return C1->i1 == C2->i1 && C1->i2 == C2->i2;
+}
+
+key cboard_key(entry e)
+//@requires e != NULL && \hastag(cboard*, e);
+//@ensures \result != NULL && \hastag(cboard*, \result);
+{
+  return e;
+}
+
+
+int solve_peg(board B, stack_t Sol, int pegs, hdict_t H)
+//@requires is_board(B) && num_pegs(B) == pegs;
+//@ensures is_board(B) && num_pegs(B) == pegs;
+{
+  cboard* C = compress(B);
+  C->min_pegs = pegs;
+
+  cboard* C_memo = (cboard*)hdict_lookup(H, (void*)C);
+  if (C_memo != NULL) return C_memo->min_pegs;
+
+  stack_t M = stack_new();
+  all_moves(B, M);
+  while (!stack_empty(M)) {
+    move m = (move)pop(M);
+    make_move(B, m);
+    int min_pegs = solve_peg(B, Sol, pegs-1, H);
+    if (min_pegs < C->min_pegs) C->min_pegs = min_pegs;
+
+    if (C->min_pegs == 1) {
+      /* found solution, return */
+      push(Sol, (void*)m); /* add move to solution */
+      undo_move(B, m);     /* not strictly necessary */
+      return C->min_pegs;  /* tried all moves */
+    }
+
+    //@assert 1 < C->min_pegs && C->min_pegs <= min_pegs && min_pegs < pegs;
+    /* no solution: backtrack */
+    undo_move(B, m);
+  }
+
+  hdict_insert(H, (void*)C); /* remember final position */
+  return C->min_pegs;     /* tried all moves */
+}
+
+int solve(board B, stack_t Sol)
+//@requires is_board(B);
+//@requires stack_empty(Sol);
+//@ensures is_board(B);
+{
+  /* initially empty hash table, small (1024) */
+  // hdict_t H = hdict_new(1<<10, &cboard_key, &cboard_hash, &cboard_eq);
+  /* initially empty hash table, large (8388608) */
+  hdict_t H = hdict_new(1<<23, &cboard_key, &cboard_hash, &cboard_eq);
+  int n = num_pegs(B);
+  printint(n); print(" pegs\n");
+  return solve_peg(B, Sol, n, H);
+}

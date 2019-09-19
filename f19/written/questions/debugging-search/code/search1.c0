@@ -1,0 +1,25 @@
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A, 0, n);
+/*@ensures (\result == -1 && !is_in(x, A, 0, n))
+        || (0 <= \result && \result < n
+            && A[\result] == x
+            /* YOUR ANSWER FOR PART (4) OF THE PREVIOUS QUESTION*/); @*/
+{
+  int lo = 0;
+  int hi = n;
+  while (lo < hi)
+  //@loop_invariant 0 <= lo && lo <= hi && hi <= n;
+  //@loop_invariant gt_seg(x, A, 0, lo);
+  //@loop_invariant le_seg(x, A, hi, n);
+  {
+    if (A[lo] == x)
+      return lo;
+    if (A[lo] > x)
+      return -1;
+    //@assert A[lo] < x;
+    lo = lo + 1;
+  }
+  //@assert lo == hi;
+  return -1;
+}

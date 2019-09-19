@@ -1,0 +1,62 @@
+#use <conio>
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = alloc(struct text_buffer);
+
+  //test for null fields
+  B->start = NULL;
+  B->point = NULL;
+  B->end = NULL;
+
+  if(!(is_linked(B) == false)){
+    passed = false;
+    // error("accepted null fields in tbuf");
+  }
+
+  //test for unlinked fields
+  B->start = alloc(struct list_node);
+  B->point = alloc(struct list_node);
+  B->end = alloc(struct list_node);
+
+  if(!(is_linked(B) == false)){
+    passed = false;
+    // error("accepted null point in tbuf");
+  }
+
+  //test for bad linkage (1)
+  B->start->next = B->point;
+  B->point->next = B->end;
+  B->end->prev = B->start;
+  B->point->prev = B->start;
+
+  if(!(is_linked(B) == false)){
+    passed = false;
+    // error("accepted bad linkage (backwards)");
+  }
+
+  //test for bad linkage (2)
+  B->end->prev = B->point;
+  B->start->next = alloc(struct list_node);
+  B->start->next->prev = B->start;
+  B->point->prev = B->start->next;
+
+  if(!(is_linked(B) == false)){
+    passed = false;
+    // error("accepted bad linkage (forwards)");
+  }
+
+  //all fixed
+  B->start->next->next = B->point;
+
+  if(!(is_linked(B) == true)){
+    passed = false;
+    // error("failed to accept valid linkage");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

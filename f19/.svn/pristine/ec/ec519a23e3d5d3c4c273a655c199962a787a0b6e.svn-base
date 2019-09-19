@@ -1,0 +1,61 @@
+In lecture, we classified sorting algorithms based on whether they were <strong>fast or slow</strong> and based on whether they were processing the array <strong>in-place</strong> (i.e., they did not need to allocate a new array) or not.  Another useful property is whether they are <strong>stable</strong>.
+
+Stability makes sense when you are sorting not just a number but a <em>record</em> (e.g., your iTunes collection or student grades).  Let's take that as an example: say I have a spreadsheet with your Andrew IDs and your homework grades.  Most of the time it is sorted by Andrew ID (that makes entering grades faster), but after each hw is graded it is useful to sort it by grade to see who did well and who needs help.  When I do that, what happens to the Andrew IDs?
+<ol>
+TITLE: Stable Sorting
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+<li>They can remain in the same order for each grade (e.g., the Andrew IDs of everybody who got 10 are still in order).</li>
+<li>They end up in shuffled, thereby losing the order.</li>
+</ol>
+A sorting algorithm that guarantees (1) is stable: entries with the same sorting value remain sorted.  How do the sorting algorithms we examined fare?  Here's a summary:
+
+<table cellspacing="0" cellpadding="6px" border="1">
+<tbody>
+<tr>
+<td></td>
+<td><strong>Fast?</strong></td>
+<td><strong>In-place?</strong></td>
+<td><strong>Stable?</strong></td>
+</tr>
+<tr>
+<td><strong>Selection sort</strong></td>
+<td style="text-align: center;">NO!</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">
+NO!
+</td>
+</tr>
+<tr>
+<td><strong>Insertion Sort</strong></td>
+<td style="text-align: center;">NO!</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">
+Yes
+</td>
+</tr>
+<tr>
+<td>
+<strong>Merge sort</strong>
+</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">NO!</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td><strong>Quick sort</strong></td>
+<td style="text-align: center;"><em>Mostly</em></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">NO!</td>
+</tr>
+</tbody>
+</table>
+
+Challenge questions:
+<ul>
+<li>Why is selection sort not stable? How could we change it to make it stable, and how would that change affect its complexity?</li>
+<li>What needs to be guaranteed for mergesort to be stable?</li>
+<li>Why is quicksort not stable?</li>
+</ul>

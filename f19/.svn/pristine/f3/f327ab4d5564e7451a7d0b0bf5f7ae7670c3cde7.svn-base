@@ -1,0 +1,53 @@
+\clearpage
+\Question{C Program Behavior}\TAGS{c-array, c-memory, preprocessor, undefined-behavior}
+
+Each of the following snippets of C code contains one or more
+errors. \emph{Briefly} explain what is conceptually wrong with each
+example. No credit will be given if you simply copy error messages
+from the compiler, the runtime system, or \lstinline'valgrind'. Of
+course you are encouraged to use these tools to help you understand
+the problems.
+
+\RUBRIC
+1 point each, all or nothing. Give credit for an answer that reflects
+understanding, even if malformed. No credit for copying error messages
+or "the program displays the wrong answer".
+
+TAGS: c-array, c-memory, preprocessor, undefined-behavior
+ENDRUBRIC
+
+\begin{parts}
+\newcommand{\ans}[2][1in]{%
+  \ifprintanswers{%
+  \parbox{0.99\linewidth}{\color{\answerColor}#2}}
+  \else~\vspace{#1}\fi%
+}
+
+%\input{DIV} % S19 S18 S17 S16
+%\input{alloc-size} % S19 S18 S17 S16
+
+%\newpage
+%\input{strcpy} % F18 F17 F16
+\input{MULT}   % F19 F18 F17 F16
+
+%\newpage
+\input{string-const} % F19 F18 S17 S16
+%\input{array-elem-free} % F18 S17 S16
+
+%\newpage
+%\input{uninit} % S19 S18 S17 S16
+%\input{free-deref} % S19 S18 S17 S16
+
+\newpage
+\input{double-free} % F19 F18 F17 F16
+\input{free-pointer} % F19 F18 F17 F16
+
+\newpage
+%\input{semicolon} % F17
+\input{overflow} % F19 S19 S18 F16
+
+%\newpage
+%\input{assign1} % S19 F17
+\input{assign2} % F19 S18 F16
+
+\end{parts}

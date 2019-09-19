@@ -1,0 +1,7 @@
+#use <conio>
+
+int main() {
+  println(greet(salute(3), "unknown person"));
+  println(greet(salute(3), who_we_shall_greet()));
+  return 0;
+}

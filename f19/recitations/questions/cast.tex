@@ -1,0 +1,41 @@
+\section*{Casting%
+\TAGS{c-memory, c-numbers, casting}}
+
+C introduces many different types to represent integer
+values. Sometimes, if we really know what we are doing, we may want or
+need to convert between these types. We can do so by \emph{casting}.
+\begin{enumerate}
+\parsep=0pt
+\vspace{-1ex}%
+\item%
+  Casting from small signed to large signed: the value is
+  sign-extended with the sign bit (most significant bit) but remains
+  unchanged.
+\item%
+  Casting from small unsigned to large unsigned: the value is padded
+  with leading zeroes but remains unchanged.
+\item%
+  Casting from signed to unsigned of the same size: the value in the
+  new type is equal to that in the old type, modulo
+  \lstinline'INT_MAX' for the new type. In other words, the bit
+  pattern does not change, but if the original value was negative,
+  then the value will change.
+\item%
+  Casting from unsigned to signed of the same size: if the unsigned
+  value is expressible in the signed type, then that is the new value
+  and neither the bit pattern nor the value changes. Otherwise this is
+  implementation-defined.
+\end{enumerate}
+
+\vspace{-1ex}%
+\enlargethispage{3ex}%
+Casts between pointers and integers, or casts between large integer
+types to small integer types are both implementation-defined.
+Additionally, we don't require you to know what happens when casting
+directly from small to large between signed and unsigned.\footnote{It
+  is either implementation defined,
+  or confusing. See section 6.3.1.3 of the C99 standard at\\
+  \url{http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf}.}
+
+The general rule of thumb is that value is preserved whenever
+possible, and the bit pattern is preserved otherwise.

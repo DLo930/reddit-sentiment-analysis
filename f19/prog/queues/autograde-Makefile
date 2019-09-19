@@ -1,0 +1,41 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+
+CC0=cc0
+CC0D=cc0 -d
+CC=gcc -Wall -Wextra -Werror -Wshadow -std=c99 -pedantic -g
+CCD=gcc -Wall -Wextra -Werror -Wshadow -std=c99 -pedantic -g -DDEBUG
+
+default:
+	@$(MAKE) extract -s
+	@$(MAKE) compile -is
+	@$(MAKE) grade -s
+
+.PHONY: extract compile grade
+extract:
+	date
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar
+	tar -mkxzvf handin.tgz
+	echo ""
+
+compile:
+	date
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(CC0D) -o is_queue-d queue.c1 gradeutil.c1 grade-is_queue.c1
+	$(CC0D) -o constant-d queue.c1 gradeutil.c1 grade-constant.c1
+	$(CC0D) -o linear-d   queue.c1 gradeutil.c1 grade-linear.c1
+	$(CC0D) -o generic-d  queue.c1 gradeutil.c1 grade-generic.c1
+	$(CC0D) -o use-d      queue-alt.c1 queue-use.c1 grade-use.c1
+	$(CC)   -o ctest      lib/*.c queue.c grade-queue.c c0main.c
+	$(CCD)  -o ctest-d    lib/*.c queue.c grade-queue.c c0main.c
+	$(CC)   -o cfree      lib/*.c queue.c grade-free.c c0main.c
+	$(CCD)  -o cfree-d    lib/*.c queue.c grade-free.c c0main.c
+	echo ""
+
+grade:
+	date
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

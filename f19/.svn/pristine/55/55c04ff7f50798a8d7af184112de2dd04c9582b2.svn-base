@@ -1,0 +1,14 @@
+
+int main()
+{
+	get_red(0);
+	get_green(0);
+	get_blue(0);
+	get_alpha(0);
+	make_pixel(0, 0, 0, 0);
+	get_row(0,0,0);
+	get_column(0, 0, 0);
+	is_valid_pixel(0, 0, 0, 0);
+	get_index(0, 0, 0, 0);
+	return 0;
+}

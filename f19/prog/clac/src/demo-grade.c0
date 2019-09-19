@@ -1,0 +1,48 @@
+/*
+ * Clac
+ * Tester for the demo version of Clac
+ *
+ * 15-122 Principles of Imperative Computation, Fall 2012
+ * Frank Pfenning
+ */
+
+#use <string>
+#use <parse>
+#use <conio>
+
+#use "lib/queues_string.c0"
+#use "lib/stacks_int.c0"
+#use "lib/tokenize.c0"
+
+int test(queue Q, stack S) {
+  bool cont = eval(Q, S);
+  if (cont && !queue_empty(Q)) {
+    error("Failure: queue not empty when 'eval' returned");
+  }
+  if (stack_empty(S)) {
+    error("Failure: stack was empty when 'eval' returned");
+  }
+  int result = pop(S);
+  if (!stack_empty(S)) {
+    error("Failure: stack had more than one value when 'eval' returned");
+  }
+  return result;
+}
+
+int main() {
+  /* pass file names on command line, no flags */
+  /* these will be processed in order */
+  args_t args = args_parse();
+  int argc = args->argc;
+
+  queue Q = queue_new();
+  for (int i = 0; i < argc; i++)
+    //@loop_invariant 0 <= i;
+    {
+      string filename = args->argv[i];
+      print("Loading file "); print(filename); print("\n");
+      input_file(args->argv[i], Q);
+    }
+  stack S = stack_new();
+  return test(Q, S);
+}

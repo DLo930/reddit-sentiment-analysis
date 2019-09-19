@@ -1,0 +1,204 @@
+LAST 2: linear search, cost
+TODAY:
+- binary search
+- divide (and conquer)
+- contract-based coding (AKA deliberate programming)
+- logarithmic advantage
+NEXT: faster sorting
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] binary search idea and examples
+[5] deliberate programming
+[5] loop invariants from visual intuition
+[4] proving correctness (EXIT) from loop invariants alone
+[4] requirements for the midpoint
+[5] loop body
+[4] preservation and termination
+[3] midpoint calculation
+[5] complexity of binary search
+[3] visual understanding of log n
+
+Review
+======
+- linear search:
+  . use of contracts to develop code
+  . O(n) -- even if array is sorted
+    . can we do better?
+
+Concept of binary search (use prop like sorted numbers or phone book)
+========================
+- linear search goes through [prop] element by element
+  . visits all elements in worst case -- O(n)
+- can we do better knowing that [prop] is sorted (in ascending order)?
+  . look in middle
+  . compare with element we are searching (x)
+  . throw away the part it cannot be in
+  . repeat
+- demonstrate on [prop]
+  . have student choose an element and another student count the steps
+  . role play the algorithm (making it dramatic)
+  . from number of steps, derive O(log n)
+- why is it so fast?
+  . at each step, we throw out half the [prop]
+  . DIVIDE AND CONQUER (not much conquering here)
+  . what if we try to be smart and guess on what side x is
+    . if we are lucky, faster
+    . but we could be unlucky and end up being slower
+    . looking in middle maximizes throwing-away potential
+
+Preparing for binary search
+===========================
+- seems simple, we should have no difficulty developing it
+- cautionary tale:
+  . Jon Bentley finds that most programmers can't get binary search right
+    https://reprog.wordpress.com/2010/04/19/are-you-one-of-the-10-percent
+  . Joshua Bloch finds bug in binary search that Jon Bentley proved correct
+    http://googleresearch.blogspot.com/2006/06/extra-extra-read-all-about-it-nearly.html
+  . using contracts, KeY team finds bug in Joshua Bloch's sorting code for Android
+    http://www.envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
+- we need to be careful!
+
+Developing binary search
+========================
+- go through small example to develop an intuition,
+  A[0,7): [2, 3, 5, 7, 11, 13, 17] looking for 4
+  . find midpoint (A[3] = 7): everything to the right is too big
+  . throw away [11 ... 17] -- too big
+    throw away 7 too: already looked there and was too big
+    left with A[0,3) = [2, 3, 5]
+  . find midpoint (A[1] = 3): it and everything left too small, look at with A[2,3) = [5]
+  . find midpoint (A[2] = 5): it and everything right too big, look at A[2,2) = []
+  . [] is empty: won't be there
+- quickly go through second example if needed, e.g., x = 12
+- point out that we don't have to pick the midpoint
+  . any index not thrown out yet would do
+    . e.g., leftmost, but that's just linear search!
+    . midpoint is most advantageous
+- move to abstract view and develop invariants
+
+     0            lo          hi             n
+    -----------------------------------------
+  A |            |           |              |
+    -----------------------------------------
+     A[0,lo) < x               x < A[hi,n)
+
+  . segment we are still considering is [lo,hi)
+    . [0,lo) too small => A[0,lo) < x
+    . [hi,n) too big   => x < A[hi,n)
+    . and of course 0 <= lo <= hi <= n = \length(A)
+
+Starting to write code
+======================
+- What are our contracts?  Same a linear search
+- Show skeleton without loop body
+    1. int search(int x, int[] A, int n)
+    2. //@requires n == \length(A);
+    3. //@requires is_sorted(A, 0, n);
+    4. /*@ensures (\result == -1 && !is_in(x, A, 0, n))
+    5.         || (0 <= \result && \result < n && A[\result] == x); @*/
+    6. {
+    7.   int lo = 0;
+    8.   int hi = n;
+    9.
+   10.   while (lo < hi)
+   11.   //@loop_invariant 0 <= lo && lo <= hi && hi <= n;
+   12.   //@loop_invariant ... A[0,lo) < x ...
+   13.   //@loop_invariant ... x < A[hi,n) ...
+   14.   {
+         }
+         return -1;
+       }
+- enter the actual loop invariants
+   12.   //@loop_invariant gt_seg(x, A,0,lo);  // implies !is_in(x, A,0,lo)
+   13.   //@loop_invariant lt_seg(x, A,hi,n);  // implies !is_in(x, A,hi,n)
+- can we reason about this code?
+  . INIT:
+    . 0 <= lo   (by line 7)
+      lo <= hi  (by line 2 and \length(...) >= 0)
+      hi <= n   (by line 8)
+    . A[0,0) < x vacuously
+    . x < A[n,n) vacuously
+  . PRES: nothing happens, so LI are vacuously preserved!
+  . EXIT:
+    lo == hi          (by lines 10, 11)
+    gt_seg(x, A,0,lo) (by line 12), implies !is_in(x, A,0,lo)
+    lt_seg(x, A,lo,n) (by line 13), implies !is_in(x, A,lo,n)
+    so !is_in(x, A,0,n)
+  . TERM: variables in loop guard never modified, so infinite loop
+
+Filling in the loop
+===================
+- find the midpoint
+   15.      int mid = ... midpoint value ...
+  [If possible, postpone writing something concrete]
+- fill in code acted out earlier
+   17.      if (A[mid] == x) return mid;
+   18.      if (A[mid] < x) {
+   19.        lo = mid+1;
+   20.      } else { //@assert A[mid] > x;
+   21.         hi = mid;
+   22.      }
+- how do we know A[mid] is safe?
+  16.       //@assert lo <= mid && mid < hi
+  proof obligation of our midpoint computation
+  note that it doesn't force us to pick the midpoint:
+  . mid = lo would work -- that's linear search!
+- are LI preserved?
+  LI1:
+  . if A[mid] == x: we don't care
+  . if A[mid] < x:
+    * lo' = mid+1  (line 19)
+      mid+1 <= hi  (mid < hi on line 16)
+      0 <= mid+1   (no overflow)
+      0 <= lo'     (by the above)
+    * lo' <= hi    (just proved)
+    * hi <= n      (hi unchanged)
+  . if A[mid] > x:
+    * 0 <= lo      (lo unchanged)
+    * hi' = mid    (line 21)
+      lo <= mid    (line 16a)
+    * mid <= n     (lines 21, 16b and 11)
+  LI2:
+  . if A[mid] < x:
+    A[lo, mid+1) < x (lines 3 and 18)
+    A[0, mid+1) < x  (line 12 and last)
+  . if A[mid] > x: lo doesn't change
+  LI3: similar
+- is postcondition satisfied on line 17?
+  Yes, just like for linear search
+- does it terminate?
+  . check that hi - lo get smaller and cannot go below 0
+  . if A[mid] < x: (argue informally)
+    hi' - lo' =  hi - (mid + 1)  (by line 19)
+              <  hi - mid        (by math)
+              <= hi - lo         (by line 16a)
+  . if A[mid] > x: (argue informally)
+    hi' - lo' = mid - lo         (by line 21)
+              < hi - lo          (by line 16b)
+  . note that lo = mid on l.19 yields non-termination!
+
+Calculating the midpoint
+========================
+- (hi + lo) / 2
+  . does it satisfy constraints?
+  . possibility of overflow!  coin demo (e.g., int_max() + 5)/2)
+  . this is Jon Bentley's bug!
+    . Google was first company dealing with arrays big enough to produce overflow
+- fix?
+  . lo/2 + hi/2 is fine, but has rounding errors: not always right in the middle
+  . lo + (hi - lo)/2 works
+    . always equal to mathematical value of (lo+hi)/2
+    . no rounding errors
+    . prove by cases: (lo = 2n or 2n+1 AND hi = 2m or 2m+1) -- 4 cases
+
+Complexity of binary search
+===========================
+- count array access or comparisons
+- worst case O(log n)
+- best case O(1)
+
+
+What does log n mean in practice? (slides)
+=================================
+- to visualize, use https://www.desmos.com/calculator

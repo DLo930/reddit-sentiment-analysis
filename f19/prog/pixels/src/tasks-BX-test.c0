@@ -1,0 +1,16 @@
+/* Testing */
+
+// This file implements part of a future variant -- DO NOT USE
+
+#use <conio>
+
+int main() {
+  test_remove_blue();
+
+  test_quantize();
+
+  // Add tests for future exercise about multiple returned values
+
+  println("All tests passed!");
+  return 0;
+}

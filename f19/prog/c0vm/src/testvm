@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]
+then
+  echo "Error: Invalid number of inputs."
+  echo "Usage: ./testvm path/to/test.c0"
+  echo "Example: ./testvm tests/iadd.c0"
+  exit 1
+fi
+
+if [ `echo $1 | awk -F . '{print $NF}'` != "c0" ]
+then
+  echo "Error: Input must be a .c0 file."
+  exit 1
+fi
+
+if [ ! -f $1 ]
+then
+  echo "Error: Input .c0 file does not exist."
+  exit 1
+fi
+
+DIR=`pwd`
+cd `dirname $1`
+NAME=`basename $1`
+cc0 ${NAME} -o ${NAME}.ex
+cc0 -b ${NAME} -o ${NAME}.bc0
+./${NAME}.ex > ${NAME}.c0out
+${DIR}/c0vm ${NAME}.bc0 > ${NAME}.bc0out
+diff -q -s ${NAME}.c0out ${NAME}.bc0out

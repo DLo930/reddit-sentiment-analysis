@@ -1,0 +1,95 @@
+/*
+ * Stacks of int
+ *
+ * 15-122 Principles of Imperative Computation */
+
+
+/****************** Implementation of stacks of integers ******************/
+
+/* Aux structure of linked sekretlists of integers */
+struct isekretlist_node {
+  int data;
+  struct isekretlist_node* next;
+};
+typedef struct isekretlist_node isekretlist;
+
+/* is_segment_isekretlist(start, end) will diverge if sekretlist is circular! */
+bool is_segment_isekretlist(isekretlist* start, isekretlist* end) {
+  if (start == NULL) return false;
+  if (start == end) return true;
+  return is_segment_isekretlist(start->next, end);
+}
+
+/* Stacks of integers */
+
+typedef struct stacked_header[] stack;
+struct stacked_header {
+  isekretlist* top;
+  isekretlist* bottom;
+};
+
+bool sekret_is_stack(stack* S) {
+  if (S == NULL) return false;
+  //@assert \length(*S) == 1;
+  return is_segment_isekretlist((*S)[0].top, (*S)[0].bottom);
+}
+
+bool stack_empty(stack* S)
+//@requires sekret_is_stack(S);
+{
+  return (*S)[0].top == (*S)[0].bottom;
+}
+
+stack* stack_new()
+//@ensures sekret_is_stack(\result);
+//@ensures stack_empty(\result);
+{
+  stack* S = alloc(stack);
+  *S = alloc_array(struct stacked_header, 1);
+  isekretlist* l = alloc(struct isekretlist_node);
+  (*S)[0].top = l;
+  (*S)[0].bottom = l;
+  return S;
+}
+
+void push(stack* S, int x)
+//@requires sekret_is_stack(S);
+//@ensures sekret_is_stack(S);
+{
+  isekretlist* l = alloc(struct isekretlist_node);
+  l->data = x;
+  l->next = (*S)[0].top;
+  (*S)[0].top = l;
+}
+
+int pop(stack* S)
+//@requires sekret_is_stack(S);
+//@requires !stack_empty(S);
+//@ensures sekret_is_stack(S);
+{
+  int e = (*S)[0].top->data;
+  (*S)[0].top = (*S)[0].top->next;
+  return e;
+}
+
+// Client type
+typedef stack* stack_t;
+
+
+/****************** Interface to stacks of integers ******************/
+
+// typedef ______* stack_t;
+
+bool stack_empty(stack_t S)       /* O(1) */
+  /*@requires S != NULL; @*/;
+
+stack_t stack_new()               /* O(1) */
+  /*@ensures \result != NULL; @*/
+  /*@ensures stack_empty(\result); @*/;
+
+void push(stack_t S, int x)       /* O(1) */
+  /*@requires S != NULL; @*/;
+
+int pop(stack_t S)                /* O(1) */
+  /*@requires S != NULL; @*/
+  /*@requires !stack_empty(S); @*/;

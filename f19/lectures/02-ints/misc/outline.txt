@@ -1,0 +1,226 @@
+LAST: proving the correctness of a function with one loop
+TODAY: int's
+- Number representations (conversion, operations, hex)
+- Fixed-size number representation (modular arithmetic, laws, negative numbers)
+- Rendering numbers (two's complement, laws that break)
+- Bit patterns (bitwise ops, shifts)
+NEXT: arrays
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[4] number representation: decimal, binary, hex
+[5] fixed-size number representation
+[5] modular arithmetic
+[5] two's complement
+[4] reasoning about numerical code
+[3] division and modulus
+[5] safety requirements for division and modulus
+[5] encoding data as bit patterns
+[5] bitwise operations as bit pattern manipulations
+[4] safety requirement for shifts
+
+Review
+======
+- contracts to reason about code
+  . safety: preconditions of functions you call are met
+  . correctness: postconditions of function you write are met when preconditions hold
+- function contracts (pre/postconditions)
+  . summarize function
+- loop invariants
+  . summarize what loop does
+- reasoning about code
+  . point-to reasoning (= by line ...)
+  . by math (<= today's topic)
+    . what was this "math" exactly?
+      . laws of arithmetic: associativity, commutativity, ...
+      . is that allowed?
+      . alway?
+
+Number Representations (make it quick):
+======================
+- people and computers understand different number representations:
+  . people: decimal, strings, roman numerals, binary, hexadecimal, ...
+  . computers: ONLY binary
+- decimal: 10 digits, positional, we have 10 digits
+    1 5 1 2 2  (base 10) = 1*10^4 + 5*10^3 + 1*10^2 + 2*10^1 + 2*10^0
+    [or use slide]
+- binary: 2 digits (0, 1), positional, chips have 2 voltages
+    1 0 1 0 0 0  (base 2) = 1*2^5 + 0*2^4 + 1*2^3 + 0*2^2 + 0*2^1 + 0*2^0
+    [or use slide]
+    [more conversions done in lab]
+- hexadecimal: 16 digits, positional, 1 hex digit = 4 binary digits,
+  more readable, used for addresses (next time) and bit patterns (later)
+    [use slide]
+    1100 0000 1111 1111 1110 1110
+       C    0    F    F    E    E
+- coin sessions:
+  . basic session (coin)
+    --> 0xC0FFEE;
+    12648430 (int)
+    --> 0xC0FFEE == 12648430
+    true (bool)
+  . utility library (coin -l util)
+    --> int2hex(0xC0FFEE);
+    "00C0FFEE" (string)
+    --> int2hex(12648430);
+    "00C0FFEE" (string)
+- operations [+ and * only, use slide]: work like for decimal
+
+Fixed-size Number Representation
+================================
+- fixed number of bits (word, efficient manipulations using parallel circuitry)
+  . 32 bits in C0
+- arithmetic overflow:
+  . signal error/raise exception: makes reasoning difficult
+    . basic laws don't hold: (n+n)-n may overflow but n+(n-n) won't, bugs likely
+    [slide]
+  . discard overflow bits (= modular arithmetic): reasoning works like for usual numbers
+    [slides]
+    . number line -> number circle
+    . addition = moving clockwise
+    . operations modulo
+    . recall laws of arithmetic
+      x + y = y + x		   -- commutativity of addition
+      (x + y) + z = x + (y + z)	   -- associativity of addition
+      x + 0 = x			   -- additive unit
+      x * y = y * x		   -- commutativity of multiplication
+      (x * y) * z = x * (y * z)	   -- associativity of multiplication
+      x * 1 = x			   -- multiplicative unit
+      x * (y + z) = x * y + x * z  -- distributivity
+      x * 0 = 0			   -- annihilation
+    . show example program [slide]
+- negative numbers:
+  . number circle subsumes negative numbers too
+  . subtraction = moving counterclockwise
+  . additive inverse: -x = 0 - x
+  . laws of rings involving additive inverse
+      x + (-x) = 0	-- additive inverse
+      -(-x) = x		-- cancellation
+
+Two's Complement
+================
+- modular arithmetic tells us how to go from a number to its fixed k-bit representation
+  . given the fixed k-bit representation, which of the many numbers that mod to it should we get back?
+- how should the computer PRINT a word?
+  . unsigned numbers (not in C0)
+  . half positive, half negative, using most significant bit for sign
+- useful bit patterns:
+  . -1:      111...111
+  . INT_MIN: 100...000
+  . INT_MAX: 011...111
+- once we fix this, we can reason about ordering (<, <=, ...) and sign
+- reasoning about order/sign breaks [example on slide]
+  . x < x+1
+    . always true in math
+    . false in C0 when x = INT_MAX
+      . because INT_MAX + 1 = INT_MIN
+
+Division and Modulus
+====================
+- orthogonal to modular arithmetic
+  . in calculus, x/y = z if z*y = x
+  . but there is no int z (=3/2) such that z*2 = 3
+- we need another operation to bridge the gap
+  . specs:
+     1. (x/y)*y + (x%y) = x
+     2. 0 <= |x%y| < |y|
+     3. x/y rounds down for positive x and y
+  . not uniquely determined for negatives:
+    . can round towards 0 (C0)
+    . or towards -\infinity (Python)
+   [Go on details only if time, unlikely]
+- safety requirements for division and modulus (x/y, x%y):
+  //@requires y != 0;
+  //@requires !(x == int_min() && y == -1)
+  C0 aborts execution -- arithmetic errors
+
+[break]
+
+Bit Patterns
+============
+32 bits can be used to represent data other than integers [ARGB example, slide]
+- provide dedicated type (not C0)
+- use int but provide dedicated operations (C0, C, ...)
+  . show actual pixel, e.g., 0xB3735AF9 -- stress ease of using hex
+        1011 0011 0111 0011 0101 1010 1111 1001
+           B    3    7    3    5    A    F    9
+  . typedef int pixel; as preview
+- Bit-level operations: negation, and, or, xor
+    & | 0 | 1      | | 0 | 1      ^ | 0 | 1      ~ |
+   -----------    -----------    -----------    -------
+    0 | 0 | 0      0 | 0 | 1      0 | 0 | 1      0 | 1
+   -----------    -----------    -----------    -------
+    1 | 0 | 1      1 | 1 | 1      1 | 1 | 0      1 | 0
+- Bitwise operations stretch them to an entire word, bit by bit
+  . & and | are related to && and || -- do not confuse them
+Bitwise and:
+- clear bits [e.g., clear red]
+     int clear_red(int p) {
+       return p & 0xFF00FFFF;
+     }
+- masking [e.g., isolate red]
+     int red = p & 0x00FF0000;
+Bitwise or:
+- set bits [e.g., opacify]
+     int opacify(int p) {
+       return p | 0xFF000000;
+     }
+- combine parts
+  . show (from code file):
+      int franken_pixel(int p, int q) {
+        int p_green  = 0x0000FF00 & p;
+        int q_others = 0xFFFF00FF & q;
+        return p_green | q_others;
+      }
+    and ask what it does [return green from p and other channels from q]
+Bitwise not:
+- toggle bits
+Bitwise xor:
+- encryption [mention only unless there is time]
+Do not mix and match bitwise and arithmetic operations!
+- Exception: efficient computation of additive inverse:
+  -x = ~x + 1  [sometimes use as the definition of two's complement]
+Left shift:
+- do small examples
+  . 0101 << 1 == 1010
+  . 0101 << 3 == 1000
+- moving computed values for channels to the right position
+    int blue_everywhere(int p) {
+      int alpha = p & 0xFF000000;
+      int blue  = p & 0x000000FF;
+      return alpha | (blue << 16) | (blue << 8) | blue;
+    }
+- x << k = x * 2^k [quick mention unless there is time]
+Right shift
+- do small examples
+  . 0101 >> 1 == 0010
+  . 0101 >> 2 == 0001
+  . 1010 >> 1 == 1101    <= sign extension!
+  . 1010 >> 3 == 1111    <= sign extension!
+- moving isolated channels to rightmost position for computing with them
+    int red_everywhere(int p) {
+      int alpha = p & 0xFF000000;
+      int red   = p & 0x00FF0000;
+      return alpha | red | (red >> 8) | (red >> 16);
+    }
+- x >> k = x /?/ 2^k (quotient, not division)
+- sign extension [swap alpha and red channels]
+  . first attempt: [probably no time to go through this example]
+    int swap_alpha_red(int p) {
+      int new_alpha = (p & 0x00FF0000) << 8;
+      int new_red   = (p & 0xFF000000) >> 8;  // WRONG
+      int old_green = p & 0x0000FF00;
+      int old_blue  = p & 0x000000FF;
+      return new_alpha | new_red | old_green | old_blue;
+    }
+  . doesn't work if leftmost bit of alpha is 1 -- get fully opaque pixel
+    int swap_alpha_red(int p) {  // fixed
+      int new_alpha = (p << 8) & 00FF000000;  // original worked too
+      int new_red   = (p >> 8) & 0x00FF0000;  // RIGHT
+      int old_green = p & 0x0000FF00;
+      int old_blue  = p & 0x000000FF;
+      return new_alpha | new_red | old_green | old_blue;
+    }
+
+Safety requirements for both shifts
+  //@requires 0 <= k && k < 32

@@ -1,0 +1,60 @@
+\section*{Timing code}
+
+In Unix, there is a way to determine the actual running time of a
+program.  You use the \lstinline'time' command followed by the program
+name (and its arguments) that you want to time.  For example, to time
+an executable \lstinline'a.out' in your current directory, you would
+enter:
+
+\begin{lstlisting}[language={[coin]C}]
+% time ./a.out
+Testing with n = 1000... Done. 0
+4.602u 0.015s 0:04.63 99.5% 0+0k 0+0io 0pf+0w
+\end{lstlisting}
+The first number (the one with a \lstinline'u' after it) is the best
+one to track for this activity. The ``u'' is for \emph{user}, which is
+closer to what we want than the system time (the amount of time the
+program handed control over to the operating system) or the wall clock
+time.
+
+\begin{part}\TAGS{complexity, testing}
+  In the lab directory, run the following commands:
+
+\begin{lstlisting}[language={[coin]C}]
+% make LFtest
+% make memotest
+\end{lstlisting}
+
+This will create two programs, \lstinline'LFtest' and
+\lstinline'memotest' that take an argument \lstinline'n', and print
+the result of lagged fibonacci performed on the arguments
+\lstinline'(n, 1, 2)' --- these are actually just the regular Fibonacci
+numbers!  You can use these to time both the specification function
+and your new function. For example, to time the LF specification
+function using input 10, you would enter:
+
+\begin{lstlisting}[language={[coin]C}]
+% time ./LFtest 10
+\end{lstlisting}
+
+Your job is to determine the asymptotic complexity (runtime) of each
+program expressed using big-O notation as a function of $n$, in its
+simplest, tightest form.
+\end{part}
+
+You can determine the complexity of a program by running it for
+varying values of $n$ and then plotting your results (or looking for
+obvious patterns).
+
+Keep in mind that the specification function should have a
+\emph{significantly} worse asymptotic complexity than your
+\lstinline'fast_LF' implementation.
+
+\threePT
+
+\begin{solution}\par
+\begin{minipage}{0.5\textwidth}
+  \lstinline'LFtest': exponential --- $O(2^n)$
+\\\lstinline'memotest': linear --- $O(n)$
+\end{minipage}
+\end{solution}

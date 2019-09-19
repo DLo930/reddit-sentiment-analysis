@@ -1,0 +1,16 @@
+---
+general:
+  name: lab08
+  description: ''
+  display_name: 'Lab 8: Hash this!'
+  handin_filename: handin.c
+  handin_directory: handin
+  max_grace_days: 0
+  handout: ''
+  writeup: lab08.pdf
+  max_submissions: -1
+  disable_handins: true
+  max_size: 2
+  has_svn: false
+  category_name: Labs
+problems: []

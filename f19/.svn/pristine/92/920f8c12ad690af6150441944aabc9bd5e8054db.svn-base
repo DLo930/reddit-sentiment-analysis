@@ -1,0 +1,125 @@
+\clearpage
+\Question{Queues with Stacks}
+
+Famous Fred Hacker's friend, Ned Stacker, loves stacks. He loves them
+so much that he implemented a queue using two stacks in the following
+way:
+\begin{itemize}
+\item A Staqueue has an ``in'' and an ``out'' stack.
+\item To enqueue an element, the element is pushed on the ``in'' stack.
+\item To dequeue an element, there are two cases:
+  \begin{itemize}
+  \item If the ``out'' stack is non-empty, then we simply pop from the
+    ``out'' stack.
+  \item Otherwise, we reverse the ``in'' stack onto the ``out'' stack
+    by sequentially popping elements from the ``in'' stack and pushing
+    them onto the ``out'' stack. We then pop from the ``out'' stack.
+  \end{itemize}
+\end{itemize}
+
+A token can pay for the $O(1)$ cost of a stack push or pop; your
+answers should be in terms of tokens (not in Big-O notation).
+
+\begin{parts}
+\part[1]\TAGS{complexity, stack}
+Fred Hacker says that Ned's implementation is too slow.  What is the
+\emph{worst case} cost for dequeuing an element in terms of the number
+of elements in the staqueue, $n$?
+\begin{framed}
+\bigskip
+\answer{34em}{$2n$}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: complexity, stack
+
+Gradescope rubric: TODO
+
+Commentary:
+- Full point for 2n, 2n+1, or 2n-1; or for n or n+1
+
+- If they say 2n+x, their amortized cost should be 3 in part (d). If
+  they say n+x, their amortized cost should be 2
+ENDRUBRIC
+
+
+\part[2]\TAGS{amortized-cost}
+Cheer up Ned by giving and justifying the amortized cost for the queue
+operations (enqueue and dequeue). You'll need to show that it is
+possible to account for the eventual cost of a dequeue by paying some
+of that cost each time you enqueue. (It may help to consider $n$ calls
+to dequeue in a staqueue with $n$ elements.)
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+Maintain a collection of tokens
+on stack1.  In fact, keep 2 tokens for each thing in the
+stack.
+
+When we ENQUEUE, we have three tokens to work with.  We use
+one to push the element onto stack1, and the other two are
+put on the element for future use.  When we have to move
+stack1 into stack2, we have enough tokens in the stack to
+pay for the move (one POP and one PUSH for each element).
+Finally, the last pop done by the DEQUEUE is paid for by the
+1 we allocated for it.
+}\else~\vspace{2.8in}\fi
+\end{framed}
+
+\RUBRIC
+Part (d)
+TAGS: amortized-cost
+
+Gradescope rubric: TODO
+
+Commentary:
+- Amortized constant cost. We will always have performed at least as
+  many enqueue operations as dequeue operations, otherwise the queue
+  would underflow. If each enqueue deposits an extra token, then there
+  will always be enough tokens to flip the in-stack, so dequeue doesn't
+  run out of coins. Hence each operation of the stack only needs a
+  constant amount of coins.
+
+Sleator's proofs:
+
+Proof 1 (aggregate method): As an element flows through the
+two-stack data structure, it's PUSHed at most twice and
+POPPed at most twice.  This shows that we can assign an
+amortized cost of 4 to ENQUEUE and 0 to DEQUEUE.
+
+To get the desired result, note that if an element is not
+DEQUEUED it's only PUSHED twice and POPPED once.  So the
+cost of 3 is paid for by the cost of 3 per ENQUEUE.  The
+last POP is paid for by the DEQUEUE (if it happens).
+
+Proof 2 (banker's method): Maintain a collection of tokens
+on stack1.  In fact, keep 2 tokens for each thing in the
+stack.
+
+When we ENQUEUE, we have three tokens to work with.  We use
+one to push the element onto stack1, and the other two are
+put on the element for future use.  When we have to move
+stack1 into stack2, we have enough tokens in the stack to
+pay for the move (one POP and one PUSH for each element).
+Finally, the last pop done by the DEQUEUE is paid for by the
+1 we allocated for it. QED.
+
+First point:
+1 point for correct amortized cost (see part (a); they could have a
+greater cost, provided it's still constant and they have an
+explanation). Their cost of enqueue can be 2 or 3, and their cost of
+dequeue can be 1 (or more) or 0, if they used the accounting method.
+
+0 points for Big-O notation.
+
+Second point:
+1 point for a proper explanation along one of the lines
+above. Students can get this point even if they had their answer in
+terms of Big-O. No points if they don't either (1) show a constant
+bound on pushes/pops per element, or (2) show the max cost of a
+dequeue is bounded by the number of elements on the in stack (previous
+enqueues) and paid for by their accrued ``tokens''.
+
+ENDRUBRIC
+
+\end{parts}

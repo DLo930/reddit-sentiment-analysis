@@ -1,0 +1,53 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 03             # string pool total size
+# string pool
+41 42 00  # "AB"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 01             # number of local variables = 1
+00 33             # code length = 51 bytes
+14 00 00 # aldc 0          # s[0] = "AB"
+B7 00 00 # invokenative 0  # string_to_chararray("AB")
+36 00    # vstore 0        # A = string_to_chararray("AB");
+15 00    # vload 0         # A
+10 00    # bipush 0        # 0
+63       # aadds           # &A[0]
+34       # cmload          # A[0]
+10 41    # bipush 65       # 'A'
+A0 00 06 # if_cmpne +6     # if (A[0] != 'A') goto <00:then>
+A7 00 09 # goto +9         # goto <01:else>
+# <00:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <02:endif>
+# <01:else>
+# <02:endif>
+15 00    # vload 0         # A
+10 01    # bipush 1        # 1
+63       # aadds           # &A[1]
+34       # cmload          # A[1]
+10 42    # bipush 66       # 'B'
+A0 00 06 # if_cmpne +6     # if (A[1] != 'B') goto <03:then>
+A7 00 09 # goto +9         # goto <04:else>
+# <03:then>
+10 02    # bipush 2        # 2
+B0       # return          # 
+A7 00 03 # goto +3         # goto <05:endif>
+# <04:else>
+# <05:endif>
+10 00    # bipush 0        # 0
+B0       # return          # 
+
+00 01             # native count
+# native pool
+00 01 00 68       # string_to_chararray
+

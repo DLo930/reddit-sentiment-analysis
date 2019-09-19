@@ -1,0 +1,679 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{5}
+\newcommand{\hwname}{Clac and EXP}
+\newcommand{\duedate}{\formatdate{28}{02}{\YEAR} by \progDueTime}
+
+\input{../../inc/preamble.tex}
+\lstdefinelanguage[clac]{C}[C0]{C}{%
+  numbers=none,
+  deletekeywords={if},
+  alsoletter={+, -, *, /, \%, <, :, ;},
+%  morekeywords={print, quit, +, -, *, /, \%, <, drop, swap, rot, if, pick, skip},
+  morekeywords={:, ;},
+  moredelim=[l][\shellstyle]{\%},
+  moredelim=[l][\coinheaderstyle]{Clac\ top\ level},
+  moredelim=[l][\coinheaderstyle]{EXP\ top\ level},
+  moredelim=**[l][\coininputstyle]{clac>>},
+  moredelim=**[l][\coininputstyle]{exp>>},
+  moredelim=[l][\coinerrorstyle]{Abort\ trap:},
+}
+
+\begin{document}
+\hwTitle
+
+\noindent
+In this assignment, you will investigate stacks, queues, and
+dictionaries by implementing two programming languages. The first
+language, Clac, is a strange new programming language, but it is one
+that is easy to implement. The second language, EXP, looks more
+familiar.
+
+\bigskip
+\noindent
+The code handout for this assignment is on \autolab{} and at
+\begin{center}
+\whereisthetgz{exp-handout.tgz}
+\end{center}
+The file \lstinline'README.txt' in the code handout goes over the
+contents of the handout and explains how to hand the assignment in.
+There is a SEVEN (7) PENALTY-FREE HANDIN LIMIT.
+Every additional handin will incur a small (5\%) penalty (even if
+using a late day).
+
+\paragraph{Reminder about respecting interfaces:}
+In this assignment, we will take interfaces seriously. When using the
+implementations of stacks and queues in the \lstinline'lib' directory of
+the handout, you should \emph{only} use the interfaces. We will
+enforce this, in the autograder, by compiling your code against
+different implementations of the interfaces. Similarly, when working
+on EXP in Section 3, you should respect the interface of the dictionaries
+you implemented in Section 2.
+
+\paragraph{Style Grading:}
+In this assignment, we will continue emphasizing \emph{programming
+  style}.  We will be looking at your code and evaluating it based on
+the criteria outlined at
+\url{http://cs.cmu.edu/~15122/misc/styleguide.pdf}.  We will make
+comments on your code via Autolab, and will assign an overall passing
+or failing style grade.  A failing style grade will be temporarily
+represented as a score of -15 points.  This -15 will be reset to 0
+once you:
+\begin{enumerate}
+\itemsep=-3pt
+\item%
+  fix the style issues,
+\item%
+  see a member of the course staff during office hours \textbf{within
+    5 days} after the grades are released, and
+\item%
+  briefly discuss the style issues and how they were addressed.
+\end{enumerate}
+We will evaluate your code for style in two ways. We will use
+\lstinline'cc0' with the \lstinline'-w' flag that gives style warnings
+--- code that raises warnings with this flag is almost certain to fail
+style grading.  Because the \lstinline'-w' flag does not check for good
+variable names, appropriate comments, or appropriate use of
+functions, these issues will be checked by hand.
+
+\newpage
+\section{Introducing Clac}
+\label{sec:demo}
+
+Clac is a new stack-based programming language developed by a
+Pittsburgh-area startup called Reverse Polish Systems (RPS).  Any
+similarities of Clac with Forth or PostScript are purely coincidental.
+
+Clac works like an interactive calculator.  When it runs, it maintains
+an \emph{operand stack}.  Entering numbers will simply push them onto
+the operand stack.  When an operation such as addition \lstinline'+' or
+multiplication \lstinline'*' is encountered, it will be applied to the top
+elements of the stack (consuming them in the process) and the result
+is pushed back onto the stack.  When a newline is read, the number on
+top of the stack will be printed.  This is an example where we start Clac
+and type \lstinline'3 4 *', followed by a newline:
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}]
+% ./clac
+Clac top level
+clac>> 3 4 *
+Stack is now [12]
+\end{lstlisting}
+\end{quote}
+Clac responded by printing the stack, which now contains only \lstinline'12'.
+We now enter \lstinline'-9 2 /' and a newline:
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}]
+clac>> -9 2 /
+Stack is now [12,-4]
+\end{lstlisting}
+\end{quote}
+At this point the stack contains two integers: \lstinline'12' (the result of
+the multiplication) and \lstinline'-4' (the result of the integer division,
+which is at the top of the stack). We can add them simply by typing
+\lstinline'+' and a newline.
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}]
+clac>> +
+Stack is now [8]
+\end{lstlisting}
+\end{quote}
+The stack contains only \lstinline'8', since $12+(-4) = 8$.  Note that the
+integers and operators we input into Clac (they are called \emph{tokens}
+below) work like a queue: Clac processes them left to right and we enter new
+ones on the right.
+
+
+\subsection{Rules of Clac}
+
+Every Clac operation that you will implement removes a single string
+(a \emph{token}) from an input queue, and then modifies the operand stack. To specify operations, we use the notation
+$$
+S \longrightarrow S'
+$$
+to mean that the stack $S$ transitions to become stack $S'$.
+Stacks are written with the \emph{top element at the right end}!
+For example, the action of subtraction is stated as
+$$
+\mbox{\texttt{-}} : S, x, y \longrightarrow S, x{-}y
+$$
+which means: \emph{``When you dequeue the token \texttt{-} from the
+  queue, pop the top element ($y$) and the next element ($x$) from the
+  stack, subtract $y$ from $x$, and push the result $x - y$ back onto
+  the stack.''} The fact that we write $S$ in the rule above means
+that there can be many other integers on the stack that will not be
+affected by the operation.
+
+The following table gives all the Clac operations that you will
+implement in this assignment.
+$$
+\begin{array}{lclcll}
+\mbox{\bf Token} & & \mbox{\bf Before} & & \mbox{\bf After} & \mbox{\bf Note} \\ \hline
+n & : & S & \longrightarrow & S, n & \mbox{for $-2^{31} \leq n < 2^{31}$ in decimal} \\ \hline
+\mbox{\texttt{+}} & : & S, x, y & \longrightarrow & S, x\,{+}\,y \\
+\mbox{\texttt{-}} & : & S, x, y & \longrightarrow & S, x\,{-}\,y \\
+\mbox{\texttt{*}} & : & S, x, y & \longrightarrow & S, x\,{*}\,y \\
+\mbox{\texttt{/}} & : & S, x, y & \longrightarrow & S, x\,{/}\,y &
+\mbox{Error if $y = 0$ or if $x = -2^{31}$ and $y = -1$}\\
+\mbox{\texttt{**}} & : & S, x, y & \longrightarrow & S, x^y &
+\mbox{Error if $y < 0$}\\
+\end{array}
+$$
+The addition, subtraction, multiplication, and exponent operations
+should give their answer in terms of 32-bit two's complement modular
+arithmetic, which makes it easy to implement Clac's math operations in
+terms of C0's math operations. Whenever the instructions say that Clac
+should raise an error, you should call the function
+\lstinline'error()' with an appropriate error message. If a rule
+requires two integers to be removed from the stack and fewer than two
+integers are presently on the stack, \lstinline'error()' should also
+be called.
+
+The \lstinline'error()' function takes a string as its
+argument and is built in to C0, like \lstinline'assert()'. User errors
+(errors in Clac code) should always cause \lstinline'error()' to be
+called; assertions should only be used for programmer errors.
+
+You can use the function \lstinline'parse_int(tok, 10)' to
+check whether a token is an integer in base 10. If the function returns
+\lstinline'NULL', then the string stored as \lstinline'tok' does not
+represent an integer. Otherwise, dereferencing the returned pointer
+will give you the integer that the string stored in \lstinline'tok'
+represents.
+
+\subsection{Using the Reference Implementation}
+\label{sec:clacref}
+
+We can see how our introductory series of instructions affected the
+stack and the queue in detail by running the \lstinline'clac-ref' binary
+that is available on the shared Unix servers, giving it the extra
+argument \lstinline'-trace'. Using this argument, we can see the state of
+the stack and the queue after every step.
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}, columns=fixed]
+% clac-ref -trace
+Clac top level
+clac>> 3 4 * -9 2 / +
+                       stack || queue
+                             || 3 4 * -9 2 / +
+                           3 || 4 * -9 2 / +
+                         3 4 || * -9 2 / +
+                          12 || -9 2 / +
+                       12 -9 || 2 / +
+                     12 -9 2 || / +
+                       12 -4 || +
+                           8 ||
+8
+\end{lstlisting}
+\end{quote}
+We can see that \lstinline'8' was printed out at the end because that
+was what was at the top of the stack after the queue had been completely
+consumed.
+
+The full Clac implementation contains many other tokens for
+calculation, manipulating the stack and the queue, and even defining
+custom functions. However, the small set of operations above will be
+enough for this assignment.
+
+
+\subsection{Implementation}
+
+\begin{task}[6]
+\TAGS{correctness, interface, queue, safety, stack}
+In the file \lstinline'clac.c0', you should implement the function
+\lstinline'eval':
+\begin{quote}
+\begin{lstlisting}[numbers=none]
+void eval(istack_t S, queue_t Q)
+//@requires S != NULL && Q != NULL;
+//@ensures queue_empty(Q);
+\end{lstlisting}
+\end{quote}
+\end{task}
+Note that the type is \lstinline'istack_t'. In the code handout, you
+have both an interface of stacks of integers (\lstinline'istack_t', in
+\lstinline'lib/stack_of_int.c0') and stacks of strings
+(\lstinline'stack_t', in \lstinline'lib/stack_of_string.c0').
+
+The \lstinline'main' function in file \lstinline'clac-main.c0' takes
+lines of input and converts them to a \emph{queue of tokens}. Each
+token is just a string.  This part of the Clac implementation has
+already been programmed for you, and you are welcome to examine it,
+but you should not change this code.
+
+When \lstinline'eval' is first called, the \emph{stack of integers}
+$S$ will be empty.  But since the input is processed line-by-line, the
+\lstinline'eval' function may also be called with nonempty stacks,
+representing the values from prior computations.  The \lstinline'eval'
+function should dequeue tokens from the queue $Q$ and process them
+according to the Clac definition.  When the queue is empty,
+\lstinline'eval' should return leaving the stack in whatever state it
+was already in. If \lstinline'error()' is ever called, it doesn't
+matter what remains on the stack or on the queue.
+
+It is possible to write a lot of long and confusing code to safely and
+efficiently implementing this task, but it is also possible to
+use helper functions to write very clear and concise code. Try to
+think about how you would structure your code if you knew you were
+going to implement full Clac, which has a dozen more tokens. (No
+matter how good your code looks, your \lstinline'eval()' function will
+probably still look like a loop containing a long series of
+\lstinline'if'-\lstinline'else' statements.)
+
+You can reuse code from lecture and the lecture notes, but if you do
+that, cite your sources!
+
+\newpage
+\section{Dictionaries}
+
+The series of Clac tokens ``\lstinline'3 4 * -9 2 / +''' from
+Section~\ref{sec:clacref} performs the computation that we would write
+down on paper as $3 \times 4 + -9 \div 2$. Correctly interpreting this
+mathematical computation relies on understanding
+\emph{precedence} or \emph{order of operations}. Specifically, we
+know that multiplication and division need to be done before addition,
+because these operations have higher precedence.  The order of
+operations is clear when we look at our Clac program: the tokens
+\lstinline'*' and \lstinline'/' are earlier in the queue than the
+\lstinline'+' token.
+
+In this section, you will implement a \emph{dictionary} that allows
+us to take a mathematical operator (represented as a string, like
+\lstinline'"**"'), and find its precedence as an integer (say,
+\lstinline'2'). When we initially create dictionaries with the
+function \lstinline'dict_new()', we populate them with an array of strings,
+where each string \lstinline'A[i]' contains a whitespace-separated
+list of all the tokens that should be given precedence
+\lstinline'i'. Here's an example:
+\begin{quote}
+\begin{lstlisting}[numbers=none]
+string[] A = alloc_array(string, 3);
+A[2] = "**";  // '**' has the highest precedence, 2
+A[1] = "* /"; // '*' and '/' have the same precedence, 1
+A[0] = "+ -"; // '+' and '-' have the same precedence, 0
+dict_t D = dict_new(A, 3);
+\end{lstlisting}
+\end{quote}
+If you haven't already done so, you should look at the
+\lstinline'num_tokens()' and \lstinline'parse_tokens()' functions from
+the C0 library named \lstinline'parse'. The
+\lstinline'is_infix_array()' function provided to you in the file
+\lstinline'lib/utils.c0' gives an example of using these functions.
+
+%\clearpage
+\begin{task}[6]
+\TAGS{array, dictionary, safety, search, string}
+In the file \lstinline'dict.c0', implement a precedence dictionary
+with the following interface:
+\begin{quote}
+\begin{lstlisting}[numbers=none]
+//typedef ______* dict_t;
+
+dict_t dict_new(string[] A, int n)
+  /*@requires \length(A) == n; @*/
+  /*@requires is_infix_array(A, n); @*/ ;
+
+int dict_lookup(dict_t D, string oper)
+  /*@requires D != NULL; @*/
+  /*@ensures \result >= -1; @*/ ;
+\end{lstlisting}
+\end{quote}
+
+The function \lstinline'dict_new(A, n)' must return \lstinline'NULL'
+if the same token appears twice in the input. The function
+\lstinline'dict_lookup(D, x)' should return \lstinline'-1' if
+the string stored as \lstinline'x' is not present in the dictionary
+\lstinline'D'. Efficiency is not a primary concern for this task.  See
+the file \lstinline'dict-test.c0' for examples.
+\end{task}
+
+The implementation is completely up to you, but it should define and
+make appropriate use of a thorough specification function
+\lstinline'is_dict'.  Feel free to re-use ideas from previous
+assignments.  If you use code from previous handouts or lecture, make
+sure to cite your sources.
+
+Whatever you do, you should document your design clearly in comments,
+write and deploy reasonable data structure invariants, and use contracts
+to ensure safety and some degree of correctness for your code.
+
+\newpage
+\section{The EXP Language}
+
+Reverse Polish Systems has hired you to build a more user-friendly
+language, called EXP, leveraging their existing Clac technology.  The
+EXP language has all the mathematical operations that the mini-Clac you
+implemented has: exponents, multiplication, division, addition, and
+subtraction.  The difference is that EXP allows us to write
+expressions as infix. In EXP, we can write
+%
+``\lstinline'27 / 3**2 - 2**3''' and the result will be $-5$, because
+we evaluate the exponents first, getting $27 / 9 - 8$, and then
+evaluate the division, getting $3 - 8 = -5$.
+
+\subsection{Parsing EXP Programs}
+\label{sec:parse-exp}
+
+Both Clac and EXP use the same process for turning a string into
+a queue of tokens.
+The EXP program above will be transformed into a queue of
+tokens with the following contents:
+\begin{quote}
+\lstinline'"27"',
+\lstinline'"/"',
+\lstinline'"3"',
+\lstinline'"**"',
+\lstinline'"2"',
+\lstinline'"-"',
+\lstinline'"2"',
+\lstinline'"**"',
+\lstinline'"3"'
+\end{quote}
+We won't evaluate EXP programs directly. Directly evaluating infix
+expressions that are presented in this way is difficult at
+best. Instead, we will approach the problem indirectly: we will use an
+algorithm to transforms an EXP program into a Clac program. The example
+above will be transformed into the Clac
+program
+%
+``\lstinline'27 3 2 ** / 2 3 ** -'''.  We already have an interpreter
+that can evaluate this Clac program, so we can use that existing
+interpreter to run our EXP program!
+
+You can see this happening using the \lstinline'exp-ref' binary
+that is also available on the shared Unix servers:
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}]
+% exp-ref
+EXP top level
+EXP>> 3*4 + -9/2
+Corresponding Clac program: 3 4 * -9 2 / +
+EXP>> -4*2/3 - 7*7
+Corresponding Clac program: -4 2 * 3 / 7 7 * -
+\end{lstlisting}
+\end{quote}
+
+The algorithm for translating infix EXP programs into postfix Clac
+programs will need a dictionary in order to determine which
+tokens should be treated as infix mathematical operations. We'll
+use the word \textbf{operator} to describe
+a token that appears in the dictionary (and that therefore has a
+known precedence).
+
+In addition to a dictionary, our translation algorithm will use
+a stack of operators and two queues. The input queue
+contains the EXP program we're reading, and the output queue contains
+the Clac program we're writing. Numbers always get moved immediately
+from the input queue to the output queue. Operators cannot be
+immediately moved to the output queue, though. They are placed on the
+operator
+stack until it is time to put them onto the output queue.
+
+The algorithm, named the \emph{shunting-yard algorithm} by Edsger
+Dijkstra,\footnote{The algorithm is also described at
+  \url{https://en.wikipedia.org/wiki/Shunting-yard_algorithm}. You're
+  welcome to read the Wikipedia article, but don't refer to other
+  sources.} has two phases: we start in the integer phase, and switch
+phases every time we remove something from the input queue.
+
+\begin{description}
+\item[Integer phase:] There must be a token on the input queue, and it
+  must be an integer. Put that token on the
+  output queue and switch to the \textbf{operator} phase.
+
+\item[Operator phase: ] In this phase, you will sometimes pop
+  operators off of the stack. \emph{Whenever you pop an operator off
+    the stack, you should add it immediately to the output queue.}
+
+  If there is a token \emph{tok} on the input queue, it must be an
+  operator (it must be in the precedence dictionary). Pop just enough
+  operators off of the stack so that the operator on the top of the
+  stack (if there is one) has precedence \emph{strictly less} than
+  \emph{tok}'s precedence. (If the operator stack is initially
+  empty, or if the operator on the top of the stack already has a
+  lower precedence, then there's nothing to do.) Finally, push
+  \emph{tok} on the stack and switch to the \textbf{integer} phase.
+
+  If there are no tokens on the input queue,
+  then you are done. Pop every operator off the stack (and
+  put it on the output queue).
+\end{description}
+
+%\clearpage
+\paragraph{Example}
+To give a few examples of how the operator phase works, imagine that the
+operator stack initially contains the following three operators, with
+\lstinline'"**"' at the top of the stack:
+\begin{quote}
+\lstinline'"+"' (precedence 0), \lstinline'"/"' (precedence 1),
+\lstinline'"**"' (precedence 2)
+\end{quote}
+The behavior of the operator phase depends on what's on the
+queue. Here are three possible outcomes:
+\begin{itemize}
+\item
+If the input queue is empty, then enqueue \lstinline'"**"', then
+\lstinline'"/"', and then \lstinline'"+"' onto the output queue in
+that order. Return the output queue.
+
+\item If the token at the front of the input queue is \lstinline'"42"', then
+  the input was not a valid EXP program.  Return \lstinline'NULL'.  The same
+  happens when passed an invalid token like \lstinline'"x"' or \lstinline'"@"'.
+
+\item
+If the token at the front of the input queue is \lstinline'"*"' and
+the dictionary gave this token precedence 1, first pop
+\lstinline'"**"' off the stack and add it to the output queue. Then
+pop \lstinline'"/"' off the stack and add it to the output queue. Now
+the precedence of the token on the top of the stack is strictly less
+than 1, so push \lstinline'"*"' onto the stack. Switch
+to the integer phase and repeat.
+\end{itemize}
+
+\paragraph{Associativity}
+
+This version of the shunting-yard algorithm results in all operators
+being treated as \emph{left-associative}. We definitely want to
+interpret subtraction and division as left associative. As an example,
+consider the expression $1 - 2 - 3$. This is always evaluated the same
+way as $(1 - 2) - 3$, or ``\lstinline'1 2 - 3 -''' in Clac; it would
+be incorrect to read it as $1 - (2 - 3)$, or \lstinline'1 2 3 - -' in
+Clac. However, the exponentiation operator is often treated as
+\emph{right associative}. (Python does this, for instance.)  EXP
+treats exponents as left associative to make your implementation
+simpler.
+
+\subsection{Invariants}
+Before you start implementing this algorithm, think about the
+invariants that are at work! Operationally, before you add a new
+operator to the input stack, you remove items from the stack until the
+new operator has a higher precedence than the operator on the top of the
+stack. We can write a specification function that captures this
+operational behavior as an invariant.
+
+\begin{task}[2]
+\TAGS{dictionary, ds-invariant, interface, stack}
+In a new file \lstinline'parse.c0', write a function which checks that
+a stack \lstinline'S' contains valid operators with strictly
+increasing precedence. The highest-precedence operation must be on the
+top of the stack.
+\begin{quote}
+\begin{lstlisting}[numbers=none]
+bool is_precstack(dict_t D, stack_t S)
+//@requires D != NULL && S != NULL;
+\end{lstlisting}
+\end{quote}
+When the function returns, the contents of the stack should be the
+same as they were when the function was called.
+\end{task}
+
+\paragraph{Important:}
+
+Even though \lstinline'is_precstack(D, S)' will be an important loop
+invariant of our algorithm, we are not usually allowed to write it in
+a \lstinline'//@loop_invariant' contract! This is because C0 has
+checks to make sure that programs will always run the same way with or
+without contracts enabled.
+
+The function \lstinline'is_precstack()' must actually modify the stack
+\lstinline'S' in order to respect the stack interface. The C0 compiler
+assumes that calling a function that modifies the stack in any way could
+cause the program to behave differently when contracts are
+enabled. Even though your function returns the stack to its original
+condition, the C0 compiler cannot prove this and therefore refuses to
+allow \lstinline'is_precstack()' in a contract.
+
+If you want to use this function in a loop invariant to help you debug
+your code, you can call the compiler with the extra argument
+\lstinline'--no-purity-check'. We'll compile your code with this
+option on Autolab --- but that means you have to be extra careful that
+your \lstinline'is_precstack()' function returns the stack to its
+original state!
+
+
+\newpage
+\subsection{Implementation}
+
+\begin{task}[7]
+\TAGS{correctness, dictionary, interface, queue, safety, stack}
+In the file \lstinline'parse.c0', implement the algorithm described in
+Section~\ref{sec:parse-exp}:
+\begin{quote}
+\begin{lstlisting}[numbers=none]
+queue_t parse(dict_t D, queue_t input)
+//@requires D != NULL && input != NULL;
+//@ensures \result == NULL || queue_empty(input);
+\end{lstlisting}
+\end{quote}
+The function should return \lstinline'NULL' if the input is not a
+well-formed EXP program according to the operators in the dictionary
+\lstinline'D'. If the function returns \lstinline'NULL' it doesn't
+matter what is left on the input queue.
+\end{task}
+
+The \lstinline'exp-main.c0' file parses programs based on the
+following precedence table:
+\begin{center}
+\begin{tabular}{rl}
+   1. & \lstinline'||'
+\\ 2. & \lstinline'&&'
+\\ 3. & \lstinline'<', \lstinline'>', \lstinline'==', \lstinline'!='
+\\ 4. & \lstinline'<<', \lstinline'>>'
+\\ 5. & \lstinline'+', \lstinline'-'
+\\ 6. & \lstinline'*', \lstinline'/', \lstinline'%'
+\\ 7. & \lstinline'**'
+\end{tabular}
+\end{center}
+If you run your \lstinline'exp' program with the \lstinline'-x'
+option, it will attempt to run the parsed EXP program with your Clac
+implementation.
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}]
+% ./exp -x
+EXP top level
+EXP>> 3 * 4 + -9 / 2
+Corresponding Clac program: 3 4 * -9 2 / +
+Result: 8
+\end{lstlisting}
+\end{quote}
+This will only work if you restrict yourself to EXP programs using
+\lstinline'**', \lstinline'*', \lstinline'/', \lstinline'+', or
+\lstinline'-'.  Otherwise, your Clac implementation will crash when it
+finds a token like \lstinline'<' that it doesn't know how to process.
+
+\subsection{Extending EXP using Clac}
+
+For the last part of this assignment, you will write some code in
+Clac, instead of writing code in C0. You will need to use the full
+Clac implementation described in Figure~\ref{fig:allclac}, which is
+implemented by the \lstinline'clac-ref' program.
+
+The code you write will be in the form of Clac \textit{definitions},
+which you have already encountered in the lab activity on Clac. For
+example, the Clac definition ``\lstinline': dup 1 pick ;''' defines a
+new token \lstinline'dup' that takes whatever is at the top of the
+stack and duplicates it.  Therefore, the user-defined \lstinline'dup'
+token implements the rule $S, x \longrightarrow S, x, x$.
+
+\begin{figure}
+\fbox{%
+\parbox{\linewidth}{%
+$$
+\begin{array}{lclcll}
+\mbox{\bf Token} & & \mbox{\bf Before} & & \mbox{\bf After} & \mbox{\bf Note} \\ \hline
+\mbox{\lstinline'>'} & : & S, x, y & \longrightarrow & S, 1 &
+     \mbox{If $x > y$}\\
+\mbox{\lstinline'>'} & : & S, x, y & \longrightarrow & S, 0 &
+     \mbox{If $x \leq y$}\\
+\mbox{\lstinline'=='} & : & S, x, y & \longrightarrow & S, 1 &
+     \mbox{If $x = y$}\\
+\mbox{\lstinline'=='} & : & S, x, y & \longrightarrow & S, 0 &
+     \mbox{If $x \neq y$}\\
+\mbox{\lstinline'!='} & : & S, x, y & \longrightarrow & S, 1 &
+     \mbox{If $x \neq y$}\\
+\mbox{\lstinline'!='} & : & S, x, y & \longrightarrow & S, 0 &
+     \mbox{If $x = y$}\\
+\mbox{\lstinline'||'} & : & S, x, y & \longrightarrow & S, 1 &
+     \mbox{If either $x \neq 0$ or $y \neq 0$}\\
+\mbox{\lstinline'||'} & : & S, x, y & \longrightarrow & S, 0 &
+     \mbox{If both $x$ and $y$ are 0}\\
+\mbox{\lstinline'\&\&'} & : & S, x, y & \longrightarrow & S, 1 &
+     \mbox{If both $x \neq 0$ and $y \neq 0$}\\
+\mbox{\lstinline'\&\&'} & : & S, x, y & \longrightarrow & S, 0 &
+     \mbox{If either $x$ or $y$ is 0}\\
+\mbox{\lstinline'\<\<'} & : & S, x, y & \longrightarrow & S, x \times 2^y &
+     \mbox{If $0 \leq y < 32$}\\
+\mbox{\lstinline'\>\>'} & : & S, x, y & \longrightarrow & S, x / 2^y &
+     \mbox{If $x \geq 0$ and $ 0 \leq y < 32$}
+%\\
+%\mbox{\lstinline{\%}} & : & S, x, y & \longrightarrow & S, x\,{\%}\,y &
+%     \mbox{Error if $y = 0$ or if $x = -2^{31}$ and $y = -1$}\\
+\end{array}
+$$
+}}
+
+\caption{Clac functions to implement in Task 5}
+\label{fig:newclac}
+\end{figure}
+
+
+\begin{task}[4]
+\TAGS{application, compilation}
+  In a file \lstinline'exp-defs.clac', write Clac definitions that
+  implement the Clac tokens described in Figure~\ref{fig:newclac}.
+  The file already includes definitions of \lstinline'>',
+  \lstinline'==', and \lstinline'!=' to get you started.
+\end{task}
+
+\begin{ectask} (Extra challenge 1) %
+\TAGS{application, compilation}
+  Make the shift operators always raise an error when $y < 0$ or $y
+  \geq 32$.
+\end{ectask}
+
+\begin{ectask} (Extra challenge 2) %
+\TAGS{application, compilation}
+  Make the right-shift operator perform division that rounds towards
+  negative infinity, so that it works correctly on negative $x$ as
+  well as nonnegative $x$.
+\end{ectask}
+
+With your definitions, you can parse any valid EXP program into Clac,
+and then run it with the Clac reference interpreter:
+
+\begin{quote}
+\begin{lstlisting}[language={[clac]C}]
+% ./exp
+EXP top level
+EXP>> 3 * 4 > -9 / 2 && 3 << 2 == 24 >> 2 - 1
+Corresponding Clac program: 3 4 * -9 2 / > 3 2 << 24 2 1 - >> == &&
+% clac-ref exp-defs.clac
+clac>> 3 4 * -9 2 / > 3 2 << 24 2 1 - >> == &&
+1
+\end{lstlisting}
+\end{quote}
+
+
+\input{../../clac/writeup/clacrules}
+
+
+\end{document}

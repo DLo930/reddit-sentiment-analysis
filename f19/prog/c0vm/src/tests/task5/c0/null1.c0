@@ -1,0 +1,8 @@
+#use <conio>
+
+int main()
+{
+  char* c = NULL;
+  *c = 't';
+  return 0;
+}

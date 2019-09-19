@@ -1,0 +1,295 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{1}
+\newcommand{\hwname}{Scavenger hunt}
+\newcommand{\duedate}{\formatdate{5}{9}{\YEAR} by \progDueTime} % day-month-year
+
+\input{../../inc/preamble.tex}
+\begin{document}
+\hwTitle
+
+\noindent
+Welcome to 15-122!  This first programming homework is designed
+as an opportunity for you to tour the course tools and
+workflow that we will use in 15-122.
+
+The assignment takes the form of a scavenger hunt; you will add pieces
+of code to a file, \lstinline'scavhunt.c0', and then turn this file in
+through \autolab. There are two ways to do so. From the terminal on
+Andrew Linux (via cluster or ssh) type:
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+% handin scavhunt scavhunt.c0 puzzle.c0
+\end{lstlisting}
+\end{quote}
+Your score will then be available on the \autolab{} website.
+Your submission can also be made through the web interface of \autolab.
+To do so, please create a zipped tarball (\lstinline'tgz'), for example:
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+% tar -czvf handin.tgz scavhunt.c0 puzzle.c0
+\end{lstlisting}
+\end{quote}
+and then upload it to \autolab.
+
+
+\clearpage
+\section{Obtaining the handout code}
+
+\vspace{-\bigskipamount}
+\begin{task}[2]
+\TAGS{interpreter, unix}
+ Obtain the handout file \lstinline'scavhunt.c0',
+containing a function \lstinline'greet'.
+\end{task}
+
+The handout code for this assignment is a gzipped tarball file at
+\begin{center}
+  \whereisthetgz{scavhunt-handout.tgz}
+\end{center}
+Download it and unpack it.  \textbf{IMPORTANT:} if you are using
+Andrew AFS, make sure that you only put code for 15-122 into your
+\lstinline'private' directory or into another directory with
+appropriate AFS permissions set. Failing to do this will cause you to
+run afoul of the course's academic integrity policy.
+
+\begin{quote}
+\begin{lstlisting}[language={[coin]C},mathescape=false]
+% cd $HOME/private/15122
+% tar xzvf scavhunt-handout.tgz
+scavhunt-handout/
+scavhunt-handout/puzzle.c0
+scavhunt-handout/puzzle-test.c0
+scavhunt-handout/scavhunt-main.c0
+scavhunt-handout/scavhunt.c0
+% cd scavhunt-handout
+% ls -la
+drwxr-xr-x 2 iliano users 2048 Aug 16 17:30 .
+drwxr-xr-x 3 iliano users 2048 Aug 16 17:48 ..
+-rw-r--r-- 1 iliano users 1587 May 16  2015 puzzle.c0
+-rw-r--r-- 1 iliano users 1155 Jan 15  2015 puzzle-test.c0
+-rw-r--r-- 1 iliano users  405 Jan 12  2015 scavhunt.c0
+-rw-r--r-- 1 iliano users  196 Sep  1  2014 scavhunt-main.c0
+\end{lstlisting}
+\end{quote}
+
+You can't use \lstinline'scavhunt-main.c0' yet, but you can test the
+\lstinline'greet' function contained in \lstinline'scavhunt.c0' using
+\lstinline'coin'.
+
+\begin{quote}
+\begin{lstlisting}[language={[coin]C},lastline=13]
+% coin -d scavhunt.c0
+C0 interpreter (coin) 0.3.3 'Nickel' (r590, Mon Aug 29 12:04:13 UTC 2016)
+Type `#help' for help or `#quit' to exit.
+--> greet("Hello", "world");
+"Hello, world!" (string)
+--> println(greet("Hello", "world"));
+Hello, world!
+(void)
+--> print(greet("Hi", "friend"));
+(void)
+--> print("\n");
+Hi, friend!
+(void)
+--> #quit
+\end{lstlisting}
+\end{quote}
+
+This demonstrates something important (and potentially confusing)
+about C0 programs. When you use the \lstinline'print' function to
+print strings, the output is \emph{buffered} and does not generally
+get printed out until a newline is printed. The escape sequence
+\lstinline'\n' represents a newline, so printing the string
+\lstinline'"\n"' empties the buffer, printing \lstinline'Hi, friend!'.
+
+
+\section{Using the C0 tutorial}
+
+\vspace{-\bigskipamount}
+\begin{task}[2]
+\TAGS{syntax, unix}
+The C0 tutorial's page on ``Statements'' contains the code for a C0
+file named \lstinline'fact.c0'. Copy all the contents of this file (it's
+just one function) into \lstinline'scavhunt.c0'.
+\end{task}
+
+The C0 tutorial at \url{http://c0.typesafety.net/} will help with
+early assignments. The point about buffered output above is explained
+on the page ``\href{http://c0.typesafety.net/tutorial/Debugging-C0-Programs.html}{Debugging C0 Programs}'' in the C0 tutorial.
+
+
+\section{Viewing images from AFS}
+
+\vspace{-\bigskipamount}
+\begin{task}[2]
+\TAGS{compilation, unix}
+The file
+\lstinline'/afs/andrew/course/15/122/misc/scavhunt/snippet.png' is an image
+file that, when viewed, contains a C0 function. Copy the code in that image
+into \lstinline'scavhunt.c0'.
+\end{task}
+
+For the next two programming assignments, it will be very helpful for
+you to already know how to view images that live on AFS on your own
+computer.  The PNG file above, which is publicly readable when you're
+logged into a Linux cluster machine or connected with SSH to
+\lstinline'linux.andrew.cmu.edu', can be viewed using a program like
+\lstinline'display'.
+%, \lstinline'gpicview', \lstinline'qiv', \lstinline'eog',
+% or \lstinline'gthumb'.
+To use one of these programs, you will either need to be on a Linux
+cluster or you will need to use \lstinline'ssh -X' to log on to
+\lstinline'linux.andrew.cmu.edu' with X11 forwarding (if this doesn't
+work, try \lstinline'ssh -Y').  You can also copy the file by
+transferring it from AFS to your computer with the \lstinline'scp'
+command-line program or with a program like WinSCP and viewing the
+image with whatever built-in image-viewing software your operating
+system uses.  Play around and find a method you like.
+
+Once you have added the function from \lstinline'snippet.png', you can use
+the \lstinline'cc0' compiler and the provided \lstinline'scavhunt-main.c0'
+program to compile and run your scavenger hunt code.
+
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+% cc0 -d -o scavhunt scavhunt.c0 scavhunt-main.c0
+% ./scavhunt
+\end{lstlisting}
+\end{quote}
+
+The \lstinline'-d', which also appeared in the call to
+\lstinline'coin', makes sure contracts are checked. The arguments
+\lstinline'-o scavhunt' tells the compiler to produce an executable
+file named \lstinline'scavhunt'. You could omit this argument and the
+executable file would be named \lstinline'a.out'.
+
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+% cc0 -d scavhunt.c0 scavhunt-main.c0
+% ./a.out
+\end{lstlisting}
+\end{quote}
+
+
+\section{Updates, clarifications and questions on \qatoolName}
+
+\vspace{-\bigskipamount}
+\begin{task}[3]
+\TAGS{compilation}
+Modify the function from \lstinline'snippet.png' as described in the
+``How to use \qatoolName{} (effectively)'' post on 15-122 \qatoolName.
+\end{task}
+
+\qatoolName{} can be found at \url{\qatoolBaseURL}. Please read
+through the whole ``How to use \qatoolName{} (effectively)'' post, as
+it explains some of the guidelines for how we will be using
+\qatoolName.
+
+
+\section{Getting feedback from Autolab}
+
+To proceed, you'll need to \textbf{submit the work you have so far to
+  Autolab}. The instructions for doing this are on the first page of
+this writeup. Autolab always allows multiple submissions, and your
+\textbf{last submission} is the one we count.  For this assignment,
+there is no limit to the number of times you are allowed to submit (but
+there will be in future homework).
+
+\begin{task}[4]
+\TAGS{testing}
+Add a function (that takes no arguments and returns a string) to
+\lstinline'scavhunt.c0'. It does not matter what string this function
+returns.
+\end{task}
+
+You'll be able to figure out what the name of the missing function
+should be by looking at the output that Autolab gives you.  The
+autograder we use for 15-122 doesn't give a ton of feedback, but it
+does give some feedback when tests fail. First, it says why the test
+failed (for instance, \lstinline'File did not compile'), and then it gives
+a hint. These hints aren't perfect, and they can sometimes be
+unintentionally misleading. (Usually, this is because of a mistake
+that we didn't anticipate, or because an error in an earlier part of
+the assignment triggered another error later on.)
+
+Also, the hints almost always assume that the test compiled, so if the
+test reports that the file did not compile, you should look to the
+first part of the autograder's input to see the output from the C0
+compiler and get an idea of what went wrong, rather than paying
+attention to the hint. You'll need to do this to learn the name of the
+mystery function needed to complete this assignment. \emph{Don't make
+  a habit of doing things this way.} Autolab is not your compiler, and
+you should usually test your code before you hand in your work.  In
+fact, future programming assignments will limit the number of
+submissions you are allowed.
+
+There are two other critical features in Autolab. First, the
+\emph{Gradebook} link lets you see your performance, including the
+number of late days you have used. Second, you can view the code you
+handed in with Autolab; when there's a manually-graded piece of a
+programming assignment you'll get comments from TAs on Autolab.
+
+
+\newpage
+\section{Puzzle hunt}
+
+This last task will require you to think a little bit harder, and also
+read through the C0 tutorial page on Strings and Characters at
+\url{http://c0.typesafety.net/}, as well as the C0 library
+documentation. You must implement three functions:
+\begin{lstlisting}[basicstyle=\smallbasicstyle]
+int common_prefix(string s1, string s2)
+//@ensures 0 <= \result && \result <= string_length(s1);
+//@ensures 0 <= \result && \result <= string_length(s2);
+//@ensures string_equal(string_sub(s1, 0, \result), string_sub(s2, 0, \result));
+/*@ensures \result == string_length(s1)
+  @     || \result == string_length(s2)
+  @     || string_charat(s1, \result) != string_charat(s2, \result); @*/
+
+int find_nonrepeating_position(string s)
+//@requires string_length(s) > 0;
+//@requires string_charat(s, 0) != string_charat(s, string_length(s) - 1);
+//@ensures 0 <= \result && \result < string_length(s)-1;
+//@ensures string_charat(s, \result) == string_charat(s, 0);
+//@ensures string_charat(s, \result+1) != string_charat(s, 0);
+
+string same_start_end(string s)
+//@ensures is_substring(\result, s);
+/*@ensures string_length(s) < 128
+  @     || (string_length(\result) > 1
+  @         && string_charat(\result, 0)
+  @            == string_charat(\result, string_length(\result) - 1)); @*/
+\end{lstlisting}
+Note: some of these postconditions rely on \emph{short-circuiting
+  evaluation}, which is discussed in the C0 tutorial page on Booleans
+and in the first recitation notes.
+
+It is possible to write loop invariants to prove that each function
+satisfies its postcondition. You aren't required to do that for this
+assignment, but you are encouraged to try!
+You will definitely want to write test cases for these functions and
+run them; it's a good idea to enable contract checking when you do so:
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+% cc0 -d -o puzzle puzzle.c0 puzzle-test.c0
+% ./puzzle
+\end{lstlisting}
+\end{quote}
+For the first function, some test cases are provided. For the second
+function, the autograder's feedback will indicate what string your
+function failed on. For the third function, which involves finding two
+characters in the string that are the same, you'll need to think
+through test cases on your own. You might want to look up the
+\emph{pigeonhole principle} to understand why the postcondition for
+that function looks like it does. (Hint: there are 127 different
+characters that can appear in C0 strings.)
+
+\begin{task}[12]
+\TAGS{correctness, safety, syntax}
+Fill in the three functions in \lstinline'puzzle.c0'. Any implementation
+that always satisfies the postconditions will be accepted, even though
+there may be multiple correct implementations that give different
+answers.
+\end{task}
+
+\end{document}

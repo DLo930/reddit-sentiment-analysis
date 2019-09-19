@@ -1,0 +1,239 @@
+LAST: Graph reachability (DFS, BFS)
+TODAY:
+- Spanning trees
+  . edge-centric
+  . vertex-centric
+- greedy algorithms
+- minimum spanning trees
+  . Kruskal
+  . (Prim)
+NEXT: Making it efficient
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[3] review
+[5] trees, multiple definitions
+[5] spanning tree
+[5] edge-centric algorithm
+[4] greedy algorithms
+[1] mazes
+[3] vertex-centric algorithm
+[5] minimum spanning tree
+[5] Kruskal's algo
+[3] Prim's algo
+
+
+Review
+======
+- graphs
+  . once you know about graphs, you see them everywhere
+- algorithms to check whether two vertices are connected by a path
+  . DFS, BFS, ...
+  . same basic idea
+    . explore the whole graph by expanding the frontier
+    . vertices to visit next remembered in different kinds of work list
+- complexity
+  . O(e) for adjacency list representation
+  . O(v * min(v,e)) with adjacency matrix representation -- in practice O(v^2)
+  . today, we will assume an AL representation, so O(e)
+
+Graph of the day:
+                   A   D
+                   |\  |
+                   | E |           + road map graph at the end
+                   |/ \|
+                   B---C
+
+Trees
+=====
+- in DFS, what was the purpose of the mark array (or hash table in lightsout/peg)?
+  . make sure we didn't go back to a vertex we had previously visited
+  . if we allowed it, we would explore an infinite path that repeats those edges over and over
+    . infinite loop around a CYCLE
+    . e.g., A-B-E-A-B-E-A-...
+- a cycle is a path from a vertex to itself
+  . e.g., A-B-E-A or A-B-A
+  . a SIMPLE CYCLE is a cycle without repeated edges
+    . e.g., A-B-E-A but not A-B-A
+  . A-B-A is a trivial cycle (path at most double-backs on itself), and we will ignore them
+    . easy to spot
+- if our graph has no simple cycles, we don't need a mark array
+  . we just need to remember where we came from to avoid getting into a trivial cycle
+- a connected graph with no (simple) cycles is a TREE
+  . a graph with no (simple) cycles is a FOREST
+    . a forest is a bunch of trees
+- there are a lot of ways to characterize a tree
+  . they highlight different aspects
+  . they are useful in different circumstances
+  A. a connected graph with no simple cycles
+  B. recursive definition 1 [draw trees as clouds]
+     . a vertex
+     . two trees connected by an edge
+  C. recursive definition 2 [draw trees as clouds]
+     . a vertex
+     . a tree connected to a vertex by an edge
+  D. a connected graph with v vertices and v-1 edges
+     . [prove it if time]
+  E. a connected graph with exactly 1 path between any two vertices
+  . it is relatively easy to prove that they are equivalent [not done in this class]
+- what is the cost of DFS/BFS on a tree?
+  . O(v) -- with AL
+    . it's O(e) in a general graph, but in a tree e = v-1
+- do these trees have anything to do with trees we have seen earlier in the course (e.g., BST)?
+  . a BST is a tree with at most 3 edges for every node
+    . 2 children + 1 parent
+    . which node is the root?
+      . any node with at most 2 edges -- hoist the graph by that node
+
+Spanning trees
+==============
+- consider applications where we frequently need to ask whether vertices are connected and how
+  . this happens frequently in graphs representing communication networks, power networks, ...
+    . e.g., diagnosis, billing
+  . we can use DFS/BFS each time to reach a vertex
+    . expensive: O(e)
+    . we may get a different path each time
+  . what about remembering paths from each vertex to all other vertices?
+    . each path has length at most v-1
+      . so space O(v^2) for each single vertex
+      . and space O(v^3) for the whole graph
+  . but we can factor out common subpaths by superimposing a tree (or forest) on our graph
+    . space is O(v)
+    . this is a spanning tree
+- let's define it formally
+  . for us, a SUBGRAPH of graph G is a graph with the same vertices and a subset of edges
+  . a SPANNING TREE   is a subgraph of G that has the same connectivity and is a tree
+  . a SPANNING FOREST is a subgraph of G that has the same connectivity and is a forest
+    . a bunch of spanning trees
+  . if G is connected, it has a spanning tree
+  . if G is not connected, it has a spanning forest
+    . one tree for each connected component
+- spanning trees in our example [audience participation]
+      A   D     A   D     A   D
+      |   |      \  |     |\  |
+      | E |       E |     | E |     ...
+      |/ \|      / \|     |   |
+      B   C     B   C     B---C
+  . there are many possible spanning trees for a given graph!
+
+[do edge-centric or vertex-centric algo depending on how the class grew this spanning tree]
+[develop it on one side of the board, and later develop the other one on the other side]
+
+Edge-centric algorithm
+======================
+- start with a spanning forest of singleton trees (that's graph_new)
+  and add edges as long as they don't form a cycle
+  . that's leveraging definition (B) of a tree
+- pseudocode for finding a spanning tree T of a graph G   [add cost measures later]
+     [leave a blank for sorting step of Kruskal's algo, added later]
+  1. start with singleton trees (isolated vertices of G)   [O(1)]
+  2. for each edge (u,w) of G                              [e * ]
+     * are u and w already connected in T?                    [O(v)]
+       . yes: discard edge                                    [O(1)]
+       . no: add edge to T                                    [O(1)]
+     * stop once T has v-1 edges        [ask audience if we can stop early]
+- do we always need to go through all the edges?
+  . we can stop early once we added v-1 edges, by definition (D) of tree
+- what is the cost of this algorithm?  [add cost next to each line]
+  . we loop thorough the edges: e * ...
+    . can we write (v-1) * ... because of early stop condition?
+      . no: we are discarding edges so we may go through all of them anyway
+  . we can check if u and w are already connected in T using DFS or BFS
+    . O(v) with AL
+    . not O(e) because we are running DFS/BFS on tree T (at most v-1 edges), not G
+  . adding an edge is O(1)
+  . tallying it up, we get O(ev)
+
+Greedy algorithms
+=================
+- we pick an arbitrary edge at each iteration
+  . which edge doesn't matter
+  . we don't need to remember alternatives
+- yet we are guaranteed that in the end we will have built a spanning tree (or forest)
+  . which of the many possible spanning trees we get depends on which edge we pick at each step
+- this is an example of a GREEDY ALGORITHM
+  . we have to make a choice (which edge to consider next)
+  . but any choice will work
+- contrast this with DFS (or even BFS)
+  . we had to choose a neighbor (frontier node in general) to visit next
+    . a wrong choice would lead us nowhere
+    . so we had to remember the other neighbors in a stack so we could go back to them if needed
+      . we would backtrack
+- greedy algorithms are great
+  . no need for backtracking
+  . but few problems have a greedy solution
+
+Mazes
+=====
+- remember those maze screen-savers (a bit retro nowadays)?
+- how are they constructed?  e.g., classic 2D maze
+  . create a graph where vertices are cells
+  . edges connect to adjacent cells in cardinal positions (up, right, left, down)
+  . compute a spanning tree -- that's the maze
+  . pick two vertices on the perimeter -- these are the entry and exit points
+- screen saver animation is just DFS on this spanning tree
+- pipe mazes?
+  . same thing in 3 dimensions
+
+Vertex-centric algorithms
+=========================
+- start with a single vertex in the tree
+  and add edges to vertices not in the tree [that can't form a cycle]
+  . that's definition (C) of a tree
+- pseudocode for finding a spanning tree T of a graph G
+  1. pick an arbitrary vertex and put it in T
+  2. repeat until all vertices are in T
+     * find an edge (u,w) between a vertex u in T and a vertex w NOT in T
+     * add (u,w) and w in T
+- let's come up with a version of this pseudocode closer to an implementation
+  1. pick an arbitrary vertex u
+     * mark u
+     * add all edges (u,v) to a WORK LIST
+  2. repeat until the work list is empty
+     * pick an edge (u,v) from the work list
+     * if v is marked, discard this edge
+     * add (u,v) to T
+     * mark v
+     * add to the work list all edges (v,w) such that w is unmarked
+     * stop once T has v-1 edges
+- this is BFS or DFS or similar depending on the work list
+  . the edges followed by BFS/DFS form a spanning tree!
+- if G is disconnected, it will produce a spanning tree for one connected component only
+  . for spanning forest, add a step
+  3. if T has fewer than v-1 edges, pick an arbitrary unmarked vertex v and repeat (1)
+- this is another greedy algorithm -- what work list we use doesn't matter
+- cost? same as DFS/BFS: O(e) with AL
+
+Minimum spanning trees
+======================
+- consider a graph with a measure associated with the edges: WEIGHTED GRAPHS
+  . show road map as an example (weights are driving distances rounded to the next 100 miles)
+  . WEIGHTS could be cost, distance, ...
+- of all spanning trees, one with the least total weight is called a MINIMUM SPANNING TREE
+  . in example, connects every city with ultra-fast internet but uses least amount of fiber optics
+  . a graph may have more than one minimum spanning tree
+    . e.g., if all weights are the same
+- we can easily adapt our edge-centric algorithm to compute a minimum spanning tree
+  . sort all edges in increasing weight order as a preliminary step
+  . this is KRUSKAL'S ALGORITHM (after Joseph Kruskal)
+  . cost?
+    . O(e log e) to sort the edges
+    . O(ev) to compute the spanning tree
+    . so, O(ev) since log e in O(v) because e in O(v^2) and log v in O(v)
+  . run it on the road map graph [see slides]
+- we can also adapt the vertex-centric algorithm to compute a minimum spanning tree
+  . use a priority queue as the work list, where smaller weight = higher priority
+  . this is PRIM's ALGORITHM (after Robert Prim, together with Edsger Dijkstra)
+  . cost?
+    . we may insert all e edges in priority queue
+    . at each step of vertex-centric algo, we are inserting/removing some edges
+    . O(e log e)
+- why do they produce a minimum spanning tree?  [typically no time for this]
+  . because of the CYCLE PROPERTY
+      If C is a simple cycle in a graph and e is the edge of maximum weight in C,
+      then there is a minimum spanning tree that does not contain e
+
+Question for next time: can we do better?
+
+
+[leave 5-10 minutes for students to complete FCE's]

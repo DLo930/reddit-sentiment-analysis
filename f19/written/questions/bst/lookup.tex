@@ -1,0 +1,288 @@
+%%% Second task comes in two variants
+
+\newpage
+\begin{EnvUplevel}
+The function \lstinline'bst_lookup'  in the lecture notes is recursive,
+but it is also possible to implement it iteratively.
+\end{EnvUplevel}
+
+\part[1]\TAGS{bst, divide-and-conquer, loop-invariant}
+Fill in the missing code.
+
+\begin{lstlisting}[numbers=left, frame=single]
+entry bst_lookup(tree* T, key k)
+//@requires is_bst(T);[*\label{l:bst_lookup-pre}*]
+/*@ensures \result == NULL
+        || key_compare(k, entry_key(\result)) == 0; @*/
+{
+  entry lo = NULL;        // to support the loop invariant[*\label{l:bst_lookup-init1}*]
+  entry hi = NULL;        // to support the loop invariant[*\label{l:bst_lookup-init2}*]
+
+  while ([*\uanswer{33em}{T != NULL \&\&\hfill}*][*\label{l:bst_lookup-while}*]
+
+         [*\uanswer{33em}{key\_compare(k, entry\_key(T->data)) != 0\hfill}*])[*\label{l:bst_lookup-while_B}*]
+  //@loop_invariant is_ordered(T, lo, hi);[*\label{l:bst_lookup-LI}*]
+  {
+    if ([*\uanswer{32.3em}{key\_compare(k, entry\_key(T->data)) < 0}*]) {[*\label{l:bst_lookup-if}*]
+      hi = T->data;       // to support loop invariant[*\label{l:bst_lookup-inv1}*]
+      T = T->left;[*\label{l:bst_lookup-inv2}*]
+    }
+    else {
+      lo = T->data;       // to support loop invariant
+      T = T->right;
+    }
+  }
+
+  if (T == NULL) return NULL;
+  return T->data;
+}
+\end{lstlisting}
+
+\RUBRIC
+Part <lookup>-1
+TAGS: bst, divide-and-conquer, loop-invariant
+
+Gradescope rubric:
++0.5pt loop guard:  T != NULL && key_compare(k, entry_key(T->data))
++0.5pt if condition expresses that left subtree < T->data
+
+Commentary:
+First slot:
+  T != NULL && key_compare(k, entry_key(T->data)) != 0
+
+Second slot: either of
+- key_compare(k, entry_key(T->data)) < 0
+- key_compare(k, entry_key(T->data)) == -1
+- key_compare(entry_key(T->data), k) > 0
+- key_compare(entry_key(T->data), k) == 1
+
+ENDRUBRIC
+
+\bigskip
+\uplevel{%
+The rest of this task verifies the safety and correctness of various
+parts of the above code using the methodology and format seen in this
+course.  No or little credit will be given to answers that are
+unclear, verbose or unjustified.
+}%
+
+\newpage
+%%% VARIANT A
+\part[1]\TAGS{bst, safety}
+\label{part:correctness}
+Prove that the loop guard you wrote on
+lines~\ref{l:bst_lookup-while}--\ref{l:bst_lookup-while_B} is safe ---
+that pointer dereferences are safe and that the preconditions of any
+function you call are satisfied. You may assume that the loop
+invariant is correct. \emph{(You may not need all lines.)}
+%(Don't forget that \lstinline'entry_key' has a precondition!)
+\begin{framed}
+\newcommand{\ans}[2]{\item\uanswer{18em}{#1}~~by~~\uanswer{12em}{#2}}
+
+\medskip
+\uanswer{27em}{\lstinline'T->data'} is safe because:
+\begin{enumerate}[(a)]
+\ans{\lstinline'T != NULL'}{line~\ref{l:bst_lookup-while} (short-circuiting)\hfill}
+\ans{}{}
+%\ans{}{}
+\end{enumerate}
+
+\medskip
+\uanswer{27em}{\lstinline'entry_key(T->data)'} is safe because:
+\begin{enumerate}[(a)]
+\ans{\lstinline'is_ordered(T, lo, hi) == true'}{line~\ref{l:bst_lookup-LI}}
+\ans{\lstinline'T != NULL'}{def.~of \lstinline'is_ordered'
+  and (a)\hfill}
+\ans{\lstinline'T->data != NULL'}{by (b)}
+%\ans{}{}
+\end{enumerate}
+\vspace{-2ex}
+\end{framed}
+
+\RUBRIC
+Part <lookup>-2
+TAGS: bst, safety
+
+Gradescope rubric:
++0.5pt  Account for all pointer dereferences/array accesses
++0.5pt  EITHER -- Ensures preconditions of entry_key is met
++0.5pt      OR -- Answers are correct given code on lines 9 and 12
+
+Commentary:
+  . 0.5 points for proving safety of T->data
+  . 0.5 points for showing that the precondition of entry_key is met.
+  . safety of T->data is all or nothing
+
+- In the precondition proof, one minor error (not distinguishing
+  between ``by the loop guard'' and ``by short-circuiting'', or the
+  like) should be forgiven. Several minor errors, deduct 0.5 points.
+
+- If their answer is wrong but consistent with part (a), give full credit
+  (same goes for the other two proofs)
+
+  On line 9, the pointer dereference T->data is safe because this
+  code is only run if T != NULL by short circuiting.  Now, we must
+  check that the precondition of entry_key is met, namely that T->data
+  != NULL.  By the loop invariant, we know that is_ordered(T, lo,
+  hi) is true.  If the code on line 9 calls key_compare, then T !=
+  NULL by short circuiting.  In this case, is_ordered will return
+  false if T->data is NULL.  Thus, T->data is not NULL, so the
+  precondition is satisfied.
+
+  An identical argument applies to line 12, except we know that T !=
+  NULL by the loop guard, not by short circuiting.
+ENDRUBRIC
+
+
+% %%% VARIANT B
+% \part[1]\TAGS{bst, safety}
+% \label{part:correctness}
+% Prove that the condition you wrote on line~\ref{l:bst_lookup-if} is
+% safe --- that pointer dereferences are safe and that the preconditions
+% of any function you call are satisfied. You may assume that the loop
+% invariant is correct.
+% %(Don't forget that \lstinline'entry_key' has a precondition!)
+% \begin{framed}
+% \newcommand{\ans}[2]{\item\uanswer{18em}{#1}~~by~~\uanswer{12em}{#2}}
+
+% \medskip
+% \uanswer{27em}{\lstinline'T->data'} is safe because:
+% \begin{enumerate}[(a)]
+% \ans{\lstinline'T != NULL'}{line~\ref{l:bst_lookup-while}\hfill}
+% \ans{}{}
+% %\ans{}{}
+% \end{enumerate}
+
+% \medskip
+% \uanswer{27em}{\lstinline'entry_key(T->data)'} is safe because:
+% \begin{enumerate}[(a)]
+% \ans{\lstinline'is_ordered(T, lo, hi) == true'}{line~\ref{l:bst_lookup-LI}}
+% \ans{\lstinline'T != NULL'}{def.~of \lstinline'is_ordered'
+%   and (a)\hfill}
+% \ans{\lstinline'T->data != NULL'}{by (b)}
+% %\ans{}{}
+% \end{enumerate}
+% \vspace{-2ex}
+% \end{framed}
+
+% \RUBRIC
+% Part <lookup>-2
+% TAGS: bst, safety
+
+% Gradescope rubric:
+% +0.5pt  Account for all pointer dereferences/array accesses
+% +0.5pt  EITHER -- Ensures preconditions of entry_key is met
+% +0.5pt      OR -- Answers are correct given code on lines 9 and 12
+
+% Commentary:
+%   . 0.5 points for proving safety of T->data
+%   . 0.5 points for showing that the precondition of entry_key is met.
+%   . safety of T->data is all or nothing
+
+% - In the precondition proof, one minor error (not distinguishing
+%   between ``by the loop guard'' and ``by short-circuiting'', or the
+%   like) should be forgiven. Several minor errors, deduct 0.5 points.
+
+% - If their answer is wrong but consistent with part (a), give full credit
+%   (same goes for the other two proofs)
+
+%   On line 9, the pointer dereference T->data is safe because this
+%   code is only run if T != NULL by short circuiting.  Now, we must
+%   check that the precondition of entry_key is met, namely that T->data
+%   != NULL.  By the loop invariant, we know that is_ordered(T, lo,
+%   hi) is true.  If the code on line 9 calls key_compare, then T !=
+%   NULL by short circuiting.  In this case, is_ordered will return
+%   false if T->data is NULL.  Thus, T->data is not NULL, so the
+%   precondition is satisfied.
+
+%   An identical argument applies to line 12, except we know that T !=
+%   NULL by the loop guard, not by short circuiting.
+% ENDRUBRIC
+
+
+\part[0\half]\TAGS{bst, correctness} %
+Prove that the loop invariant is true initially.
+\begin{framed}
+\newcommand{\ans}[2]{\item\uanswer{18em}{#1}~~by~~\uanswer{12em}{#2}}
+\medskip
+\makebox[4em][l]{To show:}~~\uanswer{25.5em}{\lstinline'is_ordered(T, lo, hi)'} initially.
+
+\bigskip
+\begin{enumerate}[(a)]
+\ans{\lstinline'lo == NULL'}{line~\ref{l:bst_lookup-init1}\hfill}
+\ans{\lstinline'hi == NULL'}{line~\ref{l:bst_lookup-init2}\hfill}
+\ans{\lstinline'is_bst(T)'}{line~\ref{l:bst_lookup-pre} (precondition)\hfill}
+\ans{\lstinline'is_ordered(T, NULL, NULL)'}{definition of \lstinline'is_bst'\hfill}
+%\ans{}{}
+\end{enumerate}
+\vspace{-2ex}
+\end{framed}
+
+
+\RUBRIC
+Part <lookup>-3
+
+Gradescope rubric:
++0.1pt To show: is_ordered(T, lo, hi) initially
++0.15pt lo == hi == NULL by lines 6-7
++0.15pt is_bst(T) by line 2/precondition
++0.1pt is_ordered(T, NULL, NULL) by definition of is_bst
+
+Commentary:
+- If they note that the invariant follows from is_bst(T) by way
+  of is_ordered(T, NULL, NULL), give at least some
+  credit. Deduct 0.25 point for any muddles they get into.
+
+  Initially, lo == hi == NULL by lines 6-7.
+  Thus we need to show that is_ordered(T, NULL, NULL) is
+  true initially.  By the precondition on line 2, is_bst(T) is true.
+  As is_bst(T) is true only if is_ordered(T, NULL, NULL) is
+  true, the loop invariant is satisfied.
+ENDRUBRIC
+
+\enlargethispage{5ex}
+\part[1]\TAGS{bst, correctness} %
+Prove that the loop invariant is preserved by any iteration of the
+loop.  Only show the case where the conditional on
+line~\ref{l:bst_lookup-if} evaluates to \lstinline'true'.
+\begin{framed}
+\newcommand{\ans}[2]{\item\uanswer{18em}{#1}~~by~~\uanswer{12em}{#2}}
+\medskip
+Assuming \uanswer{12em}{\lstinline'is_ordered(T,lo,hi)'},
+show that \uanswer{12em}{\lstinline'is_ordered(T`,lo`,hi`)'}
+
+\bigskip
+\begin{enumerate}[(a)]
+\ans{\lstinline'hi` == T->data'}{line~\ref{l:bst_lookup-inv1}\hfill}
+\ans{\lstinline'T` == T->left'}{line~\ref{l:bst_lookup-inv2}\hfill}
+\ans{\lstinline'T != NULL'}{line~\ref{l:bst_lookup-while} (loop guard)\hfill}
+\ans{\lstinline'is_ordered(T, lo, hi)'}{assumption\hfill}
+\ans{\lstinline'is_ordered(T->left, lo, T->data)'}{def.~of \lstinline'is_ordered'\hfill}
+\ans{}{}
+%\ans{}{}
+\end{enumerate}
+\vspace{-2ex}
+\end{framed}
+
+\RUBRIC
+Part <lookup>-4
+
+Gradescope rubric:
++0.2pt: Assume that is_ordered(T, lo, hi)
++0.2pt: To show: is_ordered(T', lo', hi')
++0.2pt: hi' == T->data and T' == T->left by appropriate lines
++0.2pt: T != NULL by line 9 (hopefully)
++0.2pt: is_ordered(T->left, lo, T->data) by assumption (definition of is_ordered)
+
+Commentary:
+- Deduct 0.2 point if they forget to argue that T is not NULL.
+
+By lines 13 and 14, hi' == T->data and T' == T->left.  To consider that
+the loop invariant is preserved we need to show that
+is_ordered(T->left, lo, T->data) is true at the end of the loop.
+By the loop guard, T != NULL.  By the loop invariant, is_ordered(T,
+lo, hi).  When T != NULL, is_ordered(T, lo, hi) will only
+return true if is_ordered(T->left, lo, T->data) and
+is_ordered(T->right, T->data, hi) are both true.  In particular,
+the first of these is true, which is what we wanted to show.
+ENDRUBRIC

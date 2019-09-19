@@ -1,0 +1,428 @@
+----------------------------------------------------------------------------
+Easy boards (tested for peg1.c0)
+----------------------------------------------------------------------------
+
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . * o * *
+Difficulty: Easy
+Result: Solvable!
+
+
+. . . . . . . *
+. . . . . . . *
+. . . . . . . o
+. . . . . . . *
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Easy
+Result: Solvable!
+
+
+o o o o o o o o
+o o o o o o o o
+o o o o o o o o
+o o o o o o o o
+o o o o o o o o
+o o o o o o o o
+o o o o o o o o
+* * o * o o o o
+Difficulty: Easy
+Result: Solvable!
+
+
+. . . . . . . .
+. o * o . . . .
+. * . . . . . .
+. o * o . . . .
+. . . * . . . .
+. . . o * o . .
+. . . . . * . .
+. . . . . o * *
+Difficulty: Easy
+Result: Solvable!
+
+
+. . . . . . . .
+. o * * . . . .
+. * . . . . . .
+. o * o . . . .
+. . . * . . . .
+. . . o * o . .
+. . . . . * . .
+. . . . . o * o
+Difficulty: Easy
+Result: Solvable!
+
+
+* o o o o o o o
+* o o o o o o o
+o * o o o o o o
+o o * o o o o o
+o o o * o o o o
+o o o o * o o o
+o o o o o * o o
+o o o o o o * o
+Difficulty: Easy 
+Result: Solvable!
+
+o o o o o o o o
+* o o o o o o o
+o * o o o o o o
+o o * o o o o o
+o o o * o o o o
+o o o o * o o o
+o o o o o * o o
+o o o o o o * *
+Difficulty: Easy 
+Result: Solvable!
+
+o o o o o o o o
+* o o o o o o o
+o * o o o o o o
+o o * o o o o o
+o o o o o o o o
+o o o o * o o o
+o o o o o * o o
+o o o o o o * *
+Difficulty: Easy 
+Result: No Solution; 4 pegs left
+
+* o o o o o o o
+* o o o o o o o
+o * o o o o o o
+o o * o o o o o
+o o o o o o o o
+o o o o * o o o
+o o o o o * o o
+o o o o o o * o
+Difficulty: Easy 
+Result: No Solution; 4 pegs left
+
+* * * * * * * *
+* . . . . . . *
+* . . . . . . *
+* o o o . . . *
+* o . . . . . *
+* . . . . . . *
+* . . . . . . *
+* * * * * * * *
+Difficulty: Easy
+Result: No solution; 28 pegs left
+
+
+* o . . . . o *
+o . . . . . . o
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+o . . . . . . o
+* o . . . . o *
+Result: No solution; 4 pegs left
+
+
+* * o * * * * *
+* o o o o o o *
+* o . . . . o *
+* o . . . . o *
+* o . . . . o *
+* o . . . . o *
+* o o o o o o *
+* * * * * * * *
+Difficulty: Easy
+Result: No solution; 26 pegs left
+
+
+* * * * * * * *
+* o o o o o o *
+* o . . . . o *
+* o . . . . o *
+* o . . . . o *
+* o . . . . o *
+* o o o o o o *
+* * * * * * * *
+Difficulty: Easy
+Result: No solution; 28 pegs left
+
+
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+Difficulty: Easy
+Result: No solution; 64 pegs left
+
+
+* * * * * * * *
+* o * o * o * o
+* * * * * * * *
+* o * o * o * o
+* * * * * * * *
+* o * o * o * o
+* * * * * * * *
+* o * o * o * o
+Difficulty: Easy
+Result: No solution; 48 pegs left
+
+
+----------------------------------------------------------------------------
+Medium boards (tested for peg2.c0)
+----------------------------------------------------------------------------
+[Try all Easy boards for peg2.c0!]
+Note: Typically, no-solution boards take the longest to generate since peg_solve(B) has to go through *every single state* possible for the board.
+
+
+o * o . . . . .
+* o * . . . . .
+o * * . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Easy-Medium 
+Result: Solvable
+
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . o * * o .
+. . . * * * * .
+. . . * * * * .
+. . . o * * o .
+. . . . . . . .
+Difficulty: Medium
+Result: Solvable
+
+. . . . . . . .
+. . o o o . . .
+. . o * o . . .
+. . o * o o . .
+. . o * * o . .
+. . o o o o . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Medium
+Result: Solvable
+
+
+. . . . . . . .
+. o * * * o . .
+. * * * * * . .
+. * * o * * . .
+. * * * * * . .
+. o * * * o . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Medium
+Result: Solvable
+
+
+. . . . . . . .
+. . . . . . . .
+. * * * * * . .
+. * * o * * . .
+. * * * * * . .
+. o * * * o . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Medium
+Result: Solvable
+
+
+. . . . . . . .
+. . * * * . . .
+. . * * * . . .
+. * * * * * * .
+. * * o * * * .
+. * * * * * * .
+. . * * * . . .
+. . . . . . . .
+Difficulty: Medium-Hard
+Result: Solvable
+
+. . . . . . . .
+. . * * * . . .
+. . * * * . . .
+. * * * * * * .
+. * * o * * * .
+. . * * * . . .
+. . * * * . . .
+. . . . . . . .
+Difficulty: Medium-Hard
+Result: Solvable
+
+. . . . . . . .
+. . . . . . . .
+. . * * * . . .
+. . * * * * * .
+. * * o * . . .
+. . * * * . . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Medium-Hard
+Result: No solution; 2 pegs left
+
+. . . . . . . .
+. * . . . . . .
+. . . . . . . .
+. . . o * * o .
+. . . * * * * .
+. . . * * * * .
+. . . o * * o .
+. . . . . . . .
+Difficulty: Hard
+Result: No Solution; 2 pegs left
+
+
+----------------------------------------------------------------------------
+More complicated boards (not peg2.c0-able) 
+(might take longer depending on your code) 
+----------------------------------------------------------------------------
+[Test peg2.c0 code for peg3.c0!]
+
+NOTE: These boards were pretty hard to generate, for they are all really dependent on how efficient your code is. 
+
+o * o . . . . .
+* o * . . . . .
+o * * * o . . .
+. . . * * * o .
+. . . * * * * .
+. . . * * * * .
+. . . o * * o .
+. . . . . . . .
+Difficulty: Hard
+Result: Solvable
+
+
+. . * * * . . .
+. . * * * . . .
+* * o o o * * .
+* * o * o * * .
+* * o o o * * .
+. . * * * . . .
+. . * * * . . .
+. . . . . . . .
+Difficulty: Hard 
+Result: Solvable
+
+. . . . . . . .
+. . * * * . . .
+. . * * * . . .
+. . * * * * * .
+. * * o * . . .
+. . * * * . . .
+. . * * * . . .
+. . . . . . . .
+Difficulty: Medium-Hard
+Result: No solution; 2 pegs left
+
+* * * * * * . .
+* * * * * * . .
+* * * o * * . .
+* * * * * * . .
+* * * * * * . .
+* * * * * * . .
+. . . . . . . .
+. . . . . . . .
+Difficulty: Hard
+Result: Solvable
+
+----------------------------------------------------------------------------
+NOTE: [Also to test for efficiency of peg3.c0, take any solvable board peg2.c0 board, and put a peg somewhere so that the board would be unsolvable. For example: 
+
+. . . . . . . .
+. . . . . . . .
+. * * * * * . .
+. * * o * * . .
+. * * * * * . .
+. o * * * o . .
+. . . . . . . .
+. . . . . . . *
+Difficulty: Hard
+Result: No Solution; 2 pegs left
+
+(Or combine two peg2.c0 boards):
+o * o . . . . .
+* o * . . . . .
+o * * . . . . .
+. . . o * * o .
+. . . * * * * .
+. . . * * * * .
+. . . o * * o .
+. . . . . . . .
+Difficulty: Hard (deceptively)
+Result: No solution; 2 pegs left
+----------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
+For crazy ambitious people, just for fun :) (Hell difficulty)
+----------------------------------------------------------------------------
+
+. . . * * . . .
+. . * * * * . .
+* * * o * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+Difficulty: Hard
+Result: Solvable
+
+. . . * * . . .
+. . * * * * . .
+. * * o * * * .
+* * * * * * * *
+* * * * * * * *
+. * * * * * * .
+. . * * * * . .
+. . . * * . . .
+Difficulty: Hell
+Result: Solvable
+
+. . . * * . . .
+. . * * * * . .
+. * * o * * * .
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+Difficulty: Hell
+Result: Solvable
+
+. . . * * . . .
+. . * * * * . .
+. * * o o * * .
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+* * * * * * * *
+Difficulty: Extreme 
+Result: Solvable
+
+* * * * * * * o
+* * * * * * * o
+* * * * * * * o
+* * * * * * * o
+* * * * * * * o
+* * * * * * * o
+* * * * * * * o
+o o o o o o o o
+Difficulty: Extreme
+Result: No Solution; 2 pegs left
+

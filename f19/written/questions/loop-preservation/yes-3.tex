@@ -1,0 +1,46 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (0 <= b && b < a)
+//@loop_invariant a % 17 == 0 && b % 17 == 0;[*\label{l:lpres-yes3-LI}*]
+{
+    a = a - b;[*\label{l:lpres-yes3-seta}*]
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  ALWAYS PRESERVED.
+
+  \begin{itemize}
+  \item \lstinline'a' = $17n$ by line~\ref{l:lpres-yes3-LI}
+  \item \lstinline'b' = $17m$ by line~\ref{l:lpres-yes3-LI}
+  \item \lstinline'a`' = $17(m - n)$ by line~\ref{l:lpres-yes3-seta}
+  \item so \lstinline'a` % 17' = $17(m-n) \% 17 == 0$
+  \end{itemize}
+
+  \lstinline'b`' = \lstinline'b',
+  so \lstinline'b` % 17' = 0 follows directly from line~\ref{l:lpres-yes3-LI}.
+}\else~\vspace{2.1in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<y3>)
+
+Gradescope rubric:
++ 0.5 pts ALWAYS PRESERVED
++ 0.5 pts Valid proof
+
+Commentary:
+  a = 17n (line 2)
+  b = 17m (line 2)
+  a' = 17(m - n) (line 4)
+   ==> a' % 17 == 17(m-n) % 17 == 0
+
+  b' = b, so b' % 17 == 0 follows directly from line 2 (if they leave
+  this out it's okay)
+
+  Half a point for ALWAYS PRESERVED, half a point for proof
+
+  Proof can be pretty loose, as long as it seems like they're trying
+  to say somthing like "both are multiples of 17, so their difference
+  must also be a multiple of 17", it is fine.
+ENDRUBRIC

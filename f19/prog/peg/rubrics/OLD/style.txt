@@ -1,0 +1,16 @@
+The "style" grade for this assignment is mostly about checking for autograder
+fitting.
+
+Style points start and 0 and go negative after deductions.
+
+The easiest way to get started is to just read the last file the student
+got points on (peg3 in most cases).
+
+* -1 point: leaving in lots of commented-out code, dozens and dozens
+            of commented-out printfs
+* -1 point: basic formatting issues
+* -1 point: bad comments/no comments
+* -1 to -2 points: bad contracts/no contracts
+* -1 to -5 points: apparent autograder fitting
+
+We're aiming to deduct no more than 5 points.

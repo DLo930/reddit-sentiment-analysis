@@ -1,0 +1,15 @@
+#use <conio>
+/* tests negative height */
+
+pixel[] apply_mask(pixel[] p, int width, int height, int[] mask, int maskwidth);
+int main() {
+    int[] inpixels;
+    int[] resultpixels;
+ 
+    inpixels = alloc_array(int, 25);
+  
+    resultpixels = apply_mask(inpixels, 5, -5, inpixels, 1);
+
+	println("EXPECTED ANNOTATION FAILURE");
+    return 0;
+}

@@ -1,0 +1,181 @@
+/**
+ *****************************************************************************
+ *                              HOMEWORK  15-122
+ *****************************************************************************
+ *      A text buffer is a doubly linked list (dll) of gap buffers.
+ *      The list is terminated with dummy nodes whose contents are
+ *      never inspected.
+ *
+ * @author:
+ *****************************************************************************/
+
+typedef struct list_node * dll;
+struct list_node
+{
+  elem data; /* this is a gap buffer (fixed-size of 16 bytes) */
+  dll next;
+  dll prev;
+};
+
+typedef struct text_buffer * tbuf;
+struct text_buffer
+{
+  dll start; /* the fist node of the list (on the left)  */
+  dll point; /* the current node (where the cursor is)   */
+  dll end;   /* the last node of the list (on the right) */
+};
+
+/* INTERFACE */
+
+// true iff there is a list segment from p to q of length at most n.
+bool dll_prev_segmentn(int n, dll p, dll q)
+{
+  dll p0 = p;
+  for (int i = 0; i < n && p0 != NULL; i++)
+  //@loop_invariant 0 <= i;
+  {
+    if (p0 == q) return true;
+    p0 = p0->prev;
+  }
+  return p0 == q;
+}
+
+// Brent's cycle detection algorithm.
+bool is_dll_segment_prev(dll s, dll e)
+//@requires true;
+//@ensures true;
+{
+  if (s == e) return true;
+  int power = 0;
+  dll hare = s->prev;
+  dll tortoise = s;
+  for (int i = 1; tortoise != hare; i++)
+  //@loop_invariant dll_prev_segmentn(1 << power, tortoise, hare);
+  //@loop_invariant tortoise != NULL;
+  {
+    if (hare == e) return true;
+    if (hare == NULL) return e == NULL;
+    if (i == 1 << power)
+    {
+      power++;
+      tortoise = hare;
+      i = 0;
+    }
+    hare = hare->prev;
+  }
+  // Found cycle
+  return false;
+}
+
+// true iff there is a list segment from p to q of length at most n.
+bool dll_next_segmentn(int n, dll p, dll q)
+{
+  dll p0 = p;
+  for (int i = 0; i < n && p0 != NULL; i++)
+  //@loop_invariant 0 <= i;
+  {
+    if (p0 == q) return true;
+    p0 = p0->next;
+  }
+  return p0 == q;
+}
+
+// Brent's cycle detection algorithm.
+bool is_dll_segment_next(dll s, dll e)
+//@requires true;
+//@ensures true;
+{
+  if (s == e) return true;
+  int power = 0;
+  dll hare = s->next;
+  dll tortoise = s;
+  for (int i = 1; tortoise != hare; i++)
+  //@loop_invariant dll_next_segmentn(1 << power, tortoise, hare);
+  //@loop_invariant tortoise != NULL;
+  {
+    if (hare == e) return true;
+    if (hare == NULL) return e == NULL;
+    if (i == 1 << power)
+    {
+      power++;
+      tortoise = hare;
+      i = 0;
+    }
+    hare = hare->next;
+  }
+  // Found cycle
+  return false;
+}
+
+bool is_linked(tbuf B);     /* Checks if the list is a well-formed dll */
+bool is_linked(tbuf B)      /* Checks if the list is a well-formed dll */
+{
+  if (B == NULL) return false;
+  if (B->start == NULL || B->point == NULL || B->end == NULL) return false;
+  if (B->start == B->point || B->point == B->end || B->start == B->end) return false;
+  if (!is_dll_segment_next(B->start,B->point)) return false;
+  if (!is_dll_segment_next(B->point,B->end)) return false;
+  if (!is_dll_segment_prev(B->end,B->point)) return false;
+  if (!is_dll_segment_prev(B->point,B->start)) return false;
+  for(dll p = B->start; p != B->end ; p = p->next)
+  //@loop_invariant is_dll_segment_next(p,B->end);
+  {
+    if (p->next->prev != p) return false;
+  }
+  return true;
+}
+
+
+bool tbuf_at_left(tbuf B);  /* Returns true if the point is the        */
+                            /*   first (non-terminal) node of the list */
+bool tbuf_at_left(tbuf B)   /* Returns true if the point is the        */
+                            /*   first (non-terminal) node of the list */
+//@requires is_linked(B);
+{
+  return B->point == B->start->next;
+}
+
+bool tbuf_at_right(tbuf B); /* Returns true if the point is the        */
+                            /*   last (non-terminal) node of the list  */
+bool tbuf_at_right(tbuf B)  /* Returns true if the point is the        */
+                            /*   last (non-terminal) node of the list  */
+//@requires is_linked(B);
+{
+  return B->point == B->end->prev;
+}
+
+
+void tbuf_forward(tbuf B);      /* Moves the point forward, to the right  */
+void tbuf_forward(tbuf B)       /* Moves the point forward, to the right  */
+//@requires is_linked(B) && !tbuf_at_right(B);
+//@ensures is_linked(B);
+{
+  B->point = B->point->next;
+  return;
+}
+
+void tbuf_backward(tbuf B);     /* Moves the point backward, to the left  */
+void tbuf_backward(tbuf B)      /* Moves the point backward, to the left  */
+//@requires is_linked(B) && !tbuf_at_left(B);
+//@ensures is_linked(B);
+{
+  B->point = B->point->prev;
+  return;
+}
+
+void tbuf_delete_point(tbuf B); /* Remove the point node from the list    */
+void tbuf_delete_point(tbuf B)  /* Remove the point node from the list    */
+//@requires is_linked(B) && !(tbuf_at_left(B) && tbuf_at_right(B));
+//@ensures is_linked(B);
+{
+  dll pl = B->point->prev;
+  dll pr = B->point->next;
+  pl->next = pr;
+  pr->prev = pl;
+  if (pl == B->start) B->point = pr;
+  else B->point = pl;
+  return;
+}
+
+
+/* IMPLEMENTATION */

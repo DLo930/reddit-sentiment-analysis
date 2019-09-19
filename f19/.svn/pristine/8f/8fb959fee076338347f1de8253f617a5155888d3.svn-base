@@ -1,0 +1,47 @@
+\section*{Lagged Fibonacci}
+
+The regular Fibonacci numbers are given by the function $F(i)$ where
+$F(i) = i$ for $i \in [0, 2)$ and where $F(i) = F(i-1) + F(i-2)$ for
+$i >= 2$.  More explicitly:
+$$
+\left\{
+\begin{array}{llll}
+   F(0) & = & 0
+\\ F(1) & = & 1
+\\ F(i) & = & F(i-1) + F(i-2) & \text{for } i >= 2
+\end{array}
+\right.
+$$
+The \emph{lagged} Fibonacci numbers make use of two additional
+parameters $j$ and $k$, where $0 < j < k$.  They are defined by the
+function $\mathit{LF}(i)$ where $\mathit{LF}(i) = i$ for $i \in [0,
+k)$ and where $\mathit{LF}(i) =\mathit{LF}(i-j) + \mathit{LF}(i-k)$
+otherwise.  Here is a C0 function that implements this definition
+(note that \lstinline'j' and \lstinline'k' do not change during the
+computation):
+
+\begin{lstlisting}[numbers=left, belowskip=0pt]
+int LF(int i, int j, int k)
+//@requires 0 < j && j < k;
+//@requires i >= 0;
+{
+  if (i < k) return i;
+
+  int res = 0;
+  res += LF(i-j, j, k);
+  res += LF(i-k, j, k);
+  return res;
+}
+\end{lstlisting}
+
+\begin{part}\TAGS{correctness}
+The regular Fibonacci numbers can easily be computed on the basis of
+$\mathit{LF}$.  Can you do so?
+
+$F(i) = LF(\shortanswerline{i, 1, 2\hspace*{10em}})$
+\end{part}
+
+While \lstinline'LF' computes the desired result accurately, it is
+quite slow for large inputs! This is because it repeats many of the
+sub-computations over and over again, which is slow, inefficient, and
+redundant.  Can you see why?

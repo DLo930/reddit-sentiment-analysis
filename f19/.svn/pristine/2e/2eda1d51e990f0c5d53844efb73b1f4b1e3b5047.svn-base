@@ -1,0 +1,30 @@
+\checkpoint*{\TAGS{ints}}
+
+\bgroup
+\newcommand{\base}[1]{\textcolor{Brown}{#1}}
+\newcommand{\bin}[1]{\textcolor{blue}{#1}}
+\newcommand{\dec}[1]{\textcolor{red}{#1}}
+\newcommand{\blankSize}{2.5em}
+\newcommand{\blank}[1][]{\underline{\makebox[\blankSize][r]{#1\;\;}}}
+\newcommand{\blankrow}[3]{%
+  \blank[#1] \,\times\, \base{2} \,+\, \blank[\bin{#2}] \;=\; \blank[#3]}
+
+What is the decimal representation of $\bin{1111010}_{[\base{2}]}$?
+\answerline{~~~\dec{122}~~~}
+
+What is the binary representation of $\dec{49}_{[\base{10}]}$? \answerline{~~\bin{110001}~~}
+\begin{solution}
+$$
+\begin{array}{@{\hspace{0.9em}}l@{\hspace{0.9em}}|@{\hspace{0.9em}}l@{}}
+\mathstrut
+   \blankrow{}{}{}            & \blankrow{0}{1}{1}
+\\ \blankrow{0}{1}{1}         & \blankrow{1}{1}{3}
+\\ \blankrow{1}{1}{3}         & \blankrow{3}{1}{7}
+\\ \blankrow{3}{0}{6}         & \blankrow{7}{1}{15}
+\\ \blankrow{6}{0}{12}        & \blankrow{15}{0}{30}
+\\ \blankrow{12}{0}{24}       & \blankrow{30}{1}{61}
+\\ \blankrow{24}{1}{\dec{49}} & \blankrow{61}{0}{122}
+\end{array}
+$$
+\end{solution}
+\egroup

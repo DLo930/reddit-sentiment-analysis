@@ -1,0 +1,11 @@
+
+#use <string>
+
+int main()
+{
+  char []A = string_to_chararray("AB");
+  if (A[0] != 'A') return 1;
+  if (A[1] != 'B') return 2;
+  return 0;
+}
+

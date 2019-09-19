@@ -1,0 +1,7 @@
+int main () {
+  int i; 
+  int product = 1;
+  for (i = 15; i <= 122; i++)
+    product *= i;
+  return product;
+}

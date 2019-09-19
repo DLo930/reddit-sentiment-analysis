@@ -1,0 +1,26 @@
+\section*{Selection sort in C0}
+
+\begin{lstlisting}[numbers=left]
+void sort(int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@ensures is_sorted(A, 0, n);
+{
+  for (int i = 0; i < n; i++)
+  //@loop_invariant 0 <= i && i <= n;
+  //@loop_invariant is_sorted(A, 0, i);
+  //@loop_invariant le_segs(A, 0, i, A, i, n);
+  {
+    int min = i;
+    for (int j = i + 1; j < n; j++)
+    //@loop_invariant i < j && j <= n;
+    //@loop_invariant i <= min && min < n;
+    //@loop_invariant le_seg(A[min], A, i, j);
+    {
+      if (A[j] < A[min]) {
+        min = j;
+      }
+    }
+    swap(A, i, min);
+  }
+}
+\end{lstlisting}

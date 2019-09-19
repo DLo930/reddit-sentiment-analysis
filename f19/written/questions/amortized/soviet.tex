@@ -1,0 +1,62 @@
+\clearpage
+\Question{Amortized Analysis}
+
+\begin{parts}
+
+\part[1]\TAGS{amortized-cost}
+There are $n$ students $\{s_1, s_2, ..., s_{n}\}$ who want to get into
+the Gates-Hillman Center after~6pm. Unfortunately, 15-122 TAs control
+the building and charge a toll for entrance. The toll policy is the
+following: the TAs have picked some $k \leq n$, and each student $s_i$
+is charged $k^2$ tokens if $i \equiv 0 \bmod{k}$, or zero
+otherwise. In other words, if $i$ is a multiple of $k$, then student
+$s_i$ is charged $k^2$ tokens. Otherwise, the student enters for
+free. With this policy, how much do the students pay \emph{altogether}?
+\begin{framed}
+\bigskip
+\answer{34em}{$k(n - (n \mod k))$}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: amortized-cost
+
+Gradescope rubric: TODO
+
+Commentary:
+- solution: k(n - (n mod k))
+- Full point for $\left\lfloor \frac{n}{k}\right\rfloor k^2$.
+- Half point for kn or an unsimplified equivalent.
+ENDRUBRIC
+
+
+\part[1]\TAGS{amortized-cost}
+In Soviet Russia, TAs pay you (the TAs really want students at their
+office hours).  However, Soviet Russia is also communist, so the
+students must split the money evenly between themselves. If the
+\mbox{15-122} TAs in Soviet Russia used the same policy for entering
+GHC (the Gavrilovich-Hashlov Center) after 6pm --- student $s_i$ is
+paid $k^2$ tokens when $i \equiv 0 \bmod{k}$ --- how much will each
+student end up with in the end? (i.e., what is the amortized cost
+\emph{per student}?)
+\begin{framed}
+\bigskip
+\answer{34em}{$k(n - (n \mod k)) / n$}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: amortized-cost
+
+Gradescope rubric: TODO
+
+Commentary:
+- solution: k(n - (n mod k)) / n
+- Full point for their answer to (a) divided by n
+- Full point for k
+- Half point for O(1) without an explanation showing they found one of
+  the solutions above
+ENDRUBRIC
+
+
+\end{parts}

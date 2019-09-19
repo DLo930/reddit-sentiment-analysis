@@ -1,0 +1,4 @@
+   remove-blue.c0        - You can modify this to respect the pixel/imageutil
+                           interfaces if you'd like
+   remove-blue-main.c0   - Runs remove_blue()
+   remove-blue-test.c0   - Some unit tests for remove_blue()

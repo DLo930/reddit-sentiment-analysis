@@ -1,0 +1,33 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{9}
+\newcommand{\duedate}{\formatdate{28}{10}{\YEAR}} % day-month-year
+\newcommand{\shortdesc}{This written homework covers binary search
+  trees and AVL trees.}
+
+\input{inc/preamble}
+\begin{document}
+\input{inc/frontmatter}
+
+\begin{questions}
+\inputQuestion[questions/bst/]{main}  % See file
+\inputQuestion{avl}  % See file
+\end{questions}
+
+\RUBRIC
+
+Learning Objectives (AKA Evaluation Summary)
+* Binary search trees
+* Safety and correctness
+* AVL trees
+
+Gradescope rubric (no points, first two are always the same):
+-0pt EXCELLENT JOB!!!
+-0pt There are several concepts you have doubts about (see below): please consider going to office hours.
+
+-0pt You appear a bit confused about binary search trees.
+-0pt You don't seem to fully understand AVL trees.
+
+ENDRUBRIC
+
+\input{inc/backmatter}
+\end{document}

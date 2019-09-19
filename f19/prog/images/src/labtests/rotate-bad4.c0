@@ -1,0 +1,55 @@
+// Contract exploit: just makes four copies, doesn't rotate
+
+pixel[] rotate(pixel[] A, int width, int height)
+//@requires is_valid_imagesize(width, height);
+//@requires is_valid_imagesize(2*width, 2*height);
+//@requires \length(A) == width * height;
+//@requires width == height;
+//@ensures \length(\result) == 4*width*height;
+{
+  pixel[] B = alloc_array(pixel, 4*width*height);
+  int width2 = width*2;
+  int height2 = height*2;
+
+  for (int row = 0; row < height; row++) 
+    //@loop_invariant 0 <= row;
+    {
+      for (int col = 0; col < width; col++) 
+        //@loop_invariant 0 <= col;
+        {
+          int row2;
+          int col2;
+          pixel p = A[get_index(row, col, width, height)];
+          
+          // Upper-right-hand image
+          row2 = row;
+          col2 = width + col;
+          //@assert 0 <= row2 && row2 < height;
+          //@assert width <= col2 && col2 < width*2;
+          B[get_index(row2, col2, width2, height2)] = p;
+
+          // Lower-right-hand image
+          row2 = height + row;
+          col2 = width + col;
+          //@assert height <= row2 && row2 < height*2;
+          //@assert width <= col2 && col2 < width*2;
+          B[get_index(row2, col2, width2, height2)] = p;
+
+          // Lower-left-hand image
+          row2 = height + row;
+          col2 = col;
+          //@assert height <= row2 && row2 < height*2;
+          //@assert 0 <= col2 && col2 < width;
+          B[get_index(row2, col2, width2, height2)] = p;
+
+          // Upper-left-hand image
+          row2 = row;
+          col2 = col;
+          //@assert 0 <= row2 && row2 < height;
+          //@assert 0 <= col2 && col2 < width;
+          B[get_index(row2, col2, width2, height2)] = p;
+        }
+    }
+
+  return B;
+}

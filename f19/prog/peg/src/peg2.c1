@@ -1,0 +1,44 @@
+/*
+ * Peg solitaire solver
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use <conio>
+#use <util>
+
+
+struct compact_board {
+  int i1;         // First  half of a compacted board
+  int i2;         // second half of a compacted board
+  // Add any field you deem useful
+};
+typedef struct compact_board cboard;
+
+cboard* compress (board B)
+  ;
+
+/* Client side implementation for hashtables.  See lib/hdict.c1 */
+
+int cboard_hash(key k)
+//@requires k != NULL;
+{
+  return 0;  // Change me!
+}
+
+bool cboard_eq(key k1, key k2)
+//@requires k1 != NULL && k2 != NULL;
+{
+  return true;  // Change me!
+}
+
+ key cboard_key(entry e)
+//@requires e != NULL;
+//@ensures \result != NULL;
+{
+  return NULL;  // Change me!
+}
+
+
+/*
+ * Copy here your code from peg1.c1 to continue
+ */

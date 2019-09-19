@@ -1,0 +1,5 @@
+//EXPECT ANNOTATION FAILURE
+int main() {
+  gapbuf_forward(NULL);
+  return 0;
+}

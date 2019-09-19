@@ -1,0 +1,40 @@
+\part[0\half]\TAGS{complexity, sorting, pq}
+We are given an array $A$ of $n$ integers. Consider the following
+sorting algorithm:
+\begin{itemize}
+  \item%
+    Insert every integer from $A$ into a min-heap.
+  \item%
+    Repeatedly delete the minimum from the heap, storing the deleted
+    values back into $A$ from left to right.
+\end{itemize}
+What is the worst-case runtime complexity of this sorting algorithm,
+using big-O notation? Briefly explain your answer.
+
+\begin{framed}
+\medskip
+$O( \uanswer{16em}{$n \log n$ \quad OR \quad $\log n!$} )$
+
+\medskip
+Because:
+
+\ifprintanswers{%
+  \parbox{0.99\linewidth}{\color{\answerColor}%
+    There are $2n$ or $O(n)$ operations, each of which takes worst case $O(\log n)$ time.
+  }}
+\else~\vspace{1in}\fi
+\end{framed}
+
+\RUBRIC
+Part <heap sort>
+TAGS: complexity, sorting, pq
+
+Gradescope rubric:
++ 0.25 pts O(n log n) or O(log n!)
++ 0.25 pts Correct justification
+
+Commentary:
+  +1/4pt: O(n log n) or O(log n!)
+  +1/4pt: Explanation: 2n or O(n) operations, each of which takes worst
+     case O(log n) time
+ENDRUBRIC

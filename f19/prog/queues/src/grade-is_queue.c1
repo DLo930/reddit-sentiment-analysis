@@ -1,0 +1,61 @@
+
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  int[] A = parse_ints("42 12 19 66 32 -1 55", 10);
+  
+  if (string_equal(arg, "emp")) {
+    queue* Q = alloc(queue);
+    if (!is_queue(Q)) return 1;
+
+  } else if (string_equal(arg, "emp_back_not_NULL")) {
+    queue* Q = alloc(queue);
+    Q->back = alloc(list);
+    if (!is_queue(Q)) return 1;
+
+  } else if (string_equal(arg, "NULL")) {
+    if (is_queue(NULL)) return 1;
+
+  } else if (string_equal(arg, "nonemp")) {
+    for (int i = 1; i < 8; i++) {
+      queue* Q = construct(A, 0, i);
+      if (!is_queue(Q)) return 1;
+    } 
+
+  } else if (string_equal(arg, "nonemp_back_next_not_NULL")) {
+    for (int i = 1; i < 8; i++) {
+      queue* Q = construct(A, 0, i);
+      Q->back->next = alloc(list);
+      if (is_queue(Q)) return 1;
+    } 
+
+  } else if (string_equal(arg, "wrong_length")) {
+    for (int i = 1; i < 8; i++) {
+      queue* Q = construct(A, 0, i);
+      Q->size -= 1;
+      if (is_queue(Q)) return 1;
+      Q->size += 2; 
+      if (is_queue(Q)) return 1;
+
+      Q = alloc(queue);
+      Q->size = i;
+      if (is_queue(Q)) return 1;
+    } 
+
+  } else if (string_equal(arg, "circular")) {
+    queue* Q = construct(A, 0, 7);
+    Q->front->next->next->next->next->next = Q->front->next->next;
+    if (is_queue(Q)) return 1;
+    Q = construct(A, 0, 7);
+    Q->front->next = Q->front;
+    if (is_queue(Q)) return 1;
+
+  } else {
+    error(string_join("Bad arg: ", arg));
+  }
+
+  return 0;
+}

@@ -1,0 +1,36 @@
+\section*{Stacks using priority queues}
+
+Stacks can be implemented using a priority queue to hold the
+data. Each element of the priority queue will then be a stack element
+along with its "priority".
+
+The stack itself consists of a priority queue (to hold all of the
+elements) and a \lstinline'pushcount' field. The \lstinline'pushcount'
+field keeps track of how many elements have been pushed on to the
+stack. In order for your priority queue to act like a stack, you will
+need to use the \lstinline'pushcount' field in some way. You will also
+need to complete the client function that determines which elements
+have higher priority.
+
+\begin{part}\TAGS{interface, pq, stack}
+  Complete the file \lstinline'pqstack.c1' with your implementation of
+  the stack functions.
+
+  \begin{solution}
+    TODO
+  \end{solution}
+\end{part}
+
+Compile and test your code by running this command:
+
+\begin{lstlisting}[language={[coin]C}]
+% cc0 -d -x heap.c1 pqstack.c1
+pop: Hello
+pop: there
+pop: it
+pop: is
+pop: good
+pop: to
+pop: see
+pop: you!
+\end{lstlisting}

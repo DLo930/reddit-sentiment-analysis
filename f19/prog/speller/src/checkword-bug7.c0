@@ -1,0 +1,49 @@
+// check_word: screws with dictionary
+
+#use <conio>
+#use <args>
+#use <string>
+#use "lib/arrayutil.c0"
+#use "lib/readfile.c0"
+
+
+// function that performs a binary search on an array of strings
+int binsearch(string[] A, int n, string e)
+//@requires \length(A) == n;
+//@requires is_sorted(A,0,n);
+/*@ensures (-1 == \result && !is_in(e, A, 0, n))
+        || (0 <= \result && \result < n && string_equal(A[\result], e));
+@*/
+{
+  int lo = 0;
+  int hi = n;
+  while (lo < hi)
+  //@loop_invariant 0 <= lo && hi <= n;
+  //@loop_invariant lo == 0 || string_compare(A[lo-1], e) == -1;
+  //@loop_invariant hi == n || string_compare(e, A[hi]) == -1;
+  {
+     int mid = lo + (hi - lo)/2;
+     int comp = string_compare(A[mid], e);
+
+     if (comp == 0)
+         return mid;
+     else if (comp < 0)
+         lo = mid + 1;
+     else
+         hi = mid;
+  }
+
+  return -1;
+}
+
+
+// just does a binary search for a given string in the dictionary
+bool check_word(string[] dict, int d, string w)
+//@requires \length(dict) == d;
+//@requires is_sorted(dict,0,d);
+//@requires no_dupes(dict,0,d);
+//@ensures \result == true ? is_in(w,dict,0,d) : !is_in(w,dict,0,d);
+{
+  for (int i = 0; i < d; i++) dict[i] = w;
+  return binsearch(dict, d, w) >= 0;
+}

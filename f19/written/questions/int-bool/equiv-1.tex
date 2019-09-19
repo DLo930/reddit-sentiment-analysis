@@ -1,0 +1,21 @@
+\subpart
+For every \lstinline'int' $y$:
+\lstinline|(y != 0) && (y / y == 1)| is equivalent to \lstinline'true'.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  False.  Counterexample: $y = 0$.
+}\else~\vspace{0.9in}\fi
+\end{framed}
+
+\RUBRIC
+Part <equiv 1>
+
+Gradescope rubric:
++0.2pt False (y = 0)
+
+Commentary:
+  These are not equivalent as when y = 0, this evaluates to
+  false. However, this can never raise a divide by zero error.
+ENDRUBRIC
+
+\smallskip

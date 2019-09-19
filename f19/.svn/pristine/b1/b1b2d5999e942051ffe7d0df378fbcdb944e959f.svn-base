@@ -1,0 +1,31 @@
+\checkpoint*{\TAGS{big-o}}
+
+Give the simplest, tightest bound for the following functions:
+
+$f(n) = 16n^2 + 5n + 2 \in$ \answerline{$O(n^2)$}
+
+$g(n,m) = n^{1.5} \times 16m \in$ \answerline{$O(n^{1.5} m)$}
+
+$h(x,y,z) = \max(x,y) + z^{16} \in$ \answerline{$O(x + y + z^{16})$}
+
+\begin{solution}
+Note that $\max(x,y) + z^{16}$ also works for $h$.
+
+\bigskip
+$f(n,m) \in O(g(n,m))$ if and only if:
+\begin{itemize}
+\item%
+  there is some $c \in \mathbb{R}^+$
+\item%
+  and some $n_0, m_0 \in \mathbb{N}$
+\item%
+  such that for all $n \geq n_0$ and $m \geq m_0$
+  $$
+  f(n,m) \leq c \, g(n,m)
+  $$
+\item%
+  \ldots and $\max(x,y) \leq x+y \leq 2 \times \max(x,y)$, so $O(x,y)$
+  and $O(\max(x,y))$ are equivalent sets and we don't distinguish one
+  or the other as simpler.
+\end{itemize}
+\end{solution}

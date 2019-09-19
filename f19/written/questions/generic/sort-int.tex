@@ -1,0 +1,135 @@
+\part[1]\TAGS{void-star}
+Write an integer comparison function \lstinline'compare_ints' that can
+be used with this generic sorting function.  The contracts on your
+\lstinline'compare_ints' function \emph{must} be sufficient to ensure
+that no precondition-passing call to \lstinline'compare_ints' can
+possibly cause a memory error.
+\begin{framed}
+\begin{lstlisting}
+int compare_ints(void* x, void* y)
+
+//@requires x != NULL && \hastag([*\uanswer{16.7em}{int*, x}*]);
+
+//@requires y != NULL && \hastag([*\uanswer{16.7em}{int*, y}*]);
+//@ensures -1 <= \result && \result <= 1;
+{
+
+   if ([*\uanswer{21em}{*(int*)x < *(int*)y}*]) return [*\uanswer{6.5em}{-1}*];
+
+   if ([*\uanswer{21em}{*(int*)x > *(int*)y}*]) return [*\uanswer{6.5em}{1}*];
+
+   return [*\uanswer{31em}{0}*];
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: void-star
+
+Gradescope rubric:
++0.25pt Correctly invokes \hastag
++0.25pt Correctly casts
++0.25pt Correctly dereferences int pointers
++0.25pt Correct returns
+
+Commentary:
+     ** 1/4 point for correctly handling the possibility of NULL
+     ** 1/4 point for correctly handing \hastag
+     ** 1/4 point for casting and dereferencing int pointer
+     ** 1/4 point for getting the return (-1, 0, 1) correct
+
+     int compare_helper(void* x, void* y)
+     //@requires x != NULL && \hastag(__int*, x__);
+     //@requires y != NULL && \hastag(__int*, y__);
+     {
+        if (*(int*)x < *(int*)y) return -1;
+        if (*(int*)x > *(int*)y) return 1;
+        return 0;
+     }
+ENDRUBRIC
+
+
+\newpage
+\part[2]\TAGS{array, function-pointer, genericity, void-star}
+Using \lstinline'sort_generic' (which you may assume has already been
+written) and \lstinline'compare_ints', fill in the body of the
+\lstinline'sort_ints' function below so that it will sort the array
+\lstinline'A' of integers.  You can omit loop invariants. But of
+course, when you call \lstinline'sort_generic', the preconditions of
+\lstinline'compare_ints' must be satisfied by any two elements of the
+array \lstinline'B'.
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+void sort_ints(int[] A, int n)
+//@requires \length(A) == n;
+{
+   // Allocate a temporary generic array of the same size as A
+
+   void*[] B = [*\uanswer{20em}{alloc\_array(void*, n)}*];
+
+   // Store a copy of each element in A into B
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   for (int i = 0; i < n; i++) {
+     int* p = alloc(int);
+     *p = A[i];
+     B[i] = (void*)p;
+   }
+\end{lstlisting}
+\else~\vspace{2.0in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+   // Sort B using sort_generic and compare_ints from task 2
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   sort_generic(B, 0, n, &compare_helper);
+\end{lstlisting}
+\else~\vspace{0.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+   // Copy the sorted ints in your generic array B into array A
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   for (int i = 0; i < n; i++) {
+      A[i] = *(int*)B[i];
+   }
+\end{lstlisting}
+\else~\vspace{2.0in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: array, function-pointer, genericity, void-star
+
+Gradescope rubric:
++ 0.5 pts Correctly allocate array
++ 0.5 pts Correctly copying A elements into B
++ 0.5 pts Correctly calls sort_generic
++ 0.5 pts Correctly copies sorted ints back into A
+
+Commentary:
+     void*[] B = alloc_array(void*, n);  // 1/2 point
+     for (int i = 0; i < n; i++) {
+        int* p = alloc(int);             // 1/2 point, correctly initializing
+        *p = A[i];                       // an INT pointer in the loop,
+        B[i] = (void*)p;                 // then casting to void
+     }
+     sort_generic(B, 0, n, &compare_helper);
+                                         // 1/2 point, correct call to sort
+                                         // (MUST include address-of &)
+     for (int i = 0; i < n; i++) {
+        A[i] = *(int*)B[i];              // 1/2 point for casting back
+     }
+
+
+Alternative first loop body:
+      B[i] = (void*) alloc(int);
+      int* x = (int*) B[i];
+      *x = A[i];
+ENDRUBRIC

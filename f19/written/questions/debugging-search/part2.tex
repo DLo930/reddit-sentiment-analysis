@@ -1,0 +1,198 @@
+\clearpage
+\Question{The Loop Invariant}
+\label{q:search2}
+
+Now we will consider a buggy implementation with a correct specification.
+
+\begin{lstlisting}[numbers=left,belowskip=0pt]
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);[*\label{l:searchX:PRE1}*]
+//@requires is_sorted(A, 0, n);[*\label{l:searchX:PRE2}*]
+/*@ensures (\result == -1 && !is_in(x, A, 0, n))
+        || (0 <= \result && \result < n
+            && A[\result] == x
+            /* YOUR ANSWER FOR PART (4) OF THE PREVIOUS QUESTION*/); @*/
+{
+  int lo = 0;[*\label{l:searchX:lo=0}*]
+  int hi = n;[*\label{l:searchX:hi=n}*]
+  while (lo < hi)[*\label{l:searchX:LG}*]
+  //@loop_invariant 0 <= lo && lo <= hi && hi <= n;[*\label{l:searchX:LI1}*]
+  //@loop_invariant gt_seg(x, A, 0, lo);[*\label{l:searchX:LI2}*]
+  //@loop_invariant le_seg(x, A, hi, n);[*\label{l:searchX:LI3}*]
+  {[*\label{l:searchX:begin-loop}*]
+\end{lstlisting}
+\lstinline'     ...'
+\begin{lstlisting}[numbers=left,firstnumber=21]
+  }[*\label{l:searchX:end-loop}*]
+  //@assert lo == hi;
+  return -1;[*\label{l:searchX:return2}*]
+}[*\label{l:searchX:end-of-function}*]
+\end{lstlisting}
+% \lstinputlisting[numbers=left,lastline=15,belowskip=0pt]{\code/search1.c0}
+% \verb'   ...'
+% \lstinputlisting[numbers=left,firstline=22,firstnumber=21]{\code/search1.c0}
+
+You should assume that the missing loop body does not write to the
+array \lstinline'A' or modify the local variables \lstinline'x',
+\lstinline'A', or \lstinline'n', but that it might modify
+\lstinline'lo' or \lstinline'hi'.
+
+\medskip
+\begin{parts}
+
+\part[0\half]\TAGS{array, ds-invariant}
+In one sentence, explain why \lstinline'gt_seg(x, A, 0, 0)' and
+\lstinline'le_seg(x, A, n, n)' are always \lstinline'true', assuming
+\lstinline'0 <= n && n <= '\length{(A)}. Your answer should involve the size
+of the array segment being tested.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  In a zero-length array, all zero of the elements are less than
+  \lstinline'x', also greater than \lstinline'x'.
+}\else~\vspace{1.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: array, ds-invariant
+
+Gradescope rubric:
++ 0.5 pt Correct: In a zero-length array, all zero of the elements are less than x, also greater than x, etc.
+
+Commentary:
+In a zero-length array, all zero of the elements are less than x, also
+greater than x, etc... (Also okay to reason semi-operationally about
+arrayutil.c0 and talk about the base case of those functions. If
+they're talking about for loops, though, then that's suspect, as we've
+only shown recursive formulations of arrayutil.c0 this semester.)
+ENDRUBRIC
+
+\newpage
+\part[1]\TAGS{array, loop-invariant}
+Prove that the loop invariants (lines~\ref{l:searchX:LI1}--\ref{l:searchX:LI3}) hold initially.
+\begin{framed}
+\newcommand{\ans}[2]{\medskip
+  \makebox[10em][l]{#1} \hfill is true because of line(s) \uanswer{5cm}{#2}
+  \par}
+
+\ans{\lstinline'0 <= lo'}{\ref{l:searchX:lo=0}}
+\ans{\lstinline'lo <= hi'}{\ref{l:searchX:lo=0}, \ref{l:searchX:hi=n}, \ref{l:searchX:PRE1}}
+\ans{\lstinline'hi <= n'}{\ref{l:searchX:hi=n}}
+\ans{\lstinline'gt_seg(x, A, 0, lo)'}{\ref{l:searchX:lo=0}}
+\ans{\lstinline'le_seg(x, A, hi, n)'}{\ref{l:searchX:hi=n}}
+
+\medskip
+\end{framed}
+\emph{Take for granted that all the loop invariants are known to be
+  safe.}  You do need line \lstinline'n <= '\length{(A)} from
+line~\ref{l:searchX:PRE1} to reason that the last loop invariant
+involving \lstinline'le_seg' is safe (that it satisfies its
+preconditions). You don't need to include line~\ref{l:searchX:PRE1} in
+your proof that \lstinline'le_seg(x,A,hi,n)' always evaluates to
+\lstinline'true'.
+
+\RUBRIC
+Part (b)
+TAGS: array, loop-invariant
+
+Gradescope rubric:
++0.2pt 1st blank: line  9
++0.2pt 2nd blank: lines 9, 10, 2
++0.2pt 3rd blank: line  10
++0.2pt 4th blank: line  9
++0.2pt 5th blank: line  10
+
+Commentary:
+. 1pt: all 5 justifications correct, no extra lines, no missing lines
+. consider partial credit for (a few) extra lines
+ENDRUBRIC
+
+
+\medskip
+\part[0\half]\TAGS{array, correctness, ds-invariant, safety}
+Danger! These loop invariants do not imply the postcondition when the
+function exits on line~\ref{l:searchX:return2}. Give specific values
+for \lstinline'A', \lstinline'lo', and \lstinline'hi' such that the
+precondition evaluates to \lstinline'true', the loop guard evaluates
+to \lstinline'false', the loop invariants evaluate to
+\lstinline'true', and the postcondition evaluates to
+\lstinline'false', given that %
+\result{}\lstinline' == -1'.
+
+\begin{framed}
+\begin{itemize}
+\item \lstinline'x = '\texttt{\thenum}
+\item \lstinline'A = '\arraysol{-10~\qquad\thenum\qquad\thenum{0}\qquad\thenum{1}\quad\thenum{2}}\arraytemplate
+\item \lstinline'n = 5'
+\item \result{}\lstinline' = -1'
+\item \lstinline[keepspaces]'lo =      '\uanswer{5em}{1}
+\item \lstinline[keepspaces]'hi =      '\uanswer{5em}{1}
+\end{itemize}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: array, correctness, ds-invariant, safety
+
+Gradescope rubric:
++ 0.25 pts lo=hi
++ 0.25 pts A[lo] is the first occurrence of THENUM
+
+Commentary:
+. THENUM = 122 (changes each semester)
+Correct answer (1/2 point): lo == hi and A[lo] is the first
+occurrence of THENUM in the sorted array
+ - 1/4 point: lo and hi are the same but the first occurrence of THENUM is off-by-one
+ - 0 point: any more severe mistakes
+ENDRUBRIC
+
+
+\newpage
+\part[1\half]\TAGS{array, correctness}
+\label{part:debugging-search:2:4}
+Modify the code \emph{after} the loop so that, if the loop terminates,
+the postcondition will always be \lstinline'true'. The conditional and
+the return statement should both run in constant time ($O(1)$) and
+should not use \lstinline'arrayutil.c0' specification functions.
+
+\emph{Take care to ensure that any array access you make is safe!} You
+know that the loop invariants on
+lines~\ref{l:searchX:LI1}--\ref{l:searchX:LI3} are true, and you know
+that the loop guard is false (which, together with the first loop
+invariant on line~\ref{l:searchX:LI1}, justifies the assertion
+\lstinline'lo == hi').
+
+\begin{lstlisting}[frame=single,numbers=left,numberfirstline=false,firstnumber=22,numberblanklines=false]
+  /* Loop ends here... */
+  //@assert lo == hi;
+
+  if ([*\uanswer{32em}{lo < n \&\& A[lo] == x}*])
+
+      return [*\uanswer{28em}{lo}*];
+
+  return -1;     // old line [*\color{\commentColor}\ref{l:searchX:return2}*]
+}                // old line [*\color{\commentColor}\ref{l:searchX:end-of-function}*]
+\end{lstlisting}
+
+\RUBRIC
+Part (d)
+TAGS: array, correctness
+
+Gradescope rubric:
++0.75pt Safety check -- makes sure all array accesses are safe (e.g., lo < n && ...)
++0.75pt A[lo]==x or A[hi] == x
+
+Commentary:
+. +0.75 point for safety (won't segfault if lo == hi == n ==
+     \length(A))
+     They don't get this point if it might segfault! (right checks in
+     the wrong order, like (A[hi] == x && hi < n), DO NOT cut
+     it.)
+. +0.75 point for doing the right check (A[lo] == x or A[hi] == x)
+. -0.75 if they accidentally return x instead of hi/lo
+
+. No penalty if they add extra information that is still constant time
+  (lo >= 0 && lo != n && A[lo] == x or something similar)
+ENDRUBRIC
+
+\end{parts}

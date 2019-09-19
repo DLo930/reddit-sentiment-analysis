@@ -1,0 +1,13 @@
+\documentclass[recitation]{inc/122handout}
+\mfcsnumber{1: C0 Basics}
+\mfcsdate{\formatdate{30}{8}{\YEAR}} % day-month-year
+
+\begin{document}
+\inputQuestion{administrativia}
+\inputQuestion{c0-syntax}
+\inputQuestion{syntax-errors}
+\inputQuestion{contracts}
+\inputQuestion{compilation}
+\inputQuestion[questions/correctness/]{main}
+\inputQuestion{invariant-preservation}
+\end{document}

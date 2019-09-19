@@ -1,0 +1,133 @@
+\clearpage
+\Question[2]{Preconditions and Postconditions}\TAGS{correctness}
+
+\bgroup
+\newcommand{\ans}[2][1.5em]{\fbox{\rule[-0.25ex]{0em}{3ex}\answer{#1}{#2}}}
+
+For the following functions, \textbf{\underline{either}} check the box
+that says the postcondition always holds when the function is given
+inputs that satisfy its preconditions \textbf{\underline{or}} give a
+concrete counterexample: specific values of the inputs such that the
+preconditions (if there are any) holds and the postcondition does not
+hold. You don't have to write any proofs.
+
+\begin{tabular}{p{0.45\textwidth}|@{\hspace{1.5em}}p{0.45\textwidth}}
+\vspace{-12pt}
+\begin{lstlisting}
+int f1(int x, int y)
+//@requires 0 <= x && x < y;
+//@ensures \result >= 0;
+{
+  return y - x;
+}
+\end{lstlisting}
+\lstinline'@ensures' always true? ~ \ans{X}
+
+x = \ans[2.5em]{} ~~  y = \ans[2.5em]{}
+&
+\vspace{-12pt}
+\begin{lstlisting}
+int f2(int x)
+//@requires x % 2 == 0;
+//@ensures x < 0 || \result < x;
+{
+  return x / 2;
+}
+\end{lstlisting}
+\lstinline'@ensures' always true? ~ \ans{}
+
+x = \ans[2.5em]{0}
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{p{0.45\textwidth}|@{\hspace{1.5em}}p{0.45\textwidth}}
+\vspace{-12pt}
+\begin{lstlisting}
+int f3(int x, int y)
+//@requires y > 0;
+//@ensures \result < y;
+{
+  return x % y;
+}
+\end{lstlisting}
+\lstinline'@ensures' always true? ~ \ans{X}
+
+x = \ans[2.5em]{} ~~ y = \ans[2.5em]{}
+&
+\vspace{-12pt}
+\begin{lstlisting}
+int f4(int x, int y)
+//@requires x + y == 5;
+//@ensures \result - x == y;
+{
+  return 5;
+}
+\end{lstlisting}
+\lstinline'@ensures' always true? ~ \ans{X}
+
+x = \ans[2.5em]{} ~~ y = \ans[2.5em]{}
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{p{0.45\textwidth}|@{\hspace{1.5em}}p{0.45\textwidth}}
+\vspace{-12pt}
+\begin{lstlisting}
+int f5(int x, int y)
+//@ensures \result < 0;
+{
+  if (x > 0) x = -x;
+  if (y > 0) y = -y;
+  if (y < x) {
+    return y - x;
+  } else {
+    return x - y;
+  }
+}
+\end{lstlisting}
+\lstinline'@ensures' always true? ~ \ans{}
+
+x = \ans[2.5em]{3} ~~ y = \ans[2.5em]{-3}
+&
+\vspace{-12pt}
+\begin{lstlisting}
+int f6(int x, int y)
+//@ensures \result >= 0;
+{
+  if (x >= 0) x = -x;
+  if (y >= 0) y = -y;
+  if (y <= x) {
+    return y - x;
+  } else {
+    return x - y;
+  }
+}
+\end{lstlisting}
+\lstinline'@ensures' always true? ~ \ans{}
+
+x = \ans[2.5em]{4} ~~ y = \ans[2.5em]{3}
+\end{tabular}
+
+\RUBRIC
+TAGS: correctness
+
+Gradescope rubric (cap at 2 points):
++0.35pt f1 is always true
++0.35pt f2 is not always true; counterexample for x is 0
++0.35pt f3 is always true
++0.35pt f4 is always true
++0.35pt f5 is not always true; counterexample for when x == y or x == -y
++0.35pt f6 is not always true; the counterexample is when x != y and x != -y
+
+Commentary:
+Counterexamples are in general form in the rubric ("x != y and x != -y"),
+but MUST be specific values when given by students or they don't get
+credit for having a correct counterexample.
+
+No credit for a function if they have things written in multiple boxes
+(that is, if there's any ambiguity whether they meant to check the box
+or write the concrete counterexample).
+ENDRUBRIC
+
+\egroup

@@ -1,0 +1,4 @@
+pixel_t[] invert(pixel_t[] pixels, int width, int height, int color, int tolerance)
+{
+
+}

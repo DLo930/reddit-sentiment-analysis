@@ -1,0 +1,70 @@
+[] If we call calc([],[]), we will satisfy the preconditions of
+\verb'calc' but fail the preconditions of \verb'f'.
+
+[] If we call calc([],[]), then it will satisfy the preconditions of calc
+   and will result in a call to f([],[]) that satisfies the preconditions
+   to that function. However, f([],[])'s postconditions allow it to return
+   [], and this results in calc violating its postconditions.
+
+fun calc(int x, int y)
+//@requires x <= y;
+//@ensures x <= \result && \result <= y; 
+{
+  return f(x, y);
+}
+
+while(i < n) {
+    k = j + k;
+    j = j * 2 + i; 
+    i = i + 1;
+}
+
+if k = 9, j = 3, and i = 7, then assuming 9 < n,
+ k' = [], j' = [], and i' = []
+
+if k = x, j = x^2, and i = y, then assuming y < n, (in terms of x and y)
+ k' = [], j' = [], and i' = []
+
+if j == k, then (in terms of k and i), then assuming i < n, the loop runs and afterwards
+ k' = [], j' = [], and i' = []
+
+in general, in terms of i, j, and k, assuming i < n, the loop runs and afterwards
+ k' = [], j' = [], and i' = []
+
+
+while(...) {
+    i = i + 3;
+    j = j * 2 + i;
+    k = k + i - j;
+}
+
+if k = 9, j = 3, and i = 7, then
+ k' = [], j' = [], and i' = []
+
+in general, in terms of i, j, and k,
+ k' = [], j' = [], and i' = []
+
+
+while(a > 0 && b > 0) {
+    if (a > b) {
+        a = a-b;
+    } else {
+        b = b-a;
+    }
+}
+
+if a = 94 and b = 12, then
+ a' = [], b' = []
+
+if a = x+y and b = x, where x and y are both positive, then
+ a' = [], b' = []
+
+if a = x and b = x+y, where x is positive and y is nonnegative, then
+ a' = [], b' = []
+
+(Either way, 
+  - a >= 0 && b >= 0
+  - a > 0 && b >= 0
+  - a >= 0 && b > 0
+  - a > 0 && b > 0
+

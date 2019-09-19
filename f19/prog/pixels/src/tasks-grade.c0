@@ -1,0 +1,614 @@
+#use <args>
+#use <string>
+#use <util>
+#use <conio>
+
+pixel[] dup_copy_pixels(pixel[] A, int length)
+//@requires length == \length(A);
+//@ensures length == \length(\result);
+//@ensures \result != A;
+{
+  pixel[] B = alloc_array(pixel, length);
+  for (int i = 0; i < length; i++)
+    //@loop_invariant 0 <= i;
+    {
+      B[i] = A[i];
+    }
+  return B;
+}
+
+bool dup_pixels_equal(pixel[] A, pixel[] B, int length)
+//@requires length == \length(A);
+//@requires length == \length(B);
+{
+  for (int i = 0; i < length; i++)
+    //@loop_invariant 0 <= i;
+    {
+      if (get_alpha(A[i]) != get_alpha(B[i])) return false;
+      if (get_red(A[i])   != get_red(B[i]))   return false;
+      if (get_green(A[i]) != get_green(B[i])) return false;
+      if (get_blue(A[i])  != get_blue(B[i]))  return false;
+    }
+  return true;
+}
+
+
+/*************** remove_<component> and opacify ****************/
+
+// ********* opacify
+bool check_alpha_gets_set(int a, int r, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  pixel p = opacify(make_pixel(a, r, g, b));
+  if (get_alpha(p) != 0xFF) return false;
+  if (get_red(p)   != r) return false;
+  if (get_green(p) != g) return false;
+  if (get_blue(p)  != b) return false;
+  return true;
+}
+
+bool opacify_check_all_alphas(int r, int g, int b)
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_alpha_gets_set(i, r, g, b)) return false;
+  }
+  return true;
+}
+
+bool opacify_check_all_reds(int a, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_alpha_gets_set(a, i, g, b)) return false;
+  }
+  return true;
+}
+
+bool opacify_check_all_greens(int a, int r, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_alpha_gets_set(a, r, i, b)) return false;
+  }
+  return true;
+}
+
+bool opacify_check_all_blues(int a, int r, int g)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_alpha_gets_set(a, r, g, i)) return false;
+  }
+  return true;
+}
+
+bool test_opacify_internal(string arg) {
+  if (string_equal(arg, "opacify")) {
+    for (int x = 0; x >= 0; x += 2111) {
+      // Loop iterates 1017283 times, covering space haphazardly
+
+      int a1 = 0xFF & (x >> 24);
+      int r1 = 0xFF & (x >> 16);
+      int g1 = 0xFF & (x >> 8);
+      int b1 = 0xFF & x;
+      pixel_t p1 = make_pixel(a1, r1, g1, b1);
+
+      int a2 = 0xFF & ((x >> 24) | 0x80);
+      int r2 = 0xFF & (x >> 16);
+      int g2 = 0xFF & (x >> 8);
+      int b2 = 0xFF & x;
+      pixel_t p2 = make_pixel(a2, r2, g2, b2);
+
+      if (!check_alpha_gets_set(a1, r1, g1, b1)) return false;
+      if (!check_alpha_gets_set(a2, r2, g2, b2)) return false;
+    }
+
+    if (!opacify_check_all_alphas(0x00, 0x00, 0x00)) return false;
+    if (!opacify_check_all_alphas(0xFF, 0xFF, 0xFF)) return false;
+    if (!opacify_check_all_reds(0x00, 0x00, 0x00))   return false;
+    if (!opacify_check_all_reds(0xFF, 0xFF, 0xFF))   return false;
+    if (!opacify_check_all_greens(0x00, 0x00, 0x00)) return false;
+    if (!opacify_check_all_greens(0xFF, 0xFF, 0xFF)) return false;
+    if (!opacify_check_all_blues(0x00, 0x00, 0x00))  return false;
+    if (!opacify_check_all_blues(0xFF, 0xFF, 0xFF))  return false;
+  }
+  return true;
+}
+
+// ********* remove_red
+bool check_red_gets_removed(int a, int r, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  pixel p = remove_red(make_pixel(a, r, g, b));
+  if (get_alpha(p) != a) return false;
+  if (get_red(p)   != 0) return false;
+  if (get_green(p) != g) return false;
+  if (get_blue(p)  != b) return false;
+  return true;
+}
+
+bool remove_red_check_all_alphas(int r, int g, int b)
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_red_gets_removed(i, r, g, b)) return false;
+  }
+  return true;
+}
+
+bool remove_red_check_all_reds(int a, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_red_gets_removed(a, i, g, b)) return false;
+  }
+  return true;
+}
+
+bool remove_red_check_all_greens(int a, int r, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_red_gets_removed(a, r, i, b)) return false;
+  }
+  return true;
+}
+
+bool remove_red_check_all_blues(int a, int r, int g)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_red_gets_removed(a, r, g, i)) return false;
+  }
+  return true;
+}
+
+bool test_remove_red_internal(string arg) {
+  if (string_equal(arg, "remove_red")) {
+    for (int x = 0; x >= 0; x += 2111) {
+      // Loop iterates 1017283 times, covering space haphazardly
+
+      int a1 = 0xFF & (x >> 24);
+      int r1 = 0xFF & (x >> 16);
+      int g1 = 0xFF & (x >> 8);
+      int b1 = 0xFF & x;
+      pixel_t p1 = make_pixel(a1, r1, g1, b1);
+
+      int a2 = 0xFF & ((x >> 24) | 0x80);
+      int r2 = 0xFF & (x >> 16);
+      int g2 = 0xFF & (x >> 8);
+      int b2 = 0xFF & x;
+      pixel_t p2 = make_pixel(a2, r2, g2, b2);
+
+      if (!check_red_gets_removed(a1, r1, g1, b1)) return false;
+      if (!check_red_gets_removed(a2, r2, g2, b2)) return false;
+    }
+
+    if (!remove_red_check_all_alphas(0x00, 0x00, 0x00)) return false;
+    if (!remove_red_check_all_alphas(0xFF, 0xFF, 0xFF)) return false;
+    if (!remove_red_check_all_reds(0x00, 0x00, 0x00))   return false;
+    if (!remove_red_check_all_reds(0xFF, 0xFF, 0xFF))   return false;
+    if (!remove_red_check_all_greens(0x00, 0x00, 0x00)) return false;
+    if (!remove_red_check_all_greens(0xFF, 0xFF, 0xFF)) return false;
+    if (!remove_red_check_all_blues(0x00, 0x00, 0x00))  return false;
+    if (!remove_red_check_all_blues(0xFF, 0xFF, 0xFF))  return false;
+  }
+  return true;
+}
+
+// ********* remove_green
+bool check_green_gets_removed(int a, int r, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  pixel p = remove_green(make_pixel(a, r, g, b));
+  if (get_alpha(p) != a) return false;
+  if (get_red(p)   != r) return false;
+  if (get_green(p) != 0) return false;
+  if (get_blue(p)  != b) return false;
+  return true;
+}
+
+bool remove_green_check_all_alphas(int r, int g, int b)
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_green_gets_removed(i, r, g, b)) return false;
+  }
+  return true;
+}
+
+bool remove_green_check_all_reds(int a, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_green_gets_removed(a, i, g, b)) return false;
+  }
+  return true;
+}
+
+bool remove_green_check_all_greens(int a, int r, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_green_gets_removed(a, r, i, b)) return false;
+  }
+  return true;
+}
+
+bool remove_green_check_all_blues(int a, int r, int g)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_green_gets_removed(a, r, g, i)) return false;
+  }
+  return true;
+}
+
+bool test_remove_green_internal(string arg) {
+
+  if (string_equal(arg, "remove_green")) {
+    for (int x = 0; x >= 0; x += 2111) {
+      // Loop iterates 1017283 times, covering space haphazardly
+
+      int a1 = 0xFF & (x >> 24);
+      int r1 = 0xFF & (x >> 16);
+      int g1 = 0xFF & (x >> 8);
+      int b1 = 0xFF & x;
+      pixel_t p1 = make_pixel(a1, r1, g1, b1);
+
+      int a2 = 0xFF & ((x >> 24) | 0x80);
+      int r2 = 0xFF & (x >> 16);
+      int g2 = 0xFF & (x >> 8);
+      int b2 = 0xFF & x;
+      pixel_t p2 = make_pixel(a2, r2, g2, b2);
+
+      if (!check_green_gets_removed(a1, r1, g1, b1)) return false;
+      if (!check_green_gets_removed(a2, r2, g2, b2)) return false;
+    }
+
+    if (!remove_green_check_all_alphas(0x00, 0x00, 0x00)) return false;
+    if (!remove_green_check_all_alphas(0xFF, 0xFF, 0xFF)) return false;
+    if (!remove_green_check_all_reds(0x00, 0x00, 0x00))   return false;
+    if (!remove_green_check_all_reds(0xFF, 0xFF, 0xFF))   return false;
+    if (!remove_green_check_all_greens(0x00, 0x00, 0x00)) return false;
+    if (!remove_green_check_all_greens(0xFF, 0xFF, 0xFF)) return false;
+    if (!remove_green_check_all_blues(0x00, 0x00, 0x00))  return false;
+    if (!remove_green_check_all_blues(0xFF, 0xFF, 0xFF))  return false;
+  }
+  return true;
+}
+
+// ********* remove_blue
+bool check_blue_gets_removed(int a, int r, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  pixel p = remove_blue(make_pixel(a, r, g, b));
+  if (get_alpha(p) != a) return false;
+  if (get_red(p)   != r) return false;
+  if (get_green(p) != g) return false;
+  if (get_blue(p)  != 0) return false;
+  return true;
+}
+
+
+bool remove_blue_check_all_alphas(int r, int g, int b)
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_blue_gets_removed(i, r, g, b)) return false;
+  }
+  return true;
+}
+
+bool remove_blue_check_all_reds(int a, int g, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_blue_gets_removed(a, i, g, b)) return false;
+  }
+  return true;
+}
+
+bool remove_blue_check_all_greens(int a, int r, int b)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= b && b <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_blue_gets_removed(a, r, i, b)) return false;
+  }
+  return true;
+}
+
+bool remove_blue_check_all_blues(int a, int r, int g)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+{
+  for (int i = 0; i < 256; i++) {
+    if (!check_blue_gets_removed(a, r, g, i)) return false;
+  }
+  return true;
+}
+
+bool test_remove_blue_internal(string arg) {
+
+  if (string_equal(arg, "remove_blue")) {
+    for (int x = 0; x >= 0; x += 2111) {
+      // Loop iterates 1017283 times, covering space haphazardly
+
+      int a1 = 0xFF & (x >> 24);
+      int r1 = 0xFF & (x >> 16);
+      int g1 = 0xFF & (x >> 8);
+      int b1 = 0xFF & x;
+      pixel_t p1 = make_pixel(a1, r1, g1, b1);
+
+      int a2 = 0xFF & ((x >> 24) | 0x80);
+      int r2 = 0xFF & (x >> 16);
+      int g2 = 0xFF & (x >> 8);
+      int b2 = 0xFF & x;
+      pixel_t p2 = make_pixel(a2, r2, g2, b2);
+
+      if (!check_blue_gets_removed(a1, r1, g1, b1)) return false;
+      if (!check_blue_gets_removed(a2, r2, g2, b2)) return false;
+    }
+
+    if (!remove_blue_check_all_alphas(0x00, 0x00, 0x00)) return false;
+    if (!remove_blue_check_all_alphas(0xFF, 0xFF, 0xFF)) return false;
+    if (!remove_blue_check_all_reds(0x00, 0x00, 0x00))   return false;
+    if (!remove_blue_check_all_reds(0xFF, 0xFF, 0xFF))   return false;
+    if (!remove_blue_check_all_greens(0x00, 0x00, 0x00)) return false;
+    if (!remove_blue_check_all_greens(0xFF, 0xFF, 0xFF)) return false;
+    if (!remove_blue_check_all_blues(0x00, 0x00, 0x00))  return false;
+    if (!remove_blue_check_all_blues(0xFF, 0xFF, 0xFF))  return false;
+  }
+  return true;
+}
+
+/************************* quantize *****************************/
+bool check_pixel_gets_quantized(int a, int r, int g, int b, int q)
+//@requires 0 <= a && a <= 255;
+//@requires 0 <= r && r <= 255;
+//@requires 0 <= g && g <= 255;
+//@requires 0 <= b && b <= 255;
+//@requires 0 <= q && q <= 7;
+{
+  pixel p = quantize(make_pixel(a, r, g, b), q);
+  if (get_alpha(p) != a)                 return false;
+  if (get_red(p)   != (r & (0xFF << q))) return false;
+  if (get_green(p) != (g & (0xFF << q))) return false;
+  if (get_blue(p)  != (b & (0xFF << q))) return false;
+  return true;
+}
+
+bool test_quantize_internal(string arg) {
+  if (string_equal(arg, "quantize")) {
+    for (int x = 0; x >= 0; x += 2111) {
+      // Loop iterates 1017283 times, covering space haphazardly
+
+      int a1 = 0xFF & (x >> 24);
+      int r1 = 0xFF & (x >> 16);
+      int g1 = 0xFF & (x >> 8);
+      int b1 = 0xFF & x;
+      pixel_t p1 = make_pixel(a1, r1, g1, b1);
+
+      int a2 = 0xFF & ((x >> 24) | 0x80);
+      int r2 = 0xFF & (x >> 16);
+      int g2 = 0xFF & (x >> 8);
+      int b2 = 0xFF & x;
+      pixel_t p2 = make_pixel(a2, r2, g2, b2);
+
+      for (int q = 0; q < 8; q++) {
+        if (!check_pixel_gets_quantized(a1, r1, g1, b1, q)) return false;
+        if (!check_pixel_gets_quantized(a2, r2, g2, b2, q)) return false;
+      }
+    }
+  }
+  return true;
+}
+
+/*********************** test_quantize **************************/
+bool test_test_quantize_internal(string arg) {
+  if (string_equal(arg, "test_quantize"))
+    test_quantize();
+  return true;
+}
+
+/*********************** count_zeroes **************************/
+bool test_count_zeroes_internal(string arg) {
+  if (string_equal(arg, "count_zeroes")) {
+    pixel[] A;
+    pixel[] C;
+    int[] results = alloc_array(int, 3);
+
+    // Initialize the array of pixels, make a copy.
+    A = alloc_array(pixel, 9);
+    A[0] = make_pixel(0xFF, 0x01, 0x03, 0x04);
+    A[1] = make_pixel(0x02, 0x00, 0xFF, 0xEE);
+    A[2] = make_pixel(0xFF, 0xFF, 0xFF, 0xFF);
+    A[3] = make_pixel(0xEE, 0xFF, 0xDD, 0x00);
+    A[4] = make_pixel(0xDD, 0xCC, 0x00, 0xFF);
+    A[5] = make_pixel(0xCC, 0x00, 0xDD, 0xEE);
+    A[6] = make_pixel(0x00, 0xEE, 0xFF, 0xDD);
+    A[7] = make_pixel(0x00, 0x00, 0x00, 0x00);
+    A[8] = make_pixel(0x00, 0xAA, 0xBB, 0xCC);
+    C = copy_pixels(A, 9);
+
+    // Count the zero-values and check the results
+    count_zeroes(A, 9, results);
+    if (!(pixels_equal(A, C, 9))) return false;
+    if (!(results[0] == 3)) return false;
+    if (!(results[1] == 2)) return false;
+    if (!(results[2] == 2)) return false;
+
+    // Modify both arrays of pixels
+    A[2] = make_pixel(0x00, 0x00, 0x00, 0xFF);
+    C[2] = make_pixel(0x00, 0x00, 0x00, 0xFF);
+
+    // Count the zero-values and check the results
+    count_zeroes(A, 9, results);
+    if (!(pixels_equal(A, C, 9))) return false;
+    if (!(results[0] == 4)) return false;
+    if (!(results[1] == 3)) return false;
+    if (!(results[2] == 2)) return false;
+  }
+  return true;
+}
+
+/************************ summarize ****************************/
+bool test_summarize_internal(string arg) {
+  if (string_equal(arg, "summarize")) {
+    pixel_t[] A;
+    pixel_t[] C;
+    int[] results = alloc_array(int, 3);
+
+    // Initialize the array of pixels, make a copy.
+    A = alloc_array(pixel_t, 9);
+    A[0] = make_pixel(0xFF, 0x01, 0x03, 0x04);
+    A[1] = make_pixel(0x02, 0x00, 0xFF, 0xEE);
+    A[2] = make_pixel(0xFF, 0xFF, 0xFF, 0xFF);
+    A[3] = make_pixel(0xEE, 0xFF, 0xDD, 0x00);
+    A[4] = make_pixel(0xDD, 0xCC, 0x00, 0xFF);
+    A[5] = make_pixel(0xCC, 0x00, 0xDD, 0xEE);
+    A[6] = make_pixel(0x00, 0xEE, 0xFF, 0xDD);
+    A[7] = make_pixel(0x00, 0x00, 0x00, 0x00);
+    A[8] = make_pixel(0x00, 0xAA, 0xBB, 0xCC);
+    C = copy_pixels(A, 9);
+
+    // Call summarize and check the results
+    summarize(A, 9, results);
+    assert(pixels_equal(A, C, 9));
+    assert(results[0] == 124);
+    assert(results[1] == 155);
+    assert(results[2] == 157);
+
+    // Modify both arrays of pixels
+    A[2] = make_pixel(0x00, 0x00, 0x00, 0xFF);
+    C[2] = make_pixel(0x00, 0x00, 0x00, 0xFF);
+
+    // Call summarize and check the results
+    summarize(A, 9, results);
+    assert(pixels_equal(A, C, 9));
+    assert(results[0] == 96);
+    assert(results[1] == 126);
+    assert(results[2] == 157);
+  }
+  return true;
+}
+
+/*********************** histogram ****************************/
+bool test_histogram_internal(string arg) {
+  if (string_equal(arg, "histogram")) {
+    pixel_t[] A;
+    pixel_t[] C;
+    int[] results = alloc_array(int, 256);
+
+    // Initialize the array of pixels, make a copy.
+    A = alloc_array(pixel_t, 9);
+    A[0] = make_pixel(0xFF, 0x01, 0x01, 0x01);
+    A[1] = make_pixel(0x01, 0x00, 0x00, 0x01);
+    A[2] = make_pixel(0xFF, 0xFE, 0xFF, 0xFF);
+    A[3] = make_pixel(0xEE, 0x80, 0x90, 0x70);
+    A[4] = make_pixel(0xDD, 0x80, 0x80, 0x80);
+    A[5] = make_pixel(0xCC, 0x88, 0x80, 0x78);
+    A[6] = make_pixel(0x00, 0xFF, 0xFE, 0xFE);
+    A[7] = make_pixel(0x00, 0x00, 0x00, 0x00);
+    A[8] = make_pixel(0x00, 0xA0, 0x80, 0x61);
+    C = copy_pixels(A, 9);
+
+    // Compute the histogram and check the results
+    histogram(A, 9, results);
+    assert(pixels_equal(A, C, 9));
+    for (int i = 0; i < 255; i++) {
+//      if (results[i] != 0) {
+//        print(int2hex(i)); print(": "); printint(results[i]); println("");
+//      }
+           if (i == 0x00) assert(results[i] == 2);
+      else if (i == 0x01) assert(results[i] == 1);
+      else if (i == 0x80) assert(results[i] == 4);
+      else if (i == 0xFE) assert(results[i] == 2);
+      else assert(results[i] == 0);
+    }
+
+    // Modify both arrays of pixels
+    A[8] = make_pixel(0x33, 0x33, 0x33, 0x33);
+    C[8] = make_pixel(0x33, 0x33, 0x33, 0x33);
+
+    // Compute the histogram and check the results
+    histogram(A, 9, results);
+    assert(pixels_equal(A, C, 9));
+    for (int i = 0; i < 255; i++) {
+//      if (results[i] != 0) {
+//        print(int2hex(i)); print(": "); printint(results[i]); println("");
+//      }
+           if (i == 0x00) assert(results[i] == 2);
+      else if (i == 0x01) assert(results[i] == 1);
+      else if (i == 0x33) assert(results[i] == 1);
+      else if (i == 0x80) assert(results[i] == 3);
+      else if (i == 0xFE) assert(results[i] == 2);
+      else assert(results[i] == 0);
+    }
+  }
+  return true;
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  if (!test_opacify_internal(arg))       return 1; else
+  if (!test_remove_red_internal(arg))    return 1; else
+  if (!test_remove_green_internal(arg))  return 1; else
+  if (!test_remove_blue_internal(arg))   return 1; else
+
+  if (!test_quantize_internal(arg))      return 1; else
+  if (!test_test_quantize_internal(arg)) return 1; else
+
+  if (!test_count_zeroes_internal(arg))  return 1; else
+  if (!test_histogram_internal(arg))     return 1; else
+  if (!test_summarize_internal(arg))     return 1; else
+
+  return 0;
+}

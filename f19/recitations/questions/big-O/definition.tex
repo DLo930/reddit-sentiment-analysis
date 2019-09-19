@@ -1,0 +1,21 @@
+\section*{Big-O definition%
+\TAGS{big-o}}
+
+The definition of big-O has a lot of mathematical symbols in it, and
+so can be very confusing at first.  Let's familiarize ourselves with
+the formal definition and get an intuition behind what it's saying.
+
+$O(g(n))$ is a \emph{set} of functions, where
+$f(n) \in O(g(n))$ if and only if:
+
+\medskip
+there is some \shortanswerline{$c \in \mathbb{R}^+$\hspace*{6em}} and some
+\shortanswerline{$n_0 \in \mathbb{N}$\hspace*{6em}}
+
+\medskip
+such that \shortanswerline{$f(n) \leq c \, g(n)$\hspace*{4.5em}}
+for all \shortanswerline{$n \geq n_0$\hspace*{5.8em}},
+
+\bigskip
+Although it isn't technically correct set notation, it is also common to write
+$f(n) = O(g(n))$.

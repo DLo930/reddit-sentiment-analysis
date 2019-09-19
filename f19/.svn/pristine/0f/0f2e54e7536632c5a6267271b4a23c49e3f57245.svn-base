@@ -1,0 +1,52 @@
+#use "sol-gapbuf.c0"
+#use <string>
+
+/* utility functions */
+
+bool contains(string str, char c, int start, int end)
+//@requires 0 <= start && start <= end && end <= string_length(str);
+{
+    int len = string_length(str);
+    for (int i = start; i < end; i++)
+        if (string_charat(str, i) == c) return true;
+    return false;
+}
+
+int index(string str, char c, int start)
+//@requires 0 <= start && start <= string_length(str);
+/*@ensures (\result == -1 && !contains(str, c, start, string_length(str)))
+        || (start <= \result && \result < string_length(str)
+            && string_charat(str, \result) == c);
+  @*/
+{
+    int i;
+    int len = string_length(str);
+    for (i = start; i < len; i++)
+    //@loop_invariant start <= i && i <= len;
+    //@loop_invariant !contains(str, c, start, i);
+    {
+        if (string_charat(str, i) == c) return i;
+    }
+    //@assert i == len;
+    return -1;
+}
+
+gapbuf make_gapbuf(int limit, string s)
+//@requires limit > 0 && string_length(s) - 1 <= limit;
+//@requires contains(s, '|', 0, string_length(s));
+//@ensures is_gapbuf_(\result);
+{
+    gapbuf G = gapbuf_new_(limit);
+    int len = string_length(s);
+
+    // copy in all the data, not including the cursor
+    for (int i = 0; i < len; i++) {
+        if (string_charat(s, i) != '|') gapbuf_insert_(G, string_charat(s, i));
+    }
+    // then back up the gap to be at the cursor
+    int cursor = index(s, '|', 0);
+    //@assert cursor != -1;
+    for (int i = cursor+1; i < len; i++) gapbuf_backward_(G);
+
+    return G;
+}

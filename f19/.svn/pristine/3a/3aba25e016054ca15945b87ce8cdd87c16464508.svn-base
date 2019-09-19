@@ -1,0 +1,79 @@
+\clearpage
+\Question{Assertions in Loops}\TAGS{correctness}
+
+This question involves a series of functions \lstinline'f' with one
+loop; each contains additional \assert{} statements. None of the
+assertions will ever fail --- they will never evaluate to
+\lstinline'false' when the function \lstinline'f' is called with
+arguments that satisfy the precondition. However, if our loop
+invariants aren't up to the task, we may not be able to \emph{prove}
+these assertions hold. The distinction between an assertion being
+\emph{true} and an assertion being \emph{supported} is a subtle but
+important one.
+
+To support an assertion one may use the following facts:
+\begin{itemize}
+\item%
+  When local variables are \emph{untouched} by a loop, statements we
+  know to be true about those variables \emph{before} the loop remain
+  valid \emph{inside} the loop and \emph{after} the loop.
+
+\item%
+  For local variables that are modified by the loop, the loop guard
+  and the loop invariants are the only statements we can use.
+  \begin{itemize}
+  \item%
+    Inside of a loop, we know that the loop invariants held just before the
+    loop guard was checked and that the loop guard returned \lstinline'true'.
+  \item%
+    After a loop, we know that the loop invariants held just before the loop
+    guard was checked for the last time and that the loop guard returned
+    \lstinline'false'.
+  \end{itemize}
+\end{itemize}
+
+For each of the problems below, \textbf{state whether each assertion
+is SUPPORTED or UNSUPPORTED and explain your reasoning}.
+You can assume that the
+loop invariant is true initially (before the loop guard is checked the
+first time) and that it is preserved by any iteration of the loop. If
+you claim that the assertion is supported, your answer should be a
+concise proof; if you claim that the assertion is unsupported, we only
+expect an informal argument to explain why.
+
+We've given one worked out solution below.
+
+
+\newpage
+\input{example}
+
+\RUBRIC
+General Instructions:
+  - Each assertion is worth half point, possibly with partial credit
+  - Justifications for "unsupported" have to exist. They could get full
+    credit if they are not aggressively wrong.
+  - Leaving off the word "supported" or "unsupported" but making it
+    clear what you meant with the justification is fine.
+ENDRUBRIC
+
+\begin{parts}
+\newcommand{\aLine}[3][1.5ex]
+{\noindent\uanswer{21em}{#2}\hfill~(by \uanswer{10em}{#3})\\[#1]}%
+\newcommand{\noans}[1]{\textbf{#1}}
+\newcommand{\ans}[1]{%
+  \ifprintanswers%
+  \textcolor{\answerColor}{\fbox{\noans{#1}}}%
+  \else\noans{#1}\fi}
+
+\RUBRIC
+TAGS: correctness
+ENDRUBRIC
+
+%\newpage\input{exercise-1} % S16
+%\newpage\input{exercise-2} % S16
+\newpage\input{exercise-5} % S19 S17
+\newpage\input{exercise-3} % S19 S16 S17
+%\newpage\input{exercise-4}
+%\newpage\input{exercise-6}
+\newpage\input{exercise-7} % S19 S17
+\end{parts}

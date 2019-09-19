@@ -1,0 +1,21 @@
+#use <conio>
+
+int main () {
+
+  // A stack of strings
+  stack_t S = stack_new();
+
+  string s1 = "hello";        // Push a value
+  push(S, s1);
+
+  push(S, "world");           // Push another
+
+  string s2 = pop(S);         // Pop it
+  println(s2);
+
+  println(pop(S));            // Pop the first one
+
+
+
+  return 0;
+}

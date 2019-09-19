@@ -1,0 +1,41 @@
+/* test the correctness of invert based on provided test images */
+
+#use <img>
+#use <parse>
+#use <args>
+#use <conio>
+#use <file>
+#use <string>
+
+int main() {
+  /* Get args */
+  args_t args = args_parse();
+  if (args->argc != 3) error("Wrong number of args");
+
+  image_t source = image_load(args->argv[0]);
+  if (source == NULL) error("Could not load source");
+  int width = image_width(source);
+  int height = image_height(source);
+
+  image_t target = image_load(args->argv[1]);
+  if (target == NULL) error("Could not load target");
+  if (!(width == image_width(target))) error("Target has wrong width");
+  if (!(height == image_height(target))) error("Target has wrong height");
+
+  int* pq_level = parse_int(args->argv[2], 10);
+  if(pq_level == NULL) error("Bad quantize arg");
+  int q_level = *pq_level;
+
+  /* Apply transformation to source */
+  pixel_t[] inpixels = image_data(source);
+  pixel_t[] outpixels = image_data(target);
+  pixel_t[] resultpixels = quantize(inpixels, width, height, q_level);
+  //@assert resultpixels != inpixels;
+  //@assert \length(resultpixels) == \length(outpixels);
+
+  for(int i = 0; i < width*height; i++)
+    //@loop_invariant 0 <= i;
+    if(outpixels[i] != resultpixels[i]) return 1;
+
+  return 0;
+}

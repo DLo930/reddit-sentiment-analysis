@@ -1,0 +1,25 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (x < y)
+//@loop_invariant x <= y;
+{
+    x = x + z;
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  NOT ALWAYS PRESERVED.
+
+  Counterexample: x=2, y=3, z=2.
+}\else~\vspace{2.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<n1b>)
+
+Gradescope rubric:
++ 1 pt Valid counterexample [Ex: 2, 3, 2]
+
+Commentary:
+  not always preserved.  x = 24, y = 25, z = 2 (for example)
+ENDRUBRIC

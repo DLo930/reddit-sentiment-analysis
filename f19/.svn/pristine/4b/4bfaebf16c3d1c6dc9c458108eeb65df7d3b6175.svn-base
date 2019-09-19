@@ -1,0 +1,47 @@
+/* Selection Sort
+ *
+ * Principles of Imperative Computation, Fall 2012
+ * Frank Pfenning
+ * Ported by Ryan Sit to strings, Spring 2013
+ */
+
+#use <string>
+#use "lib/stringsearch.c0"
+
+// Single, inline sort_copy
+string[] sortcopy(string[] A, int lower, int upper)
+//@requires 0 <= lower && lower <= upper && upper <= \length(A);
+//@ensures is_sorted(\result, 0, upper-lower);
+//@ensures \length(\result) == upper - lower;
+{
+  int resultsize = upper - lower;
+  string[] B = alloc_array(string, resultsize);
+  for (int i = 0 ; i < resultsize; i++)
+    //@loop_invariant 0 <= i && i <= resultsize;
+    {
+      B[i] = A[lower + i];
+    }
+
+  for (int i = 0; i < resultsize; i++)
+    //@loop_invariant 0 <= i && i <= resultsize;
+    //@loop_invariant is_sorted(B, 0, i);
+    {
+      int m = i;
+      string min = B[i];
+      for (int j = i+1; j < resultsize; j++)
+        //@loop_invariant i < j;
+        {
+          if (string_compare(B[j], min) < 0) {
+            m = j;
+            min = B[j];
+          }
+        }
+      //@assert le_seg(B[m], B, i, resultsize);
+      string tmp = B[i];
+      B[i] = B[m];
+      B[m] = tmp;
+    }
+
+  return B;
+}
+

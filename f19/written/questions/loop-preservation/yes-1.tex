@@ -1,0 +1,58 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (i <= x)[*\label{l:lpres-yes1-lg}*]
+//@loop_invariant x < y;[*\label{l:lpres-yes1-LI1}*]
+//@loop_invariant i <= y;[*\label{l:lpres-yes1-LI2}*]
+{
+    i++;[*\label{l:lpres-yes1-ipp}*]
+}
+\end{lstlisting}
+\begin{framed}
+\newcommand{\ans}[2]{\fbox{\rule[-0.5ex]{0em}{3ex}\answer{#1}{#2}}}
+ALWAYS PRESERVED
+
+\bigskip
+The first loop invariant is always preserved because
+\uanswer{10.8em}{\texttt{x} and \texttt{y} remain constant\hfill}
+
+\medskip
+\uanswer{33.5em}{\hfill}.
+
+\bigskip\medskip
+For the second loop invariant, we assume that $i \le y$
+and want to show that $i' \le y'$ (or equivalently $i' \le y$ since $y$ does not change in the loop).
+
+\bigskip
+Using operational reasoning for one iteration:
+
+\bigskip
+By line~\ref{l:lpres-yes1-ipp}, \quad $i' = \ans{6em}{\texttt{i+1}}$.
+
+\bigskip
+By line~\ref{l:lpres-yes1-LI1}, \quad $x+1 \le \ans{6em}{\texttt{y}}$.
+
+\bigskip
+By line~\ref{l:lpres-yes1-lg}, \quad $ \ans{6em}{\texttt{i+1}} \le x+1$.
+
+\bigskip
+The previous three statements taken together imply that $i' \le y$.
+\end{framed}
+
+\RUBRIC
+Part (<y1>)
+
+Gradescope rubric:
++0.25pt Box 1: x and y remain constant, so the loop invariant is trivially preserved
++0.25pt Boxes 2-4: i+1, (i+1 OR i'), y
+-0.1pt Boxes 2-4: one mistake
+
+Commentary:
+  First line: x and y remain constant.
+  Three lines for i <= y:
+  first blank: i + 1
+  second blank: i + 1
+  third blank: y
+
+  Half point for first line about x < y.
+  Half point for three lines about i <= y. All or nothing.
+ENDRUBRIC

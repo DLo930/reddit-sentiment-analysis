@@ -1,0 +1,122 @@
+\section*{Dr.~Evil's passwords}
+
+Genius supervillian Dr.~Evil is on the loose! Known for a series of
+devilishly tricky yet completely vulnerable assembly bombs, Dr.~Evil
+has left a trail of destruction across Carnegie Mellon's undergraduate
+computer science curriculum.  Authorities have been unable to track
+the whereabouts of this mastermind, but we have new intelligence on
+Dr.~Evil's Super Secret Evil Plan\textsuperscript{TM} to investigate.
+
+You have been hired as an agent to crack the code of Dr.~Evil's Super
+Secret Evil Plan. It seems that she left her secret plans in a
+password protected c0 binary file, accessible to you on the cluster
+computers by typing \lstinline'evilplan'. She also accidentally left her
+C0VM bytecode in a public folder! She seems to have deleted most of
+the helpful comments, though, so we'll need help figuring out the
+passwords by hand. We were also able to acquire the \lstinline'main'
+function's source code in \lstinline'password-main.c0', but it relies on
+functions that only appear in the bytecode file \lstinline'password.bc0'.
+
+You'll need to read through \lstinline'password.bc0' to figure out
+some of the function calls --- namely, the function calls
+\lstinline'password1()', \lstinline'password2()',
+\lstinline'password3()', etc.
+
+Each of the password functions either takes in a password as input,
+and returns a boolean, or simply returns the password as an
+integer. Some passwords are numbers while others are strings.  For the
+first four passwords the user's input is passed to
+\lstinline'parse_int', but for the last password the string is
+passed directly to the function.  We've filled in the bytecode file
+with all the intelligence we have, so you'll have to figure out the
+rest.
+
+\emph{We highly suggest you keep the C0VM writeup handy as you
+  complete this lab.}
+
+To check if you're correct, just run the password binary file, and
+type in the passwords you think are correct:
+
+\begin{lstlisting}[language={[coin]C}, stringstyle=\basicstyle]
+% evilplan
+Welcome to Dr. Evil's Super Secret Evil Plan Terminal
+This terminal should only be run by Dr. Evil to read the
+Super Secret Evil Plan.
+If you are anyone else, get OUT.
+Password1:
+\end{lstlisting}
+
+\clearpage
+\input{asciichart}
+~
+
+\vspace{-43pt}
+\begin{part}\TAGS{c0vm}
+  Dr.~Evil's first password function seems pretty simple. It seems to
+  return an integer. What is it?
+
+\onePT
+
+\begin{solution}
+  1031
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c0vm}
+  Dr.~Evil's second password is a bit more complicated. It uses
+  \lstinline'vload' and \lstinline'vstore' to store some local
+  variables. Figure out what integer \lstinline'password2' returns!
+
+\begin{solution}
+  35
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c0vm}
+  Dr.~Evil's third password is definitely more complicated. It uses
+  \lstinline'ildc' to load integers from the integer pool. What's
+  going on there? For this password, note that returning \lstinline'1'
+  is equivalent to returning \lstinline'true', and returning
+  \lstinline'0' is equivalent to returning \lstinline'false'.
+
+\twoPT
+
+\begin{solution}
+  46 + 367k
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c0vm}
+  Dr.~Evil's fourth password has a loop! The function jumps around,
+  doing something to an integer input. What's the password?
+
+\begin{solution}
+  122
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c0vm}
+  Dr.~Evil's fifth and final password calls a helper function,
+  func5. Figure out what it's doing, and crack the last password!  The
+  ASCII table to the right, which includes both integer and hex
+  values, may come in handy.
+
+\threePT
+
+\begin{solution}
+  ``the interface''
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c0vm}
+  For the most clever of agents, Dr.~Evil seems to have left a hidden
+  6th password. She didn't activate it in the source code file, which
+  means it must have been so complicated even she didn't want to deal
+  with it! Figure it out through the bytecode, and tell your TA if you
+  think you got it.
+
+\begin{solution}
+  ``Respect'' followed by any permutation of 0 through 5, followed by
+  anything (including the empty string)
+\end{solution}
+\end{part}

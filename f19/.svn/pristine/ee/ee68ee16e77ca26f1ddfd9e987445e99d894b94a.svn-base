@@ -1,0 +1,58 @@
+\bgroup
+\input{asciichart.tex}
+\section*{Storing and using strings in C}
+
+Load the file \lstinline'ex1.c' into a text editor. Read through the file and write down what you think the output will be before you run the program:
+
+\lstinline[language={[coin]C}]'word string: '\shortanswerline{ace\hspace*{9.1em}}
+
+\lstinline[language={[coin]C}]'word ASCII values: '%
+\shortanswerline{97\hspace*{0.9em}}~~\shortanswerline{99\hspace*{0.9em}}~~\shortanswerline{101\hspace*{0.4em}}~~\shortanswerline{0\hspace*{1.4em}}
+
+Once you have done this, compile with the following command (all on one line):
+
+\texttt{\% gcc -Wall -Wextra -Werror -Wshadow -std=c99}\\
+\hspace*{0.5in} \texttt{-pedantic -g ex1.c}
+
+\begin{solution}\\
+word string: \texttt{ace}\\
+word ASCII values: \texttt{97 99 101 0}
+\end{solution}
+
+\begin{part}\TAGS{c-numbers, c-memory, string}
+  Which parts differed from what you expected?
+
+\end{part}
+
+\begin{part}\TAGS{c-memory, string, testing}
+  Change the `\texttt{\textbackslash0}' character in the array to
+  something else, like `\texttt{d}'. Predict how this will change the
+  answer, and then compile and see if you're right.
+
+\begin{solution}\\
+word string: \texttt{aced<??gibberish??>}\\
+word ASCII values: \texttt{97 99 101 100}
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c-memory, correctness, string, testing}
+  Run the modified code under \lstinline'valgrind', and read through
+  its output to see which lines in \lstinline'ex1.c' are given as part
+  of the output.
+
+\begin{solution}
+\begin{lstlisting}[language={[coin]C}]
+Conditional jump or move depends on uninitialised value(s)
+      at 0x4E7DA94: vfprintf (in /usr/lib64/libc-2.17.so)
+      by 0x4E86C18: printf (in /usr/lib64/libc-2.17.so)
+      by 0x40055D: main (ex1.c:10)
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+At this point, compare notes with people around you to see if you have
+the same answers for (1.b) and (1.c).  Ask a TA if there's anything
+you're unsure about!
+
+\onePT
+\egroup

@@ -1,0 +1,53 @@
+\section*{Reasoning about reversing an array of integers}
+
+\begin{wrapfigure}[4]{r}[0pt]{0.34\linewidth}
+\vspace*{-4ex}
+\fbox{\parbox{\linewidth}{%
+      \textbf{Important!} Specification functions are often
+      inefficient, so don't use them in the actual code.  Only use them
+      inside contracts!}}
+\end{wrapfigure}
+You will be constructing loop invariants for a function (which we
+wrote for you) that reverses an array.  As you define these loop
+invariants, take care to ensure both the \textbf{safety} of any array
+accesses as well as the \textbf{correctness} of the function itself.
+
+\begin{part}\TAGS{correctness, loop-invariant, safety}
+  You will need to use the \emph{specification function}
+  \lstinline'is_reversed' in your loop invariants.  Remember, a
+  specification function is for use in contracts to make sure the
+  function is correct.
+
+Here is the function header of \lstinline'is_reversed':
+\begin{lstlisting}
+bool is_reversed(int[] first, int[] last, int i, int n)
+//@requires 0 <= n && n == \length(first) && n == \length(last);
+//@requires 0 <= i && i <= n;
+\end{lstlisting}
+This function returns \lstinline'true' if the first \lstinline'i'
+numbers in the array \lstinline'first' are the reverse of the last
+\lstinline'i' numbers of the array \lstinline'last'.  Now, using this
+specification function, fill in the loop invariants for the function
+\lstinline'reverse' below, which reverses an array of integers.
+
+\textbf{Hint:} Look at how we use \lstinline'is_reversed' inside the
+\lstinline'//@ensures' clause, and make sure that when the loop
+terminates, you can prove that this postcondition holds.
+\begin{lstlisting}[numbers=left, belowskip=0pt]
+int[] reverse(int[] A, int n)
+//@requires n == \length(A);
+//@ensures is_reversed(A, \result, n, n);
+{
+  int[] B = alloc_array(int, n);
+  for(int i = 0; i < n; i++)
+  //@loop_invariant [*\shortanswerline{0 <= i \&\& i <= n \hspace{5.3em}}*]; // SAFETY
+  //@loop_invariant [*\shortanswerline{is\_reversed(A, B, i, n)}*]; // CORRECTNESS
+  {
+    B[n - i - 1] = A[i];
+  }
+  return B;
+}
+\end{lstlisting}
+
+\onePT
+\end{part}

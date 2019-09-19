@@ -1,0 +1,46 @@
+\newpage
+\section*{Adding to the end of a linked list%
+\TAGS{linked-list, testing}}
+
+We can add to either the start or the end of a linked list.  The
+following code adds a new list node to the \emph{end}, the way a queue
+would:
+\begin{lstlisting}[numbers=left]
+void add_end(linkedlist* L, int x)
+//@requires is_linkedlist(L);
+//@ensures is_linkedlist(L);
+{
+    list* p = alloc(struct list_node);
+    L->end->data = x;
+    L->end->next = p;
+    L->end = p;
+}
+\end{lstlisting}
+
+Suppose \lstinline'add_end(L, 3)' is called on a linked list
+\lstinline'L' that contains before the call, from start to end, the
+sequence \lstinline'(1, 2)'.  Draw the state of the linked list after
+each of lines 5--8 (inclusive). Include the list struct separately
+before it has been added to the linked list.
+
+\begin{enumerate}[1.]
+\setcounter{enumi}{4}
+\newcommand{\soldepth}{0.5in}
+\newcommand{\solraise}{-0.81}
+\newcommand{\displaysol}[2][0.55]
+  {\raisebox{\solraise\height}[0pt][\soldepth]{%
+      \includegraphics[width=#1\textwidth]{\img/#2}}}
+
+\item%
+  \begin{solution}\displaysol{add-last-5.png}\end{solution}
+  \vspace{0.5in}
+\item%
+  \begin{solution}\displaysol{add-last-6.png}\end{solution}
+  \vspace{0.5in}
+\item%
+  \begin{solution}\displaysol{add-last-7.png}\end{solution}
+  \vspace{0.5in}
+\item%
+  \begin{solution}\displaysol{add-last-8.png}\end{solution}
+  \vspace{0.5in}
+\end{enumerate}

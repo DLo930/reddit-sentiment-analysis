@@ -1,0 +1,95 @@
+#use <conio>
+#use <string>
+#use <args>
+#use <parse>
+#use <img>
+
+void quantize_main(string input, string output, int q_level)
+{
+  print("Input image:  ");
+  println(input);
+  print("Quantization level:  ");
+  printint(q_level);
+  println("");
+  print("Output image: ");
+  println(output);
+
+  /* Load source image */
+  image_t source = image_load(input);
+  if (source == NULL) error("Could not load source image");
+  int width = image_width(source);
+  int height = image_height(source);
+  pixel_t[] inpixels = image_data(source);
+
+  print("Loaded image.  Dimensions are ");
+  printint(width);
+  print(" by ");
+  printint(height);
+  println(".");
+
+  /* Run transformation */
+  print("Running quantization transform...");
+  pixel_t[] resultpixels = quantize(inpixels, width, height, q_level);
+  println("done.");
+
+  /* Create destination image */
+  image_t dest = image_create(width, height);
+  pixel_t[] outpixels = image_data(dest);
+  for (int i = 0; i < width*height; i++)
+    //@loop_invariant 0 <= i;
+    {
+      outpixels[i] = resultpixels[i];
+    }
+
+  /* Save result */
+  print("Saving output...");
+  image_save(dest, output);
+  println("done.");
+}
+
+string default_output(string input, string name) {
+  int len = string_length(input);
+  if (!(len > 4 && string_equal(".png", string_sub(input, len-4, len)))) {
+    error("Input file does not end with .png");
+  }
+
+  string res = string_sub(input, 0, len-4);
+  res = string_join(res, "_");
+  res = string_join(res, name);
+  res = string_join(res, ".png");
+
+  return res;
+}
+
+int main() {
+  string *input = alloc(string);
+  string *output = alloc(string);
+  string *q = alloc(string);
+
+  args_string("-i", input);
+  args_string("-o", output);
+  args_string("-q", q);
+  args_parse();
+
+  if (string_equal("", *q) || string_equal("", *input)) {
+    error("Usage: quantize -i <input image> -q <quantization level> [-o <output image>]");
+  }
+
+  if (string_equal("", *output)) {
+    *output = default_output(*input, "quantize");
+  }
+
+  /* Parse the level argument (-q) */
+  int* q_level = parse_int(*q, 10);
+  if (q_level == NULL) {
+    error("Invalid quantization level (must be an integer)");
+  }
+
+  if (*q_level < 0 || 7 < *q_level) {
+    error("Quantization level must be in the range 0...7");
+  }
+
+  quantize_main(*input, *output, *q_level);
+
+  return 0;
+}

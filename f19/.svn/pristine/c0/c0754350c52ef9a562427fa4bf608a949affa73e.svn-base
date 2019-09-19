@@ -1,0 +1,34 @@
+---
+general:
+  name: bloomtests
+  description: 'This is the Bloom Filter Test Case Checker.  It is UNGRADED.  Use
+    it as often as you want to check your performance in task 1, but note that this
+    is not what will determine your grade.  The submission site for the homework as
+    a whole is Autolab assessment called "Bloom Filters". '
+  display_name: Bloom Tests (UNGRADED)
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: ''
+  writeup: bloom-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: -1
+  has_svn: false
+  category_name: Programming
+problems:
+- name: test
+  description: ''
+  max_score: 6.0
+  optional: false
+autograder:
+  autograde_timeout: 240
+  autograde_image: rhel.img
+  release_score: true
+late_penalty:
+  kind: 1
+  value: 0.0
+version_penalty:
+  kind: 1
+  value: 0.0

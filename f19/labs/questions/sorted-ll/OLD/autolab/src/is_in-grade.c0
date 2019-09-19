@@ -1,0 +1,101 @@
+#use <conio>
+#use <util>
+
+bool singleton_test(sortedlist* S, int i, int j) 
+//@requires is_sortedlist(S);
+//@requires S->start != NULL;
+//@requires S->start->next == NULL;
+{
+  S->start->data = i;
+  if (i == j && !is_in(S, j)) return false;
+  if (i != j && is_in(S, j)) return false;
+  if (S->start == NULL) return false;
+  if (S->start->data != i) return false;
+  if (S->start->next != NULL) return false;
+  return true;
+}
+
+bool singleton_tests(sortedlist* S, int i) 
+//@requires is_sortedlist(S);
+//@requires S->start != NULL;
+//@requires S->start->next == NULL;
+{
+  return singleton_test(S, i, int_min())
+    && singleton_test(S, i, int_max())
+    && singleton_test(S, i, -122)
+    && singleton_test(S, i, -112)
+    && singleton_test(S, i, -100)
+    && singleton_test(S, i, -3)
+    && singleton_test(S, i, -2)
+    && singleton_test(S, i, -1)
+    && singleton_test(S, i, 0)
+    && singleton_test(S, i, 1)
+    && singleton_test(S, i, 2)
+    && singleton_test(S, i, 3)
+    && singleton_test(S, i, 100);
+}
+
+int main() {
+
+  /* Check the empty list */
+  sortedlist* S = alloc(sortedlist);
+  if ( is_in(S, int_min()) || S->start != NULL) return 1;
+  if ( is_in(S, -5       ) || S->start != NULL) return 1;
+  if ( is_in(S, -1       ) || S->start != NULL) return 1;
+  if ( is_in(S, 0        ) || S->start != NULL) return 1;
+  if ( is_in(S, 1        ) || S->start != NULL) return 1;
+  if ( is_in(S, 10       ) || S->start != NULL) return 1;
+  if ( is_in(S, int_max()) || S->start != NULL) return 1;
+
+  println("Emptyness tests passed");
+
+  /* Check several singletons */
+  S->start = alloc(list);
+  if (!singleton_tests(S, int_min())) return 1;
+  if (!singleton_tests(S, int_max())) return 1;
+  if (!singleton_tests(S, -5)) return 1;
+  if (!singleton_tests(S, -1)) return 1;
+  if (!singleton_tests(S, 0)) return 1;
+  if (!singleton_tests(S, 1)) return 1;
+  if (!singleton_tests(S, 10)) return 1;
+
+  println("Singleton tests passed");
+
+  /* Check [-50,50) */
+  S->start->data = -50;
+  list* p = S->start;
+  p->data = -50;
+  for (int i = -49; i < 50; i++) 
+  //@loop_invariant p != NULL;
+  //@loop_invariant is_sortedlist(S);
+  {
+    p->next = alloc(list);
+    p->next->data = i;
+    p = p->next;
+  }
+
+  for (int i = -100; i < 100; i++) {
+    if (-50 <= i && i < 50) {
+      if (!is_in(S, i)) return 1;
+    } else {
+      if (is_in(S, i)) return 1;
+    }
+  }
+
+  println("50-50 tests passed");
+
+  /* Check odds */
+  p = S->start;
+  p->data = 1;
+  p->next = NULL;
+  for (int i = 3; i < 100; i += 2) 
+  //@loop_invariant p != NULL;
+  //@loop_invariant is_sortedlist(S);
+  {
+    p->next = alloc(list);
+    p->next->data = i;
+    p = p->next;
+  }
+  
+  return 0;
+}

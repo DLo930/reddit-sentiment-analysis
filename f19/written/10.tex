@@ -1,0 +1,40 @@
+\documentclass[12pt]{exam}
+\newcommand{\hwnumber}{10}
+\newcommand{\duedate}{\formatdate{4}{11}{\YEAR}} % day-month-year
+\newcommand{\shortdesc}{This written homework covers priority queues
+  and their implementation as heaps.}
+
+\input{inc/preamble}
+\begin{document}
+\input{inc/frontmatter}
+
+\begin{questions}
+\inputQuestion[questions/min-heap/]{main} % See file
+\inputQuestion[questions/pq-as-heap/]{main} % See file
+\inputQuestion{using-pq} % See file
+
+% We don't do tries any more
+%\inputQuestion[questions/tries/]{main1}
+%\inputQuestion[questions/tries/]{main2}
+%\inputQuestion[questions/tries/]{main3}
+\end{questions}
+
+\RUBRIC
+
+Learning Objectives (AKA Evaluation Summary)
+* heaps
+* array representation of heaps
+* using heaps
+
+Gradescope rubric (no points, first two are always the same):
+-0pt EXCELLENT JOB!!!
+-0pt There are several concepts you have doubts about (see below): please consider going to office hours.
+
+-0pt You don't seem to fully understand heaps
+-0pt You don't seem to fully understand the array representation of heaps
+-0pt You appear a bit confused about using heaps
+
+ENDRUBRIC
+
+\input{inc/backmatter}
+\end{document}

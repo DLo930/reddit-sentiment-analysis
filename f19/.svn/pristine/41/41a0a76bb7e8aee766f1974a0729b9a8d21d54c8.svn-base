@@ -1,0 +1,263 @@
+\clearpage
+\Question{Proving the correctness of functions with one loop}
+
+The Fibonacci sequence is shown below:
+$$
+0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, \ldots
+$$
+Each integer $i_n$, $n \geq 2$, in the sequence is the sum of
+$i_{n-1}$ and $i_{n-2}$. By definition, $i_0 = 0$ and $i_1 = 1$.
+
+Consider the following implementation for \lstinline'fast_fib' that returns
+the $n$\textsuperscript{th} Fibonacci number. The body of the
+loop is not shown.
+\begin{lstlisting}[numbers=left, belowskip=0pt]
+int FIB(int n)
+//@requires n >= 0;
+{
+    if (n <= 1) return n;
+    else return FIB(n-1) + FIB(n-2);
+}
+
+int fast_fib(int n)
+//@requires n >= 0;
+//@ensures \result == FIB(n);[*\label{l:fastfib-post}*]
+{
+    if (n <= 1) return n;[*\label{l:fastfib-if}*]
+    int a = 0;[*\label{l:fastfib-ini1}*]
+    int b = 1;[*\label{l:fastfib-ini2}*]
+    int c = 1;[*\label{l:fastfib-ini3}*]
+    int x = 2;[*\label{l:fastfib-ini4}*]
+
+    while (x < n)[*\label{l:fastfib-lg}*]
+    //@loop_invariant 2 <= x && x <= n;[*\label{l:fastfib-LI1}*]
+    //@loop_invariant a == FIB(x-2);[*\label{l:fastfib-LI2}*]
+    //@loop_invariant b == FIB(x-1);[*\label{l:fastfib-LI3}*]
+    //@loop_invariant c == a + b;[*\label{l:fastfib-LI4}*]
+    {
+\end{lstlisting}
+\begin{lstlisting}[numbers=none,aboveskip=-0pt]
+       // LOOP BODY NOT SHOWN: modifies a, b, c, and x
+    }
+
+    return c;
+}
+\end{lstlisting}
+
+In this problem, we will reason about the correctness of the
+\lstinline'fast_fib' function when the argument \lstinline'n' is greater than or
+equal to \lstinline'2', and we will complete the implementation based on
+this reasoning.
+
+(NOTE: To completely reason about the correctness of
+\lstinline'fast_fib', we also need to point out that
+\lstinline'fast_fib(0) == FIB(0)' and that %
+\lstinline'fast_fib(1) == FIB(1)'. This is straightforward, because no
+loops are involved.)
+
+\newpage
+\emph{Note: The completed solution below shows you a general format for showing
+  that a postcondition holds given a valid loop invariant. The English
+  explanation is kept to a minimum and point-to reasoning
+  plays a large role.  In the future, you may be asked to write an
+  entire solution in a clear, concise manner, and the solution below gives
+  you an example of how you might write such a solution.}
+
+\begin{parts}
+\newcommand{\ans}[2]{\fbox{\rule[-0.5ex]{0em}{3ex}\answer{#1}{#2}}}
+
+\part[1]\TAGS{correctness, loop-invariant}
+{\bf Loop invariant and negation of the loop guard imply postcondition}
+
+Complete the argument that the postcondition is satisfied assuming
+valid loop invariant(s) by giving appropriate line numbers. Use
+point-to reasoning.
+
+\begin{framed}
+  We know \lstinline'x <= n' by line \ans{1.5em}{\ref{l:fastfib-LI1}}
+  and we know \lstinline'x >= n' by line
+  \ans{1.5em}{\ref{l:fastfib-lg}}, which implies that %
+  \lstinline'x == n' by logic.
+
+  \bigskip%
+  The returned value \result{} is the value of \lstinline'c' after the
+  loop, so to show that the postcondition on line~\ref{l:fastfib-post}
+  holds when \lstinline'n >= 2', it suffices to show %
+  \lstinline'c == FIB(n)' after the loop.
+
+\begin{tabular}{ll}
+     \lstinline'c == a + b'
+   & by line \ans{1.5em}{\ref{l:fastfib-LI4}}
+\\\\ \lstinline'  == a + FIB(x-1)'
+   & by line \ans{1.5em}{\ref{l:fastfib-LI3}}
+\\\\ \lstinline'  == FIB(x-2) + FIB(x-1)'
+   & by line \ans{1.5em}{\ref{l:fastfib-LI2}}
+\\\\ \lstinline'  == FIB(x)'
+   & by \lstinline'FIB' definition and \lstinline'x >= 0' by line
+     \ans{1.5em}{\ref{l:fastfib-LI1}}
+\end{tabular}
+\end{framed}
+
+\RUBRIC
+Make sure to make it clear what the answer(s) were and
+which ones they got right or wrong. It's wrong if there are missing lines and
+it's wrong if there are extra lines given (except where indicated).
+
+Part (a)
+TAGS: correctness, loop-invariant
+
+Gradescope rubric (negative grading):
+-0.2pt  Box 1: 19
+-0.2pt  Box 2: 18
+-0.2pt  Box 3: 22
+-0.2pt  Box 4: 21
+-0.2pt  Box 5: 20
+-0.2pt  Box 6: 19
+
+Commentary:
+- x <= n                                    by line _19_
+- x >= n                                    by line _18_
+- c = a + b                                 by line _22_
+- a + b == a + FIB(x-1)                     by line _21_
+- a + FIB(x-1) = FIB(x-2) + FIB(x-1)        by line _20_
+- x >= 0                                    by line _19_
+
+-0.2pt off for each mistake up to a maximum of 5 mistakes (1 pts)
+ENDRUBRIC
+
+\part[1]\TAGS{correctness, loop-invariant}
+{\bf Loop invariant holds initially}
+
+Complete the argument for the loop invariants holding initially by
+giving appropriate line numbers.
+
+\begin{framed}
+The loop invariant \lstinline'2 <= x' on line~\ref{l:fastfib-LI1}
+holds initially by line(s) \ans{6em}{\ref{l:fastfib-ini4}}.
+
+\bigskip
+The loop invariant \lstinline'x <= n' on line~\ref{l:fastfib-LI1}
+holds initially by line(s) \ans{6em}{\ref{l:fastfib-if}, \ref{l:fastfib-ini4}}.
+
+\bigskip
+The loop invariant on line~\ref{l:fastfib-LI2} holds initially by line(s)
+\ans{6em}{\ref{l:fastfib-ini1}, \ref{l:fastfib-ini4}}.
+
+\bigskip
+The loop invariant on line~\ref{l:fastfib-LI3} holds initially by
+line(s) \ans{6em}{\ref{l:fastfib-ini2}, \ref{l:fastfib-ini4}}.
+
+\bigskip
+The loop invariant on line~\ref{l:fastfib-LI4} holds initially by
+lines \ref{l:fastfib-ini1}, \ref{l:fastfib-ini2}, and~\ref{l:fastfib-ini3}.
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: correctness, loop-invariant
+
+Gradescope rubric:
++0.25pt  Box 1: line 16
++0.25pt  Box 2: lines 12 and 16
++0.25pt  Box 3: lines 13 and 16 (any mention of lines 1-6 is fine)
++0.25pt  Box 4: lines 14 and 16 (any mention of lines 1-6 is fine)
+
+Commentary:
+- 2 <= x: line 16
+- x <= n: lines 12 and 16
+- a == FIB(x-2): lines 13 and 16 (any mention of lines 1-6 is fine)
+- b == FIB(x-1): lines 14 and 16 (and 1-6 is fine)
+- c == a + b: lines 13, 14, and 15
+
+- 1/4 point off for each mistake
+ENDRUBRIC
+
+
+\newpage
+\part[0\half]\TAGS{correctness, loop-invariant}
+{\bf The loop invariant is preserved through any single iteration of the loop}
+
+Based on the given loop invariants, write the body of the loop.
+{\bf  DO NOT use the specification function \lstinline'FIB()'. The
+specification function is meant to be used in contracts only.
+Also, do not call \lstinline'fast_fib' recursively, since this isn't fast!}
+
+(NOTE: To check your answer, you would prove that the loop invariants
+are preserved by an arbitrary iteration of the loop, but you don't
+have to do that for us here --- we'll cover that process in the next question.)
+
+\begin{lstlisting}[frame=single, numbers=left, firstnumber=18, numberblanklines=false]
+while (x < n)
+//@loop_invariant 2 <= x && x <= n;
+//@loop_invariant a == FIB(x-2);
+//@loop_invariant b == FIB(x-1);
+//@loop_invariant c == a + b;
+{
+    x = [*\uanswer{25em}{x + 1}*];
+
+    a = [*\uanswer{25em}{b}*];
+
+    b = [*\uanswer{25em}{c}*];
+
+    c = [*\uanswer{25em}{a + b}*];
+}
+
+return c;
+\end{lstlisting}
+
+\RUBRIC
+Part (c)
+TAGS: correctness, loop-invariant
+
+Gradescope rubric:
++0.25pt  At least 3 of {x, a, b, c} correct
++0.25pt  All four correct
+
+Commentary:
+- x = ___x + 1___;
+- a = ___b_______;
+- b = ___c_______;
+- c = ___a + b___; // OR a + c
+
+- .25 points if they make one mistake (but double check that it's a
+  mistake if you haven't seen it before!)
+- 0 points for recursion, calling FIB, anything else
+ENDRUBRIC
+
+\part[0\half]\TAGS{correctness}
+{\bf The loop terminates}
+
+The postcondition is satisfied only if the loop terminates.
+Explain concisely why the function must terminate with the loop body you
+gave in part c.
+\begin{framed}
+The integer quantity \ans{6em}{\texttt{n - x}} is strictly decreasing because
+
+\medskip
+\ifprintanswers{\color{\answerColor}
+  \texttt{n} remains constant and \texttt{x} gets strictly bigger.
+}\else~\vspace{8ex}\fi
+
+\smallskip
+Since the loop terminates if this quantity
+reaches 0 or less and this quantity is strictly decreasing, the loop must terminate.
+\end{framed}
+
+\RUBRIC
+Part (d)
+TAGS: correctness
+
+Gradescope rubric:
++0.5pt  -- EITHER -- correct quantity that can't go below zero (probably n-x) and reasonable justification (justification does not need to include line 18, the loop guard, even though technically it should)
++0.25pt  -- OR -- correctly increasing quantity (like x) and reasonable justification for why it increases
++0.25pt  -- OR -- correctly quantity that decreases (like -x) and justification for why it decreases
+
+Commentary:
+First blank:  n - x
+Second blank: n remains constant and x gets strictly bigger (or always increases by 1).
+- Note: a, b, and c get strictly larger is NOT justified due to modular arithmetic
+
+1/4 point for each blank
+ENDRUBRIC
+
+\end{parts}

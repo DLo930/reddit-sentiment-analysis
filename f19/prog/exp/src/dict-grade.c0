@@ -1,0 +1,184 @@
+#use <args>
+#use <string>
+
+string mk_op(int n, char c)
+//@requires n > 0;
+{
+  char[] S = alloc_array(char, n+1);
+  for (int i = 0; i < n; i++)
+    S[i] = c;
+  S[n] = '\0';
+  return string_from_chararray(S);
+}
+
+int main() {
+  args_t args = args_parse();
+  int argc = args->argc;
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  if (string_equal(arg, "empty1")) {
+    string[] A = alloc_array(string, 0);
+    dict_t D = dict_new(A, 0);
+    if (D == NULL) return 1;
+    if (-1 != dict_lookup(D, "/")) return 1;
+    if (-1 != dict_lookup(D, "**")) return 1;
+    if (-1 != dict_lookup(D, "*")) return 1;
+    if (-1 != dict_lookup(D, "+")) return 1;
+    if (-1 != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "empty2")) {
+    string[] A = alloc_array(string, 100);
+    dict_t D = dict_new(A, 100);
+    if (D == NULL) return 1;
+    if (-1 != dict_lookup(D, "/")) return 1;
+    if (-1 != dict_lookup(D, "**")) return 1;
+    if (-1 != dict_lookup(D, "*")) return 1;
+    if (-1 != dict_lookup(D, "+")) return 1;
+    if (-1 != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "singleton1")) {
+    string[] A = alloc_array(string, 1);
+    A[0] = "*";
+    dict_t D = dict_new(A, 1);
+    if (D == NULL) return 1;
+    if (-1 != dict_lookup(D, "/")) return 1;
+    if (-1 != dict_lookup(D, "**")) return 1;
+    if (0  != dict_lookup(D, "*")) return 1;
+    if (-1 != dict_lookup(D, "+")) return 1;
+    if (-1 != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "singleton2")) {
+    string[] A = alloc_array(string, 100);
+    A[0] = "*";
+    dict_t D = dict_new(A, 100);
+    if (D == NULL) return 1;
+    if (-1 != dict_lookup(D, "/")) return 1;
+    if (-1 != dict_lookup(D, "**")) return 1;
+    if (0  != dict_lookup(D, "*")) return 1;
+    if (-1 != dict_lookup(D, "+")) return 1;
+    if (-1 != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "singleton3")) {
+    string[] A = alloc_array(string, 100);
+    A[33] = "*";
+    dict_t D = dict_new(A, 100);
+    if (D == NULL) return 1;
+    if (-1 != dict_lookup(D, "/")) return 1;
+    if (-1 != dict_lookup(D, "**")) return 1;
+    if (33 != dict_lookup(D, "*")) return 1;
+    if (-1 != dict_lookup(D, "+")) return 1;
+    if (-1 != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "singleton4")) {
+    string[] A = alloc_array(string, 100);
+    A[99] = "*";
+    dict_t D = dict_new(A, 100);
+    if (D == NULL) return 1;
+    if (-1 != dict_lookup(D, "/")) return 1;
+    if (-1 != dict_lookup(D, "**")) return 1;
+    if (99 != dict_lookup(D, "*")) return 1;
+    if (-1 != dict_lookup(D, "+")) return 1;
+    if (-1 != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "basic1")) {
+    string[] A = alloc_array(string, 3);
+    A[2] = "**";
+    A[1] = "* /";
+    A[0] = "+ -";
+    dict_t D = dict_new(A, 3);
+    if (1  != dict_lookup(D, "/")) return 1;
+    if (2  != dict_lookup(D, "**")) return 1;
+    if (1  != dict_lookup(D, "*")) return 1;
+    if (0  != dict_lookup(D, "+")) return 1;
+    if (0  != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "basic2")) {
+    string[] A = alloc_array(string, 100);
+    A[99] = "**";
+    A[33] = "* /";
+    A[10] = "           \t     ";
+    A[5] = "+ -";
+    dict_t D = dict_new(A, 100);
+    if (33 != dict_lookup(D, "/")) return 1;
+    if (99 != dict_lookup(D, "**")) return 1;
+    if (33 != dict_lookup(D, "*")) return 1;
+    if (5  != dict_lookup(D, "+")) return 1;
+    if (5  != dict_lookup(D, "-")) return 1;
+    if (-1 != dict_lookup(D, "@")) return 1;
+    if (-1 != dict_lookup(D, "invalid operator")) return 1;
+
+  } else if (string_equal(arg, "few")) {
+    int n = 15;
+    string[] A = alloc_array(string, n);
+    for (int i=1; i < n; i++)
+      A[i] = mk_op(i, '*');
+    dict_t D = dict_new(A, n);
+    if (-1 != dict_lookup(D, "+")) return 1;
+    for (int i=1; i < n; i++)
+      if (i != dict_lookup(D, mk_op(i, '*'))) return 1;
+
+  } else if (string_equal(arg, "many")) {
+    int n = 100;
+    string[] A = alloc_array(string, n);
+    for (int i=1; i < n; i++)
+      A[i] = mk_op(i, '*');
+    dict_t D = dict_new(A, n);
+    if (-1 != dict_lookup(D, "+")) return 1;
+    for (int i=1; i < n; i++)
+      if (i != dict_lookup(D, mk_op(i, '*'))) return 1;
+
+  } else if (string_equal(arg, "manymore")) {
+    int n = 1000;
+    string[] A = alloc_array(string, n);
+    for (int i=1; i < n; i++)
+      A[i] = mk_op(i, '*');
+    dict_t D = dict_new(A, n);
+    if (-1 != dict_lookup(D, "+")) return 1;
+    for (int i=1; i < n; i++)
+      if (i != dict_lookup(D, mk_op(i, '*'))) return 1;
+
+  } else if (string_equal(arg, "invalid1")) {
+    string[] A = alloc_array(string, 3);
+    A[2] = "** +";
+    A[1] = "* /";
+    A[0] = "+ -";
+    dict_t D = dict_new(A, 3);
+    if (D != NULL) return 1;
+
+  } else if (string_equal(arg, "invalid2")) {
+    string[] A = alloc_array(string, 100);
+    A[75] = "**";
+    A[50] = "* /";
+    A[25] = "+ - +";
+    dict_t D = dict_new(A, 100);
+    if (D != NULL) return 1;
+
+  } else if (string_equal(arg, "invalid3")) {
+    string[] A = alloc_array(string, 100);
+    A[99] = "** + **";
+    A[50] = "* /";
+    A[0] = "-";
+    dict_t D = dict_new(A, 100);
+    if (D != NULL) return 1;
+
+  } else {
+    error("Unknown argument");
+  }
+
+  return 0;
+}

@@ -1,0 +1,45 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+CC0=cc0 lib/*.c0 -o
+CC0D=cc0 -d lib/*.c0 -o
+
+default:
+	@$(MAKE) extract -s
+	@$(MAKE) compile -is
+	@$(MAKE) grade -s
+
+.PHONY: extract compile grade
+extract:
+	date
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar
+	rm -Rf lib
+	mv lib-alt lib
+	tar -mkxzvf handin.tgz
+	echo ""
+
+compile:
+	date
+	echo "[15-122] Compilation..."
+	echo "If your code does not compile on the Autolab server"
+	echo "but compiles in your directory, there are three likely culprits"
+	echo "(a) you forgot to hand in some new file you created"
+	echo "(b) you modified the #use directives when you should not have"
+	echo "(c) you didn't respect the stack/queue/dict interface"
+	echo "    (NOTE: is_stack AND is_queue ARE NOT PART OF THE INTERFACE)"
+	echo "============================================="
+	$(CC0)  clac   clac.c0 clac-grade.c0
+	$(CC0D) clac-d clac.c0 clac-grade.c0
+	$(CC0D) isdict-grade dict.c0 is_dict-grade.c0
+	$(CC0D) dict-grade dict.c0 dict-grade.c0
+	$(CC0D) precstack-grade --no-purity-check dict-sol.c0 parse.c0 precstack-grade.c0
+	$(CC0)  parse   --no-purity-check dict-sol.c0 parse.c0 parse-grade.c0
+	$(CC0D) parse-d --no-purity-check dict-sol.c0 parse.c0 parse-grade.c0
+	$(CC0D) clac-ref clac-impl.c0
+	echo ""
+
+grade:
+	date
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

@@ -1,0 +1,150 @@
+/*
+ * Interface for dictionaries
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <conio>
+
+/* Implementation of dictionaries */
+typedef struct dict_header dict;
+/* insert your implementation code between HERE */
+
+
+struct dict_header {
+  int len;
+  string[] key;
+  int[] value;
+};
+
+bool is_strictly_sorted(string[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  for (int i = lo+1; i < hi; i++)
+  //@loop_invariant lo+1 <= i;
+  {
+    if (string_compare(A[i-1], A[i]) >= 0) return false;
+  }
+
+  return true;
+}
+
+bool is_dict(dict* D) {
+  if (D == NULL) return false;
+  //@assert \length(D->key) == D->len;
+  //@assert \length(D->value) == D->len;
+  return is_strictly_sorted(D->key, 0, D->len);
+}
+
+void swap_down(dict *D, int i)
+//@requires D != NULL;
+//@requires \length(D->key) == D->len;
+//@requires \length(D->value) == D->len;
+//@requires 1 <= i && i < D->len;
+{
+  string key = D->key[i-1];
+  int value = D->value[i-1];
+
+  D->key[i-1] = D->key[i];
+  D->value[i-1] = D->value[i];
+  D->key[i] = key;
+  D->value[i] = value;
+}
+
+int total_tokens(string[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  int n = 0;
+  for (int i = lo; i < hi; i++)
+  //@loop_invariant 0 <= lo && lo <= hi;
+  {
+    n += num_tokens(A[i]);
+  }
+
+  return n;
+}
+
+dict* dict_new(string[] A, int n)
+//@requires \length(A) == n;
+//@requires is_infix_array(A, n);
+//@ensures \result == NULL || is_dict(\result);
+{
+  dict* D = alloc(dict);
+  D->len = total_tokens(A, 0, n);
+  D->key = alloc_array(string, D->len);
+  D->value = alloc_array(int, D->len);
+
+  int m = 0;
+  for (int i = 0; i < n; i++)
+  //@loop_invariant 0 <= i && i <= n;
+  //@loop_invariant m == total_tokens(A, 0, i);
+  //@loop_invariant is_strictly_sorted(D->key, 0, m);
+  {
+    int toks = num_tokens(A[i]);
+    string[] B = parse_tokens(A[i]);
+
+    // Add each token with precedence i into the array
+    // (This loop body is a good candidate for a helper function)
+    for (int j = 0; j < toks; j++)
+    //@loop_invariant 0 <= j && j <= toks;
+    //@loop_invariant m == total_tokens(A, 0, i) + j;
+    //@loop_invariant is_strictly_sorted(D->key, 0, m);
+    {
+      // Add to the end of the sorted array
+      string tok = B[j];
+      D->key[m] = tok;
+      D->value[m] = i;
+      m++;
+
+      // Bubble sort backwards
+      int k = m-1;
+      while (k > 0 && string_compare(D->key[k-1], D->key[k]) == 1)
+      //@loop_invariant 0 <= k && k < m;
+      {
+        swap_down(D, k);
+        k--;
+      }
+
+      if (k > 0 && string_compare(D->key[k-1], D->key[k]) == 0) {
+        return NULL; // Duplicate key!
+      }
+    }
+  }
+
+  return D; // Ok array!
+}
+
+// PERF: linear search, could use binary search
+int dict_lookup(dict* D, string key)
+//@requires is_dict(D);
+{
+  for (int i = 0; i < D->len; i++)
+  //@loop_invariant 0 <= i && i <= D->len;
+  {
+    if (string_equal(D->key[i], key)) {
+      return D->value[i];
+    }
+  }
+
+  return -1;
+}
+
+
+/* and HERE */
+typedef dict* dict_t;
+
+
+/* Interface of dictionaries (leave this alone) */
+
+// typedef ______* dict_t;
+
+// Returns NULL if the input array has the same operator twice
+dict_t dict_new(string[] A, int n)
+  /*@requires \length(A) == n; @*/
+  /*@requires is_infix_array(A, n); @*/ ;
+
+// Returns -1 if no definition is found
+int dict_lookup(dict_t D, string oper)
+  /*@requires D != NULL; @*/
+  /*@ensures \result >= -1; @*/ ;

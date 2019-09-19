@@ -1,0 +1,21 @@
+#use <conio>
+#use "sol-gapbuf.c0"
+
+//EXPECT ANNOTATION FAILURE
+
+int main()
+{
+  bool passed = true;
+
+  //this should fail instantly
+  gapbuf G = gapbuf_new(0);
+
+  //size 0 (should only be relevant without -d)
+  if(!(is_gapbuf_(G) == false)){
+    passed = false;
+    // println("failed to produce a size 0 gapbuffer");
+  }
+  
+  //report
+  if(passed) return 0; else return 1;
+}

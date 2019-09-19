@@ -1,0 +1,378 @@
+LAST: C0 -> C, memory management
+TODAY:
+- C's memory model
+  . arrays
+  . aliasing
+  . pointer casting
+  . stack-allocated arrays/structs
+  . strings
+  . address-of
+- undefined behaviors
+NEXT: numbers in C
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] arrays in C
+[5] pointer arithmetic
+[5] undefined behaviors
+[3] aliasing
+[4] pointer casting
+[2] void* for generic array algorithms
+[4] stack-allocated arrays/structs
+[4] address-of
+[4] strings in C [seen in lab and in hw if they did strbuf]
+
+
+Board preset: the memory model we saw for C1 [omit specific values]
+      ------------------------------- 2^64 - 1
+      |              OS             | (restricted)
+      -------------------------------
+      | H: *                  [main]|
+      | j: 7                        |    Local
+      | H: *          [hdict_lookup]|    memory
+ THE  | k: "rose"                   |
+stack | i: 4                        |
+      | k1: "rose"       [key_equiv]|
+      | k2: "Hamlet"                |
+      |~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~|
+      |              |              |
+      |              v              |
+      |                             | (unused)
+      |              ^              |
+      |              |              |
+      |~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~|
+      |    ...  [draw]              |    allocated
+Heap  |         ...  [draw]         |    memory
+      |              ...  [draw]    |
+      -------------------------------
+TEXT  | "Hamlet"                    | (read only)
+      | "rose"                      |
+      -------------------------------
+CODE  | main ...                    | (read only)
+      | hdict_new ...               |
+      |    ...                      |
+      | entry_key ...               |
+      | key_hash ...                |
+      | key_equiv ...               |
+      | hash_string ...             |
+      -------------------------------
+      |              OS             | (restricted)
+      ------------------------------- 0x0 = NULL
+
+Summary of transition to C from last time
+=========================================
+      Lost                    Gained
+      --------------------    --------------------------
+      contracts               preprocessor (?)
+      safety                  whimsical execution
+      garbage collection      explicit memory management
+      memory initialization   separate compilation
+- this lecture: more memory manipulations in C (and the trouble they can get us into)
+
+Arrays and pointer arithmetic
+=============================
+- like C0, C has arrays but we create them differently:
+      int *A = xmalloc(sizeof(int) * 5);
+  . creates an array of 5 int's [draw as zoom-in into memory model (heap)]
+         A
+         0xBB0   0xBB4   0xBB8   0xBBC   0xBC0
+      _._______________________________________________
+         |       |       |       |       |       |
+      _._|_._._._|_._._._|_._._._|_._._._|_._._._|_._._
+  contains  A[0]    A[1]    A[2]    A[3]    A[4]
+
+- what's different?
+  . we use (x)malloc rather than a special instruction
+  . the result is an int*, not a special array type
+- in C, ARRAYS AND POINTERS ARE THE SAME THING!
+- arrays are accessed like in C0
+      A[1] = 7;
+      A[2] = A[1] + 5;
+      A[4] = 1;              // important for later
+  [update memory picture with new values]
+- but there is a twist: what is *A ?
+  . A is an int* so, *A is an int
+  . that's the first element of the array
+  . same as A[0]
+      *A = 42;
+- A is address of first element of the array
+- next element?
+  . that address + one int over: A+1
+    . "1" is the number of elements to skip over, not the number of bytes
+  . this is called POINTER ARITHMETIC
+    . A+i is the ADDRESS of the i-th element of A
+  . A+1 is the address of A[1], so *(A+1) is A[1]
+    . in fact, A[i] is convenience syntax for *(A+i)
+      . in the same way as T->data is convenience syntax for (*T).data
+- pointer arithmetic is one of the most error-prone features of C
+  . DO NOT USE IT
+  . you can write any C code without ever using pointer arithmetic
+    . more readable, fewer bugs
+    . but you may run into code that uses it
+  . it gets weirder
+    . A[2] === *(A+2)   -- by above definition
+           === *(2+A)   -- commutativity of addition [turns out to be for size_t]
+           === 2[A]     -- by same definition!
+    . NEVER DO THAT!
+- (x)malloc does not initialize memory
+  . A[3] could contain any value
+- calloc(num_elem, size_of_elem) allocates num_elem * size_of_elem bytes and zeros them out
+      int *A = xcalloc(5, sizeof(int));
+      printf("%d", A[3]);
+  prints 0 -- always
+  . works just like alloc_array in C0
+  . lib/xalloc.h provides xcalloc, which is guaranteed never to return NULL
+- arrays need to be freed when we are done with them
+      free(A);
+- in C, there is no way to find the length of an array
+  . not even in contracts (well, there are no contracts)
+  . you need to keep track of it -- religiously
+- A so far:
+         A
+         0xBB0   0xBB4   0xBB8   0xBBC   0xBC0
+      _._______________________________________________
+         |  42   |   7   |  12   |       |   1   |
+      _._|_._._._|_._._._|_._._._|_._._._|_._._._|_._._
+            A[0]    A[1]    A[2]    A[3]    A[4]
+
+Undefined behaviors
+===================
+- what if we try to access A[5] ?
+      printf("A[...] is %d\n", A[5]);
+  . prints something [0 on Linux; non-deterministic on Mac]
+  . would be a safety violation (array out-of-bounds) in C0
+- same thing if we access A[1000], A[-1]
+- but A[10000000] causes a segmentation fault!
+- even writing out of bounds seems to work sometimes
+  . A[5] = 15122;
+    printf("A[...] is %d\n", A[5]);
+  . A[100] = 42;
+    printf("A[...] is %d\n", A[100]);
+- out-of-bound accesses are examples of UNDEFINED BEHAVIOR
+  . C standard does not specify what should happen
+    [have a copy of the C99 standard]
+  . implementation could do anything
+    . let operation do its thing as if it were legal
+    . abort computation
+    . crash computer
+    . order pizza for whole team [Google insider joke]
+    . ANYTHING!
+    . worst of all: works most of the time, but sometimes doesn't
+     . corrupt data and crash in a mysterious way later
+  . different implementations (compiler, OS, ...) may do different things
+    . e.g., gcc on Mac vs. Linux!
+    . no guarantee different runs will have consistent behavior
+  . why did A[5], A[1000], A[-1] "work"?  [refer to memory model]
+    . read/wrote whatever program data was at those addresses
+  . why did A[10000000] crash?
+    . address belonged to another process, most likely OS
+- real world consequences of undefined behaviors
+  . getting hacked (buffer overflow, heartbleed, Stuxnet)
+- remedies
+  . have a reason to believe that each array access is in bound
+    . use methodology learned for C0
+    . this time, you (not the computer) are responsible for enforcing it
+- valgrind will catch many array out-of-bound errors, e.g.,
+  . printf("A[...] is %d\n", A[5]);
+     ==21987== Invalid read of size 4
+     ==21987==  Address 0x5204054 is 0 bytes after a block of size 20 alloc'd
+  . printf("A[...] is %d\n", A[10000000]);
+    . even for segfaults will point to where things went wrong
+- but not all
+  . A[1000] = 42;
+  . valgrind does not report anything!
+    . valgrind keeps an eye in likely locations of mistakes (off-by-one errors, ...)
+    . not a substitute for reasoning about code!
+- there are many many undefined behaviors in C
+  . almost anything slightly weird is undefined in C
+  . everything that is a SAFETY VIOLATION in C0 is UNDEFINED in C
+    . C0 was engineered like this on purpose
+  . other undefined behaviors (so far) [keep on adding as more come up]
+    . reading/writing to non-allocated memory
+    . reading uninitialized memory (even if correctly allocated)
+    . using memory that has been freed
+    . double-free
+- why are there undefined behaviors in C???
+  . early days of programming language research
+- why have they not been fixed?
+  . some legacy code relies on behavior of specific compiler on specific OS to do its job
+    . fixing it would break this code
+- mental model
+  . C0 is like your mom: keeps you away from anything vaguely dangerous
+  . C is like some old hippy: lets you do anything you want even if dangerous
+
+Aliasing
+========
+- pointer arithmetic lets us grab the address of an element in the middle of an array
+      int *B = A + 2;
+- it's an int*, so we can use it as if it were an array
+      assert(B[0] == A[2]);
+      assert(B[1] == A[3]);
+      assert(*(B+2) == A[4]);
+- new form of aliasing
+      B[1] = 35;
+      assert(A[3] == 35);
+- we are not allowed to free B because it was not returned by malloc/calloc
+  . undefined behavior
+         A               B
+         0xBB0   0xBB4   0xBB8   0xBBC   0xBC0
+      _._______________________________________________
+         |  42   |   7   |  12   |  35   |   1   |
+      _._|_._._._|_._._._|_._._._|_._._._|_._._._|_._._
+            A[0]    A[1]    A[2]    A[3]    A[4]
+                            B[0]    B[1]    B[2]
+
+Pointer casting
+===============
+- in C1, we can cast any pointer to void* and void* (ONLY) to the original pointer type
+- in C, we can cast any pointer to any pointer type -- no questions asked
+      char *C = (char *)A;
+      printf("The 16th char in C is %d\n", C[16]);
+  . views area of memory occupied by A as a char array
+  . prints the 16th char in it as a decimal number
+    . prints '1'
+    . that would be the first byte of A[4], which contained 1 (0x00000001 in hex)
+      . why isn't it 0???
+      . depends on which way integers are represented! ENDIANNESS (gcc uses little-endian format)
+- we can do things even more unreasonable
+      struct point *D = (struct point *)(A + 2);
+      printf("(x0,y1) = (%d, %d)\n", D[0].x, D[0].y);
+      //printf("(x1,y1) = (%d, %d)\n", D[1].x, D[1].y);  // Out of bound read
+  . struct point contains 2 int's, most likely 8 bytes
+  . D is an array of struct point, i.e., an array of 8-byte values
+  . D[0].x is (most likely) A[2], D[0].y is A[3]
+  . D[1].x is A[4], D[1].y is out of bounds!
+- we can do things outright dangerous
+      thermonuclear_device_controller *danger = (thermonuclear_device_controller *)A;
+
+void* in C
+==========
+- in C1, void* stands for an arbitrary pointer
+  . basis for generic data structures
+  . AS LONG AS DATA ARE POINTERS
+- in C, void* is also the type of an array of ... void
+  . there is no such type
+  . but we can view a void* as the address of the first element in ANY array
+    . we don't know the type of its elements
+    . we don't know how many elements there are
+- allows writing generic operations on arrays with arbitrary elements (not just pointers)
+  . we need to specify the number of bytes each element occupies
+    . e.g., sizeof(int) if elements are int's
+  . and the number of elements
+- this is explored at length in recitation
+
+Stack-allocated arrays and structs
+==================================
+- C uses the same model but lets you do many more things with it
+- in C0, arrays and structs can only be allocated on the heap
+- C allows allocating arrays on the stack
+  . and provides a convenient syntax for that!
+      int E[10];
+  . allocates a 10-element int-array on the stack
+    . accessed with usual notation
+      E[0] = 3;
+      E[1] = 2 * E[0];
+  . C even lets you declare array literals
+      int F[] = {2, 4, 56, 8, 3};
+    . specifying array length is optional -- compiler can figure it out
+    . really useful to write test cases!
+- C also allows declaring structs on the stack
+      struct point p;
+  . no nice way to initialize it, though
+  . because p is NOT a pointer, its fields need to be accessed using dot notation
+      p.x = 3;
+      p.y = 7;
+      printf("p is (%d,%d)\n", p.x, p.y);
+- stack-allocated arrays/structs do not need to be freed
+  . space is reclaimed automatically when function exits
+- they cannot be used for data structures shared across multiple functions
+  . e.g., stack_new() must allocate stack on heap or there will be no way to use this stack
+
+Address-of
+==========
+- in C1, & can be used only to get address of program functions
+- in C, it can be used to get address of any value that has a memory address (box)
+  . local variables
+      int i = 42;
+      increment(&i);
+  . fields of structs
+      increment(&p.y);          // p was stack-allocated
+      struct point* p2 = xcalloc(1, sizeof(struct point));
+      increment(&(p2->y));      // p2 is heap-allocated
+  . array element
+      increment(&A[3]);
+    . &A[3] is exactly the same as A+3
+      . much more readable
+      . removes the last need for pointer arithmetic
+- if you can do exp = ..., then you can do &exp
+- if it doesn't live in memory, you can't get its address
+  . &(i+2)   // there is no area of memory where i+2 is stored
+  . &(A+3)   // same!
+  . &&i      // same!
+- some uses do not make sense
+      int *bad() {
+        int a = 1;
+        return &a;
+      }
+  . returns address of a stack value that is deallocated upon return!
+    . huge security breach
+    . recent versions of gcc stopped allowing this
+
+Strings in C
+============
+- there is no type 'string' in C
+- strings in C are just arrays of characters, type char*
+      char *s1 = "hello";
+  . "hello" is just convenience syntax for the char array containing 'h', 'e', ...
+      printf("%c%c%c%c%c\n", s1[0], s1[1], s1[2], s1[3], s1[4]);
+      printf("%s\n", s1);
+  . how does printf know when to stop printing s1?
+    . length of array is recorded nowhere!
+  . end-of-string is indicated by the NUL character, written '\0', whose value is 0x0
+    . strings are NUL-terminated in C
+    . s1 is an array of SIX char's where A[5] == '\0'
+  . lots of string utility functions in <string.h>
+    . strlen returns the length of a string
+      assert(strlen(s1) == 5);
+    . but s1 as an array has length 6
+      . endless source of bugs!
+- strings in C can live in 3 places
+  . text segment
+      char *s1 = "hello";
+    . text segment is read-only, so s1 can't be modified
+        s1[0] = 'm';
+      is undefined behavior!
+    . no need to free them
+  . heap
+      char *s2 = malloc(strlen(s1) + 1);
+      strcpy(s2, s1);
+      s2[0] = 'Y';
+    . we need to allocate 1 extra char for the NUL terminator
+      . or really-hard-to-debug bugs
+    . we need to free them
+  . stack
+      char s3[] = "world";
+      char s4[] = {'f', 'i', 'n', 'e', '\0'};
+    . no need to free them
+
+Summary
+=======
+- Undefined behaviors
+  . reading/writing to non-allocated memory
+  . reading uninitialized memory (even if correctly allocated)
+  . use after free
+  . double free
+  . freeing memory not returned by malloc/calloc
+  . writing to read-only memory
+
+- balance sheet
+      Lost                    Gained
+      --------------------    --------------------------
+      contracts               preprocessor (?)
+      safety                  whimsical execution
+      garbage collection      explicit memory management
+      memory initialization   separate compilation
+      well-behaved arrays     pointer arithmetic
+      fully defined language  undefined behaviors (?)
+      strings                 stack-allocated arrays/structs
+                              generalized address-of

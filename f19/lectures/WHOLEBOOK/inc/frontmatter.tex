@@ -1,0 +1,63 @@
+\newcommand{\thetitle}{Principles\\[0.5ex] of\\[1.2ex] Imperative Programming}
+\newcommand{\thecourse}{15-122}
+
+\title{{\Huge \bf \thetitle}}
+\author{{\LARGE Frank Pfenning}
+ \\[1ex]{\large Carnegie Mellon University}
+ \\[5ex] With contributions by
+ \\ Rob Simmons,
+    Andr\'e Platzer,
+    Thomas Cortina and
+    Iliano Cervesato}
+\date{\em Draft of \today}
+
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{\sc Chapter \thechapter. #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\sc \thesection. #1}{}}
+\renewcommand{\thepage}{\emph{\roman{page}}}
+\maketitle
+
+\thispagestyle{empty}
+\cleardoublepage
+\setcounter{page}{1}
+\vspace*{0.5\textheight}
+\begin{center}
+  \copyright 2016 \ The Authors
+\end{center}
+
+\cleardoublepage
+\hypertarget{toc}{}
+\dominitoc\tableofcontents
+
+\listoffigures
+
+\cleardoublepage
+\thispagestyle{plain}
+\begin{preface}%
+  To do.
+\end{preface}
+
+\bigskip
+\begin{flushright}
+  The Authors,
+\\Pittsburgh, some date
+\end{flushright}
+
+
+\cleardoublepage
+\renewcommand{\thepage}{\arabic{page}}
+\setcounter{page}{1}
+\rhead[\rightmark]{\fancyplain{}{\gototoc\thepage}}
+
+
+%% Macros to undefine if this is the main -- must be done after \maketitle
+%\newcommand{\title}[1]{\chapter{#1}}%\renewcommand{\lectitle}{#1}}
+\newcommand{\title}[1]{}
+%\newcommand{\maketitle}{\chapter{\lectitle}}
+\newcommand{\date}[1]{}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

@@ -1,0 +1,11 @@
+
+Notes for testing of student code.
+
+For the correctness tests we should add tests for the following:
+
+1. An annotation //@assert \length(resultpixels) >= width*height; // (times a factor for reflect and rotate)
+
+2. We should test that the original image stays the same.
+
+3. image_destroy is deprecated. Images are now garbage collected.
+

@@ -1,0 +1,186 @@
+#use <rand>
+#use <util>
+#use <string>
+#use <conio>
+
+int gettysburg_test(int n) {
+  bloom_t B = bloom_new(n);
+  bloom_add(B, "four");
+  if (!bloom_contains(B, "four")) return -1;
+
+  bloom_add(B, "score");
+  if (!bloom_contains(B, "four")) return -1;
+  if (!bloom_contains(B, "score")) return -1;
+
+  bloom_add(B, "and");
+  if (!bloom_contains(B, "four")) return -1;
+  if (!bloom_contains(B, "score")) return -1;
+  if (!bloom_contains(B, "and")) return -1;
+
+  bloom_add(B, "seven");
+  if (!bloom_contains(B, "four")) return -1;
+  if (!bloom_contains(B, "score")) return -1;
+  if (!bloom_contains(B, "and")) return -1;
+  if (!bloom_contains(B, "seven")) return -1;
+
+  bloom_add(B, "years");
+  if (!bloom_contains(B, "four")) return -1;
+  if (!bloom_contains(B, "score")) return -1;
+  if (!bloom_contains(B, "and")) return -1;
+  if (!bloom_contains(B, "seven")) return -1;
+  if (!bloom_contains(B, "years")) return -1;
+
+  bloom_add(B, "ago");
+  if (!bloom_contains(B, "four")) return -1;
+  if (!bloom_contains(B, "score")) return -1;
+  if (!bloom_contains(B, "and")) return -1;
+  if (!bloom_contains(B, "seven")) return -1;
+  if (!bloom_contains(B, "years")) return -1;
+  if (!bloom_contains(B, "ago")) return -1;
+
+  int score = 0;
+  if (!bloom_contains(B, "gettysburg")) score += 1;
+  if (!bloom_contains(B, "address")) score += 1;
+  if (!bloom_contains(B, "our")) score += 1;
+  if (!bloom_contains(B, "fathers")) score += 1;
+  if (!bloom_contains(B, "brought")) score += 1;
+  if (!bloom_contains(B, "forth")) score += 1;
+  if (!bloom_contains(B, "on")) score += 1;
+  if (!bloom_contains(B, "this")) score += 1;
+  if (!bloom_contains(B, "continent")) score += 1;
+  if (!bloom_contains(B, "a")) score += 1;
+  if (!bloom_contains(B, "new")) score += 1;
+  if (!bloom_contains(B, "nation")) score += 1;
+  if (!bloom_contains(B, "conceived")) score += 1;
+  if (!bloom_contains(B, "in")) score += 1;
+  if (!bloom_contains(B, "liberty")) score += 1;
+  if (!bloom_contains(B, "dedicated")) score += 1;
+  if (!bloom_contains(B, "to")) score += 1;
+  if (!bloom_contains(B, "the")) score += 1;
+  if (!bloom_contains(B, "proposition")) score += 1;
+  if (!bloom_contains(B, "that")) score += 1;
+  if (!bloom_contains(B, "all")) score += 1;
+  if (!bloom_contains(B, "men")) score += 1;
+  if (!bloom_contains(B, "are")) score += 1;
+  if (!bloom_contains(B, "created")) score += 1;
+  if (!bloom_contains(B, "equal")) score += 1;
+  if (!bloom_contains(B, "now")) score += 1;
+  if (!bloom_contains(B, "we")) score += 1;
+  if (!bloom_contains(B, "are")) score += 1;
+  if (!bloom_contains(B, "engaged")) score += 1;
+  if (!bloom_contains(B, "in")) score += 1;
+  if (!bloom_contains(B, "a")) score += 1;
+  if (!bloom_contains(B, "great")) score += 1;
+  if (!bloom_contains(B, "civil")) score += 1;
+  if (!bloom_contains(B, "war")) score += 1;
+  if (!bloom_contains(B, "testing")) score += 1;
+  if (!bloom_contains(B, "whether")) score += 1;
+  if (!bloom_contains(B, "that")) score += 1;
+  if (!bloom_contains(B, "nation")) score += 1;
+  if (!bloom_contains(B, "or")) score += 1;
+  if (!bloom_contains(B, "any")) score += 1;
+  if (!bloom_contains(B, "nation")) score += 1;
+  if (!bloom_contains(B, "so")) score += 1;
+  if (!bloom_contains(B, "concieved")) score += 1;
+  if (!bloom_contains(B, "&")) score += 1;
+  if (!bloom_contains(B, "so")) score += 1;
+  if (!bloom_contains(B, "dedicated")) score += 1;
+  if (!bloom_contains(B, "can")) score += 1;
+  if (!bloom_contains(B, "long")) score += 1;
+  if (!bloom_contains(B, "endure")) score += 1;
+  if (!bloom_contains(B, "!")) score += 1;
+
+  return score * 2;
+}
+
+string switchy(string s) 
+//@requires string_length(s) == 8;
+{
+  return string_join(string_sub(s, 4, 8), string_sub(s, 0, 4));
+}
+
+int edge_small() {
+  int score = 0;
+  bloom_t B = bloom_new(1);
+  for (int i = 0; i < 25; i++) {
+    if (!bloom_contains(B, int2hex(i))) score++;
+  }
+
+  bloom_add(B, "ABC");
+
+  for (int i = 0; i < 25; i++) {
+    if (!bloom_contains(B, int2hex(i))) score++;
+  }
+
+  B = bloom_new(2);
+  for (int i = 0; i < 25; i++) {
+    if (!bloom_contains(B, int2hex(i))) score++;
+  }
+  
+  bloom_add(B, "ABC");
+
+  for (int i = 0; i < 25; i++) {
+    if (!bloom_contains(B, int2hex(i))) score++;
+  }
+
+  return score;
+}
+
+int random_test(int n) {
+  rand_t r = init_rand(0xDEADBEEF);
+  int numtests = n/4;
+  string[] A = alloc_array(string, numtests);
+  bloom_t B = bloom_new(n);
+      
+  for (int i = 0; i < numtests; i++) {
+    A[i] = string_sub(int2hex(rand(r)), 0, 4);
+    bloom_add(B, A[i]);
+  }
+
+  int score = 0;
+  string prefix = "Four score and seven years ago our fathers brought forth";
+  string postfix = "government of the people, by the people, for the people";
+
+  for (int i = 0; i < numtests; i++) {
+    if (!bloom_contains(B, A[i])) return -1;
+    if (!bloom_contains(B, string_join(A[i], A[i]))
+        && !bloom_contains(B, string_join(A[i], postfix))
+        && !bloom_contains(B, string_join(prefix, A[i]))
+        && !bloom_contains(B, string_join(string_sub(A[i], 0, 2), "/:"))
+        && !bloom_contains(B, string_sub(A[i], 2, 2))) score++;
+  }
+
+  score *= 100;
+  score /= numtests;
+  
+  return score;
+}
+
+int main() {
+  int test1 = gettysburg_test(1);
+  print("Gettysburg 1: "); printint(test1); println("");
+
+  int test2 = gettysburg_test(10);
+  print("Gettysburg 10: "); printint(test2); println("");
+
+  int test3 = gettysburg_test(200);
+  print("Gettysburg 200: "); printint(test3); println("");
+  
+  int test4 = random_test(100);
+  print("Random 100: "); printint(test4); println("");
+
+  int test5 = random_test(1000);
+  print("Random 1000: "); printint(test5); println("");
+
+  int test6 = edge_small();
+  print("Small edge cases: "); printint(test6); println("");
+  
+  if (!(test1 >= 0 &&
+        test2 >= 0 &&
+        test3 >= 0 && 
+        test4 >= 0 && 
+        test5 >= 0 && 
+        test6 >= 0))
+    return -1;
+  return (test1 + test2 + test3 + test4 + test5 + test6) / 6;
+}

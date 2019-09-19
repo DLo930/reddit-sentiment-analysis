@@ -1,0 +1,38 @@
+#use <args>
+#use <string>
+
+int main() {
+  bool* fails = alloc(bool);
+  args_flag("-fails", fails);
+
+  string[] A = alloc_array(string, 8);
+  A[1] = "||";
+  A[2] = "&&";
+  A[3] = "< > != ==";
+  A[4] = "<< >>";
+  A[5] = "+ -";
+  A[6] = "* / %";
+  A[7] = "**";
+  dict_t D = dict_new(A, 8);
+
+  args_t args = args_parse();
+  int argc = args->argc;
+  if (args->argc == 1 && *fails) {
+    if (NULL != parse(D, tokenize(args->argv[0]))) return 1;
+  } else if (args->argc == 2 && !*fails) {
+    queue_t expected = tokenize(args->argv[1]);
+    queue_t actual = parse(D, tokenize(args->argv[0]));
+    if (actual == NULL) return 1;
+    while (!queue_empty(expected)) {
+      if (queue_empty(actual)) return 1;
+      if (!string_equal(deq(expected), deq(actual))) return 1;
+    }
+    if (!queue_empty(actual)) return 1;
+  } else { error("Bad args"); }
+
+  string arg = args->argv[0];
+
+  
+  
+  return 0;
+}

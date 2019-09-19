@@ -1,0 +1,76 @@
+\part[1]~\vspace*{-2ex}
+\begin{lstlisting}[numbers=left, belowskip=0pt]
+int gap(int x, int y)
+/*@requires x <= y; @*/ ;
+
+int g(int a)
+//@requires 0 <= a;
+{
+    int i = 2*a;
+
+    while (i > a)[*\label{l:gapex2-lg}*]
+    //@loop_invariant i >= a;[*\label{l:gapex2-LI}*]
+    {
+        int[] A = alloc_array(int, i-1);[*\label{l:gapex2-alloc_array}*]
+        a += 2;[*\label{l:gapex2-upd-a}*]
+        i += 1;[*\label{l:gapex2-upd-i}*]
+    }
+
+    return gap(i, a);[*\label{l:gapex2-gap}*]
+}
+\end{lstlisting}
+
+\vfill
+\begin{framed}
+\medskip
+Safety of the array allocation on line~\ref{l:gapex2-alloc_array} is:
+\uanswer{15em}{UNSUPPORTED}
+
+\medskip
+\setcounter{lineCounter}{0}
+\aLine{\texttt{i >= a}}{line~\ref{l:gapex2-LI}}
+\aLine{\texttt{i} and \texttt{a} are modified in the
+  loop}{lines~\ref{l:gapex2-upd-i} and~\ref{l:gapex2-upd-a}}
+\aLine{}{}
+\aLine{}{}
+Therefore we \noans{can}/\ans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{i > 0}}{~~~~N/A}
+\end{framed}
+
+\vfill
+\begin{framed}
+\medskip
+Safety of the function call on line~\ref{l:gapex2-gap} is: \uanswer{16.5em}{SUPPORTED}
+
+\medskip
+\setcounter{lineCounter}{0}
+\aLine{\texttt{i <= a}}{line~\ref{l:gapex2-lg}}
+\aLine{}{}
+\aLine{}{}
+\aLine{}{}
+Therefore we \ans{can}/\noans{cannot} conclude that\\[0.6ex]
+\aLine[-2ex]{\texttt{i <= a}}{line~\ref{l:gapex2-gap}}
+\end{framed}
+
+\RUBRIC
+Part (c)
+
+Gradescope rubric:
++0.25pt First box: UNSUPPORTED
++0.25pt First box: correctly justified (array size could be negative)
++0.25pt Second box: SUPPORTED
++0.25pt Second box: correctly justified (negation of loop guard on line 9)
+-0.1pt Second box: unnecessarily use of line 10
+
+Commentary:
+- Line 12 is UNSUPPORTED
+  . i >= a (line 10)
+  . i and a are modified in the loop (lines 13 and 14)
+  . This does not allow us to conclude that i > 0 at line 12.
+- Line 17 is SUPPORTED
+  . i <= a by line 9 (negation of the exit condition)
+    [If they cite line 10 unnecessarily in their justification, this is
+    incorrect: we want people to give us the minimal set of line
+    numbers necessary to justify a conclusion.]
+
+ENDRUBRIC

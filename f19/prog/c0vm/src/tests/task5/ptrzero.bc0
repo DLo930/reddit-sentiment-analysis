@@ -1,0 +1,32 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 00             # string pool total size
+# string pool
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 00             # number of local variables = 0
+00 12             # code length = 18 bytes
+BB 08    # new 8           # alloc(int*)
+2F       # amload          # *(alloc(int*))
+01       # aconst_null     # NULL
+9F 00 06 # if_cmpeq +6     # if (*(alloc(int*)) == NULL) goto <00:cond_true>
+A7 00 08 # goto +8         # goto <01:cond_false>
+# <00:cond_true>
+10 00    # bipush 0        # 0
+A7 00 05 # goto +5         # goto <02:cond_end>
+# <01:cond_false>
+10 01    # bipush 1        # 1
+# <02:cond_end>
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

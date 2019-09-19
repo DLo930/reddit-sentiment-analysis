@@ -1,0 +1,94 @@
+\section*{Implementing the algorithms}
+
+\begin{part}\TAGS{correctness, loop-invariant, safety}
+  Now you have two good sets of loop invariants: in
+  \lstinline'reverse.c0', use the algorithm from (1.a) to implement a
+  function that reverses the decimal digits in a seven-digit
+  nonnegative number using only mathematic and bitwise operators, and
+  call it \lstinline'reverse_math' (we've provided a skeleton function
+  for you). You shouldn't have to use \texttt{POW} outside of
+  contracts.  \textbf{Treat a number with fewer than seven digits as
+    if it has leading zeroes.}
+
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle]
+  % coin -d reverse.c0
+  --> reverse_math(7654321);
+  1234567 (int)
+  --> reverse_math(1512200);
+  22151 (int)
+  --> reverse_math(42);
+  2400000 (int)
+\end{lstlisting}
+
+You can test your code by running %
+\lstinline[language={[coin]C}]'cc0 -d -x reverse.c0 test-math-rev.c0' .
+
+\begin{solution}
+\begin{lstlisting}[numbers=left]
+int reverse_math(int x)
+//@requires 0 <= x && x <= POW(10,8);
+//@ensures 0 <= \result && \result <= POW(10,8);
+{
+  int y = 0;
+
+  for (int i = 0; i < 7; i++)
+  //@loop_invariant 0 <= i && i <= 7;
+  //@loop_invariant y <= POW(10, i);
+  //@loop_invariant x <= POW(10, 7-i);
+  {
+    y *= 10;
+    y += x % 10;
+    x /= 10;
+  }
+
+  return y;
+}
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+
+\begin{part}\TAGS{array, correctness, loop-invariant, safety}
+  In \lstinline'reverse.c0', write a function
+  \lstinline'reverse_array' that reverses all the decimal digits of a
+  seven-digit nonnegative number using arrays and the algorithm from
+  (1.b). Be sure to use the loop invariants you wrote above!
+
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle]
+  % coin -d reverse.c0
+  --> reverse_array(7654321);
+  1234567 (int)
+  --> reverse_array(1512200);
+  22151 (int)
+  --> reverse_array(42);
+  2400000 (int)
+\end{lstlisting}
+
+You can test your code by running %
+\lstinline[language={[coin]C}]'cc0 -d -x reverse.c0 test-array-rev.c0' .
+
+\begin{solution}
+\begin{lstlisting}[numbers=left]
+int reverse_array(int x) {
+  int[] A = alloc_array(int, 7);
+  int y = 0;
+
+  for (int i = 0; i < 7; i++) {
+    int a = x % 10;
+    A[i] = a;
+    x /= 10;
+  }
+
+  for (int j = 0; j < 7; j++)
+  //@loop_invariant 0 <= j && j <= \length(A);
+  //@loop_invariant j == 0 ? y == 0 : y % 10 == A[j-1];
+  {
+    y *= 10;
+    y += A[j];
+  }
+
+  return y;
+}
+\end{lstlisting}
+\end{solution}
+\end{part}

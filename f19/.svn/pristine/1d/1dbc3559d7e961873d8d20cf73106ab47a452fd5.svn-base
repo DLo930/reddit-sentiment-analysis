@@ -1,0 +1,30 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+CC0=cc0
+
+default:
+	@$(MAKE) extract -s
+	@$(MAKE) compile -is
+	@$(MAKE) grade -s
+
+.PHONY: extract compile grade
+extract:
+	date
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar
+	tar -mkzxvf handin.tgz
+	echo ""
+
+compile:
+	date
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(CC0) -d -o gapbuf-grade gapbuf.c0 gapbuf-grade.c0 --no-purity-check
+	$(CC0) -d -o dll_pt-grade elem-char.c0 dll_pt.c0 dll_pt-mimic.c0 dll_pt-grade.c0 --no-purity-check
+	$(CC0) -d -o tbuf-grade gapbuf.c0 dll_pt.c0 tbuf.c0 gapbuf-mimic.c0 tbuf-tools.c0 tbuf-grade.c0 --no-purity-check
+
+grade:
+	date
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

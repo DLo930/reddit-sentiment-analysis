@@ -1,0 +1,4 @@
+A bloom filter is a simple extension of the hash table idea -- can we
+come up with an application for it that is reasonable for 122
+students? The original hyphenation-rules example could be one
+example. Or maybe something like primaility testing?

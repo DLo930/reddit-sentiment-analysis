@@ -1,0 +1,223 @@
+TODAY: function contracts
+- the C0 interpreter
+- specifications vs. implementation
+- pre- and post-conditions
+- function contracts as abstraction of implementation
+NEXT: correctness
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[4] testing for correctness
+[5] preconditions
+[5] specification functions
+[5] postconditions
+[5] function contracts -- client promises
+[5] safety
+[5] contract failures
+[5] tracing a loop
+[5] (candidate) loop invariants
+
+What is this mystery function? (intro to many of the ideas in this class)
+==============================
+    int f(int x, int y) {
+      int r = 1;
+      while (y > 1) {
+        if (y % 2 == 1) {
+          r = x * r;
+        }
+        x = x * x;
+        y = y / 2;
+      }
+      return r * x;
+    }
+ - Without trying to understand it, is this good code? No!
+   . no comments
+   . non-descriptive names: f, x, y
+ - [Make a copy of 00-overview/code/mystery.c0 somewhere convenient for editing]
+   Run it as
+     % coin mystery.c0
+ - Let's get some idea what this function is doing (let students call
+   inputs, but use only reasonable numbers)
+     --> f(2,8);
+     --> f(5,3);
+ - What else?
+ - Before too long, ask for some examples of what tests make it clear
+   what the function is supposed to be doing
+     --> f(2,3);
+     --> f(2,4);
+     --> f(2,5);
+     --> f(2,6);
+
+Okay, it's the power function
+=============================
+ - What's it mean to be the power function?
+   . typical answer:
+       x * ... * x, y times
+     . what about not using "..."? -- confusing
+   . what about?
+       x^0 = 1
+       x^y = x^(y-1) * x   [if y > 0 -- add later]
+   . recursive definition!
+   . what if y is negative?
+     . doesn't make much sense with int's -- let's disallow it
+- According to this definition, it only really makes sense to call f on positive numbers
+- In most languages you'd write a comment:
+     // y must be greater than or equal to zero
+  . preconditions: restrictions on allowable input
+     // Precondition: y must be greater than or equal to zero
+- But C0 is not like most languages: you can write a CONTRACT!
+     //@requires y >= 0;
+  . gets executed only when calling coin with "-d" flag
+- Call the function in ways that do and do not violate the precondition
+     --> f(3,5);
+     --> f(6,-2);  // aborts execution
+- Is aborting the right thing to do when input does not make sense?
+  . Yes -- when asking directions, do you prefer 'I don't know' or be pointed in a random way?
+  . But, -d is used only when DEVELOPING code, not for the final application
+- a call that violates the preconditions is unsafe
+  . the caller must make sure that all calls are SAFE
+- Now we want to write a contract that describes what the function is SUPPOSED to do:
+  . postcondition
+     // Postcondition: returns x**y
+  . no predefined power function in C0 (no ** or ^)
+  . let's write our own
+       int POW(int b, int e)
+       //@requires e >= 0;
+       {
+         if (e == 0) return 1;
+         return b * POW(b, e-1);
+       }
+  . direct transcription of the mathematical definition!
+- Now we can very clearly state what it means for our function to be correct, using the
+  special \result available in an @ensures contract:
+     //@ensures \result == POW(x, y);
+
+A side note about contracts
+===========================
+- This won't compile, because we're modifying a local variable used in a contract
+  . do we mean the initial values of x and y or the final values of x and y?
+  . the C0 compiler doesn't let you do that
+  . for reasons we'll explain later [when we get to arrays], it would make the most sense
+    to say it was the final values, but then you'd have to _understand what the function
+    does_ in order to understand the postcondition!
+- We'll change the function to keep the inputs from getting modified
+    int b = x;
+    int e = y;
+    s/x/b/g
+    s/y/e/g
+  . result:
+    int f(int x, int y)
+    //@requires y >= 0;
+    //@ensures \result == POW(x, y);
+    {
+      int b = x;
+      int e = y;
+      int r = 1;
+      while (e > 1) {
+        if (e % 2 == 1) {
+          r = b * r;
+        }
+        b = b * b;
+        e = e / 2;
+      }
+      return r * b;
+    }
+- a function that violates a postcondition on safe inputs is incorrect
+  . the implementor must make sure that the function is CORRECT
+- intro to point-to reasoning
+  . prove that POW(x, y) is safe in postcondition
+  . prove that POW(b, e-1) is safe in recursive call
+
+Why contracts matter
+====================
+ - Preconditions prescribe what the valid inputs of the function are like
+ - Postconditions (here) prescribe what the result should be
+ - This is all a client (= caller) needs to know to use this
+   function in their program: they DO NOT need to know how the
+   function is implemented to use it correctly
+   . contracts are an ABSTRACTION of the function code for the caller
+ - Informal introduction of BLAME: if I'm the function,
+   . requires is your fault,
+   . ensures is my fault
+
+Preconditions and postconditions and foreshadowing
+==================================================
+ - Run some tests with -d:
+     --> f(2,10);
+     --> f(3,3);
+     --> f(3,-1); // @requires fails
+     --> f(3,0);  // @ensures fails
+ - Now we have a fully documented function (with a bug)
+
+Formulating a loop invariant by tracing the function on sample inputs
+=====================================================================
+ - Let's look at how the function is implemented.
+ - The loop makes it hard to understand how it works:
+   . value of variables changes at each iteration
+   . unclear how many iterations there are
+ - Look for a pattern that remains constant at each iteration: a LOOP INVARIANT
+   . LI help us understand what the loop does
+   . outside the loop, LI is all we need to know about what the loop does
+     (just like pre-/post-conditions)
+     . LI is an abstraction of the loop body
+   . abstaction: splitting complex systems into small chunks that can be
+     understood independently
+     . this is a really big deal in Computer Science
+
+ - Try one run of the loop (values are just before the loop guard is tested)
+     b    e    r
+     2    8    1
+     4    4    1
+     16   2    1
+     256  1    1
+ - e and b change at every iteration of the loop.  We need to figure out
+   an invariant: a quantity that doesn't change
+     b    e    r    b^e
+     2    8    1    256
+     4    4    1    256
+     16   2    1    256
+     256  1    1    256
+ - This doesn't work if y is not a power of two, though
+     b    e    r    b^e
+     2    7    1    128
+     4    3    2    64
+     16   1    8    8
+ - Can we find another quantity that doesn't change?
+     b    e    r    b^e  b^e * r
+     2    7    1    128  128
+     4    3    2    64   128
+     16   1    8    8    128
+ - So now we have a hypothesis: x^y * r is constant over every
+   iteration of the loop: it is a loop invariant
+      //@loop_invariant POW(b, e) * r
+ - But this doesn't work! We've got to have loop invariants that are
+   Boolean values that are always true, not integer values that are
+   always the same.  Since we saved the original x and y arguments, we
+   can use those.
+      //@loop_invariant POW(b, e) * r == POW(x, y);
+ - But wait a minute: how do we know that e >= 0?  That's a
+   precondition of the power function, and it would be a big problem
+   if our contracts could cause errors!  Whenever possible, we want
+   contracts to return TRUE or FALSE
+ - So we add a first loop invariant
+      //@loop_invariant e >= 0;
+ - So far these are CANDIDATE loop invariants: they work on two
+   examples.  We want to show that they hold for every valid inputs of
+   the function.
+-  We'll prove that both are genuine loop invariants in a little bit,
+   but even before proving the loop invariant, we can POINT TO the
+   e >= 0 loop invariant when we need to argue that the call to POW(b, e)
+   is SAFE. We can point to the precondition to say that POW(x, y)
+   is safe.
+
+Operational reasoning
+=====================
+ - Wait, why can't we just reason that e >= 0 because e starts out
+   non-negative and keeps getting divided by two over and over?
+ - That's correct: but OPERATIONAL REASONING about multiple
+   iterations of the loop is error-prone.  Our next step is to talk
+   about POINT-TO REASONING -- the way we will reason about
+   programs in this class.
+ - point-to reasoning is sometimes called logical reasoning
+   . we'll use the two terminologies interchangeably
+     [but I've come to like "point-to reasoning better --ic]

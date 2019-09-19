@@ -1,0 +1,60 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 09             # string pool total size
+# string pool
+70 66 65 6E 6E 69 6E 67 00  # "pfenning"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 05             # number of local variables = 5
+00 50             # code length = 80 bytes
+14 00 00 # aldc 0          # s[0] = "pfenning"
+36 00    # vstore 0        # s = "pfenning";
+15 00    # vload 0         # s
+10 01    # bipush 1        # 1
+B7 00 00 # invokenative 0  # string_charat(s, 1)
+36 01    # vstore 1        # a = string_charat(s, 1);
+15 00    # vload 0         # s
+10 03    # bipush 3        # 3
+B7 00 00 # invokenative 0  # string_charat(s, 3)
+36 02    # vstore 2        # b = string_charat(s, 3);
+15 00    # vload 0         # s
+10 05    # bipush 5        # 5
+B7 00 00 # invokenative 0  # string_charat(s, 5)
+36 03    # vstore 3        # c = string_charat(s, 5);
+15 00    # vload 0         # s
+10 07    # bipush 7        # 7
+B7 00 00 # invokenative 0  # string_charat(s, 7)
+36 04    # vstore 4        # d = string_charat(s, 7);
+15 01    # vload 1         # a
+B7 00 02 # invokenative 2  # string_fromchar(a)
+B7 00 01 # invokenative 1  # println(string_fromchar(a))
+57       # pop             # (ignore result)
+15 02    # vload 2         # b
+B7 00 02 # invokenative 2  # string_fromchar(b)
+B7 00 01 # invokenative 1  # println(string_fromchar(b))
+57       # pop             # (ignore result)
+15 03    # vload 3         # c
+B7 00 02 # invokenative 2  # string_fromchar(c)
+B7 00 01 # invokenative 1  # println(string_fromchar(c))
+57       # pop             # (ignore result)
+15 04    # vload 4         # d
+B7 00 02 # invokenative 2  # string_fromchar(d)
+B7 00 01 # invokenative 1  # println(string_fromchar(d))
+57       # pop             # (ignore result)
+10 00    # bipush 0        # 0
+B0       # return          # 
+
+00 03             # native count
+# native pool
+00 02 00 5D       # string_charat
+00 01 00 0A       # println
+00 01 00 62       # string_fromchar
+

@@ -1,0 +1,106 @@
+\documentclass[12pt]{exam}
+\usepackage{textcomp}
+\newcommand{\hwnumber}{15122}
+\newcommand{\hwname}{The Halting Problem}
+\newcommand{\duedate}{\formatdate{01}{04}{\YEAR} by \progDueTime}
+
+\input{../../../prog/inc/preamble.tex}
+\begin{document}
+\hwTitle
+
+\noindent
+In this programming assignment we will implement a contract which checks whether a function will infinite loop on a given set of inputs. This will allow us to more rigorously prove correctness of termination, so we can make Iliano proud. Iliano believes in us, so we always want to make him proud. Then, we'll write a function that can run our code for us, so we can stop making Linus Torvalds do all our work for us.
+
+\bigskip
+\noindent
+The code handout for this assignment is on \autolab{} and at
+\begin{center}
+\href{https://www.youtube.com/watch?v=dQw4w9WgXcQ}{\texttt{http://cs.cmu.edu/\texttildelow{}15122/hw/halting-handout.tgz}}
+\end{center}
+The file \lstinline'README.txt' in the code handout describes the contents of
+the handout and explains how to hand the assignment in.  You can use the command \texttt{handin halting} to submit to \autolab{} from the terminal.  There is a ONE (1) PENALTY-FREE HANDIN LIMIT. Every additional handin will incur a small (35-point) penalty.
+
+\begin{task}[0]
+  \textit{This assignment will be graded for style. You should use reasonable contracts, have at most 80-character lines, and have comments that make it clear to a TA how your algorithm works and what invariants you expect to hold. Any code failing style grading will be forwarded to all your prospective employers and graduate schools. All of them, until the end of time.}
+\end{task}
+\\\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction to the halting contract %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{\large{The Halting Contract}}
+
+As you have no doubt realized, people very commonly write code that never actually finishes running --- that is, it loops forever. One trivial example of such a program is
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+int main() {
+       while (true) {}
+}
+\end{lstlisting}
+\end{quote}
+Since we are programmers who love to reason about code using contracts, it would be wonderful if we could prove termination on arbitrary functions. We have previously used a method which bounds a quantity that increases or decreases, but this method requires a lot of math, and let's be real, you took this class for the programming, not to do math.
+
+As such, we aim to solve this problem by writing a contract \texttt{is\_halting\_function(string f)} which can tell us if the program will ever terminate, or halt.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Time for some tasks ;) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{is\_valid\_c0\_function()}
+
+First, we need a way to pass a function into another function (we need to pass the function that we are checking into \texttt{is\_halting\_function()}). Although there are ways to get pointers to functions, reading those functions is hard, so we will opt to pass a \texttt{string} to the function instead, which contains the C0 code of the function. Of course, not all \texttt{string}s are valid C0 code --- your battles with \texttt{cc0} have probably taught you that.
+
+Thus, we need to implement a contract for our function which will check if the code we have passed is a valid C0 program. Writing this trivial program should acquaint you with the syntax of C0 and what you are and are not allowed to do in C0.
+
+\begin{task}[10] Implement the function \texttt{is\_valid\_c0\_function(string f)} in a file called \texttt{dont\_actually\_do\_this.c0}. For help, type \texttt{cc0 -h} into your terminal for information on \texttt{cc0}, which obviously needs to be able to do this as well. For more help, consider taking 15-411, or asking our friendly neighborhood former 15-411 TA, Jonathan Burns.
+\end{task}
+
+
+\section{The Halting Solution}
+
+Now, you will implement the \texttt{is\_halting\_function(string f)} function. This function should have ample contracts to ensure that the function it has been passed is valid C0 code.
+
+For this function, you should note that the only places that a program can loop forever are in loops and recursive calls. Thus, you should spend your time analyzing these areas the most. Although infinite recursion will normally cause a segfault due to stack overflow, we assume here that we are working on a machine with infinite memory space, so a stack overflow is not a problem. This allows our program to work on future computers, which will obviously have infinite memory.
+
+The program is left open-ended deliberately; we want to give you practice designing an algorithm without too much guidance. Note that our reference solution is about 20 lines.
+
+\begin{task}[10] Implement the \texttt{is\_halting\_function(string f)} function in a file called \texttt{this\_is\_literally\_impossible.c0}. If you get stuck, we recommend curling up into the fetal position, crying, and posting vague questions to Piazza. Under no circumstances should you consider reading the writeup again.
+\end{task}
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Lets get some dang systems in here -Anne %
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Climb a Turtle Down}
+
+The previous tasks were all nice and high-level, but they need a computer to run them! Up until now, your code has been run on the Andrew Linux servers, but Linux is getting tired, so it's time for you to stop being a freeloader and take over some of that work. In this task, you'll implement a kernel for an operating system that can run C0 code! Very cool.
+
+\begin{task}[15] Implement the function \texttt{do\_the\_heavy\_lifting(string f)} that initializes the hardware, implements virtual memory, spawns a shell, and runs the program \texttt{f} for the user. For full style points, your system should include a colorful GUI.
+\end{task}
+
+You may request help from Professor Dave Eckhardt, but he won't give it to you.
+
+\section{Bonus: Circuit Satisfiability}
+
+Now, we will see an application for this contract. It is very useful for functions which analyze other functions. Sometimes we want to know more about a program rather than if it terminates. Sometimes we would like to find what inputs we can give in order to make a program return true.
+
+For the bonus, we will consider a special case of programs known as satisfiability problems. They are programs which take as inputs $n$ booleans, and then return an answer by performing different boolean expressions on them. One such example is
+\begin{quote}
+\begin{lstlisting}[language={[coin]C}]
+bool f(bool a, bool b, bool c, bool d) {
+    return (a && b) || !(c && d);
+}
+\end{lstlisting}
+\end{quote}
+
+Here, we ask you to implement the function \texttt{bool[]* sat\_solution(string f)}, which returns a pointer to an n-length array of booleans which represent inputs that will cause the function to return true. Return \texttt{NULL} if every input will cause false to be returned. Make sure that you have contracts to ensure safety AND that your program will terminate.
+
+\bigskip%
+\noindent%
+\colorbox{yellow}{%
+  {\bf Task %
+    \arabic{taskcounter}%
+    \addtocounter{taskcounter}{1}} %
+  (\textcolor{red}{bonus})
+  (10 points, \$1,000,000, a Ph.D. from everywhere)
+}
+Implement the function\\ \texttt{sat\_solution(string f)} in a file called \texttt{this\_hasnt\_been\_proven\_impossible.c0}. Your program must run in $O(n^3)$ time. Partial bonus credit will be given for any function which runs in $O(n^c)$, where $c$ is some fixed integer.
+
+\end{document}

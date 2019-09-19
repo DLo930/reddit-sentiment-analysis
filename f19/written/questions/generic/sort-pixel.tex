@@ -1,0 +1,175 @@
+\bgroup
+\newcommand{\channel}
+{blue}  % F18
+%{red}
+%{green}
+%{alpha}
+
+\begin{EnvUplevel}
+Recall also the pixel interface seen early in the course:
+\begin{lstlisting}
+//typedef _____ pixel_t;
+
+int get_red(pixel_t p)   /*@ensures 0 <= \result && \result < 256; @*/ ;
+int get_green(pixel_t p) /*@ensures 0 <= \result && \result < 256; @*/ ;
+int get_blue(pixel_t p)  /*@ensures 0 <= \result && \result < 256; @*/ ;
+int get_alpha(pixel_t p) /*@ensures 0 <= \result && \result < 256; @*/ ;
+
+pixel_t make_pixel(int alpha, int red, int green, int blue)
+/*@requires 0 <= alpha && alpha < 256; @*/
+/*@requires 0 <= red   &&   red < 256; @*/
+/*@requires 0 <= green && green < 256; @*/
+/*@requires 0 <= blue  &&  blue < 256; @*/ ;
+\end{lstlisting}
+\end{EnvUplevel}
+
+\part[1]\TAGS{void-star}
+Write a pixel comparison function \texttt{compare\_\channel} that can be
+used with the above generic sorting function, which you should assume is
+already written.  The function  \texttt{compare\_\channel} compares
+pixels based uniquely on the intensity of their \channel{} component.  For
+example, pixel \lstinline'p1' with \channel{} component 122 is considered
+smaller than pixel \lstinline'p2' with \channel{} component 210,
+irrespective of the values of their other components.
+
+As you write this function, the contracts on your
+\texttt{compare\_\channel} function \emph{must} be sufficient to ensure
+that no precondition-passing call to \texttt{compare\_\channel} can
+possibly cause a memory error.
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+int compare_[*\channel*](void* x, void* y)
+
+//@requires x != NULL && \hastag([*\uanswer{16.7em}{pixel\_t*, x}*]);
+
+//@requires y != NULL && \hastag([*\uanswer{16.7em}{pixel\_t*, y}*]);
+//@ensures -1 <= \result && \result <= 1;
+{
+                                       // Extra space if needed
+  [*\answer{33em}{int x\_\channel{} = get\_\channel(*(pixel\_t*)x);\hfill}*]
+  [*\answer{33em}{int y\_\channel{} = get\_\channel(*(pixel\_t*)y);\hfill}*]
+
+
+
+   if ([*\uanswer{21em}{x\_\channel{} < y\_\channel{}}*]) return [*\uanswer{6.5em}{-1}*];
+
+   if ([*\uanswer{21em}{x\_\channel{} > y\_\channel{}}*]) return [*\uanswer{6.5em}{1}*];
+
+   return [*\uanswer{31em}{0}*];
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: void-star
+
+Gradescope rubric:
++0.25pt Correctly invokes \hastag
++0.25pt Correctly casts
++0.25pt Correctly dereferences int pointers
++0.25pt Correct returns
+
+Commentary:
+- set 'channel' to whatever channel this semester's variant uses
+     ** 1/4 point for correctly handling the possibility of NULL
+     ** 1/4 point for correctly handing \hastag
+     ** 1/4 point for casting and dereferencing int pointer
+     ** 1/4 point for getting the return (-1, 0, 1) correct
+
+     int compare_helper(void* x, void* y)
+     //@requires x != NULL && \hastag(pixel_t*, x);
+     //@requires y != NULL && \hastag(pixel_t*, y);
+     {
+        if (get_channel(*(pixel_t*)x) < get_channel(*(pixel_t*)y)) return -1;
+        if (get_channel(*(pixel_t*)x) > get_channel(*(pixel_t*)y)) return 1;
+        return 0;
+     }
+ENDRUBRIC
+
+
+\newpage
+\part[2]\TAGS{function-pointer, genericity, void-star}
+Using \lstinline'sort_generic' (which you may assume has already been
+written) and \texttt{compare\_\channel}, fill in the body of the
+\texttt{sort\_\channel} function below so that it will sort the array
+\lstinline'A' of pixels.  You can omit loop invariants. But of course,
+when you call \lstinline'sort_generic', the preconditions of
+\texttt{compare\_\channel} must be satisfied by any two elements of
+the array \lstinline'B'.
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+void sort_[*\channel*](pixel_t[] A, int n)
+//@requires \length(A) == n;
+{
+   // Allocate a temporary generic array of the same size as A
+
+   void*[] B = [*\uanswer{20em}{alloc\_array(void*, n)}*];
+
+   // Store a copy of each element in A into B
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   for (int i = 0; i < n; i++) {
+     pixel_t* p = alloc(pixel_t);
+     *p = A[i];
+     B[i] = (void*)p;
+   }
+\end{lstlisting}
+\else~\vspace{2.0in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+   // Sort B using sort_generic and compare_[*\color{\commentColor}\channel*] from task 2
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   sort_generic(B, 0, n, &compare_helper);
+\end{lstlisting}
+\else~\vspace{0.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+   // Copy the sorted pixels from generic array B into array A
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+   for (int i = 0; i < n; i++) {
+      A[i] = *(pixel_t*)B[i];
+   }
+\end{lstlisting}
+\else~\vspace{2.0in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: array, function-pointer, genericity, void-star
+
+Gradescope rubric:
++ 0.5 pts Correctly allocate array
++ 0.5 pts Correctly copying A elements into B
++ 0.5 pts Correctly calls sort_generic
++ 0.5 pts Correctly copies sorted pixels back into A
+
+Commentary:
+     void*[] B = alloc_array(void*, n);  // 1/2 point
+     for (int i = 0; i < n; i++) {
+        pixel_t* p = alloc(pixel_t);         // 1/2 point, correctly initializing
+        *p = A[i];                       // an PIXEL pointer in the loop,
+        B[i] = (void*)p;                 // then casting to void
+     }
+     sort_generic(B, 0, n, &compare_helper);
+                                         // 1/2 point, correct call to sort
+                                         // (MUST include address-of &)
+     for (int i = 0; i < n; i++) {
+        A[i] = *(pixel_t*)B[i];            // 1/2 point for casting back
+     }
+
+
+Alternative first loop body:
+      B[i] = (void*) alloc(pixel_t);
+      pixel_t* x = (pixel_t*) B[i];
+      *x = A[i];
+ENDRUBRIC
+
+\egroup

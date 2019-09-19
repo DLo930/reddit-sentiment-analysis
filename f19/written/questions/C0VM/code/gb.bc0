@@ -1,0 +1,46 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 03             # int pool count
+# int pool
+00 01 00 00
+00 01 00 00
+00 00 BB F0
+
+00 00             # string pool total size
+# string pool
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 01             # number of local variables = 1
+00 2B             # code length = 43 bytes
+BB 18    # new 24          # alloc(struct gap_buffer)
+36 00    # vstore 0        # gb = alloc(struct gap_buffer);
+15 00    # vload 0         # gb
+62 00    # aaddf 0         # &gb->limit
+13 00 00 # ildc 0          # c[0] = 65536
+4E       # imstore         # gb->limit = 65536;
+15 00    # vload 0         # gb
+62 08    # aaddf 8         # &gb->buffer
+13 00 01 # ildc 1          # c[1] = 65536
+BC 01    # newarray 1      # alloc_array(char, 65536)
+4F       # amstore         # gb->buffer = alloc_array(char, 65536);
+15 00    # vload 0         # gb
+62 10    # aaddf 16        # &gb->gap_start
+13 00 02 # ildc 2          # c[2] = 48112
+4E       # imstore         # gb->gap_start = 48112;
+15 00    # vload 0         # gb
+62 14    # aaddf 20        # &gb->gap_end
+15 00    # vload 0         # gb
+62 10    # aaddf 16        # &gb->gap_start
+2E       # imload          # gb->gap_start
+4E       # imstore         # gb->gap_end = gb->gap_start;
+10 01    # bipush 1        # 1
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

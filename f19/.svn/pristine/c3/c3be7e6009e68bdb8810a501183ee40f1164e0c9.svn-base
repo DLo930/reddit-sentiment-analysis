@@ -1,0 +1,7 @@
+Yes! That's correct. This was known as the <b>Heartbleed </b><strong>bug</strong> and it was discovered in 2014. It affected 2/3 of the servers on the internet. And this was the (lightly edited) fix:
+<pre>if (1 + 4 + payload + 16 &gt; s-&gt;length)
+    return 0; /* silently discard per RFC 6520 sec. 4 */</pre>
+This kind of bug shows how important it is to check the bounds of memory accesses!
+Here's a nice explanation from <a href="https://xkcd.com/1354/" target="_blank">xkcd</a> of how it works conceptually:
+
+<img src="https://imgs.xkcd.com/comics/heartbleed_explanation.png" alt="">

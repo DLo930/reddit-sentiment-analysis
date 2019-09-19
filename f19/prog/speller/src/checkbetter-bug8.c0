@@ -1,0 +1,53 @@
+// check_text_better: does not sort text
+
+#use <conio>
+#use <args>
+#use <string>
+#use "lib/arrayutil.c0"
+#use "lib/readfile.c0"
+
+
+// this is clever spellcheck implementation that exploits that both of the arrays can be sorted
+// does a linear scan and does not call binary search
+// returns the number of mispelled words and populates the mispelled array
+int check_text_better(string[] dict, int d, string[] text, int t, string[] miss)
+//@requires \length(dict) == d;
+//@requires \length(text) == t;
+//@requires \length(miss) >= t;
+//@requires is_sorted(dict,0,d) && no_dupes(dict,0,d);
+//@ensures 0 <= \result && \result <= t;
+{
+  int t_nd = t; //!! mergesort(text, 0, t);  // Remove duplicates from text
+
+  int i = 0;  // range over (sorted) dictionary -- [0, d)
+  int j = 0;  // range over sorted text -- [0, t_nd)
+  int m = 0;  // number of mispelled words -- range over [0, t_nd)
+
+// don't search through the duplicates
+  while (i < d && j < t_nd)
+  //@loop_invariant 0 <= i && i <= d;
+  //@loop_invariant 0 <= j && j <= t_nd;
+  //@loop_invariant 0 <= m && m <= t_nd;
+  {
+    int cmp = string_compare(text[j], dict[i]);
+    if (cmp > 0)         // need to look farther in the dictionary for this word
+       i++;
+    else if (cmp < 0) {  // we've passed this word
+      miss[m] = text[j]; // add to misspelled words
+      m++;               // word is misspelled
+      j++;               // move to next text word
+    }
+    else {               // this means text[j] == dict[i]
+      i++;               // move both indices forward
+      j++;
+    }
+  }
+  // ran out of dictionary words
+  while (j < t_nd) {
+    miss[m] = text[j]; // add to misspelled words
+    m++;               // word is misspelled
+    j++;               // move to next text word
+  }
+
+  return m;
+}

@@ -1,0 +1,7 @@
+
+int main()
+{
+  if (~0 == 0xFFFFFFFF) return 0;
+  return 1;
+}
+

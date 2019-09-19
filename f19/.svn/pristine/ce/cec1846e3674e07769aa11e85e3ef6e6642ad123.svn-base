@@ -1,0 +1,32 @@
+#use <conio>
+#use <parse>
+
+int main() {
+  string[] vocab = parse_tokens("burrow ha his is list of out winter");
+  int[] freq = parse_ints("      1      12 0   0  2    4  1   2", 10);
+
+  int oov = count_vocab(vocab,freq,8,"texts/scott_tweet.txt",true);
+  printint(oov); println(" out-of-vocab words");
+  assert(oov == 1);
+  assert(freq[0] == 2);
+  assert(freq[1] == 12);
+  assert(freq[2] == 1);
+  assert(freq[3] == 1);
+  assert(freq[4] == 2);
+  assert(freq[5] == 5);
+  assert(freq[6] == 2);
+  assert(freq[7] == 2);
+
+  sort_by_freq(vocab,freq,8);
+  assert(freq[0] == 1);  assert(string_equal(vocab[0], "his"));
+  assert(freq[1] == 1);  assert(string_equal(vocab[1], "is"));
+  assert(freq[2] == 2);  assert(string_equal(vocab[2], "burrow"));
+  assert(freq[3] == 2);  assert(string_equal(vocab[3], "list"));
+  assert(freq[4] == 2);  assert(string_equal(vocab[4], "out"));
+  assert(freq[5] == 2);  assert(string_equal(vocab[5], "winter"));
+  assert(freq[6] == 5);  assert(string_equal(vocab[6], "of"));
+  assert(freq[7] == 12); assert(string_equal(vocab[7], "ha"));
+  
+  println("All tests passed!");
+  return 0;
+}

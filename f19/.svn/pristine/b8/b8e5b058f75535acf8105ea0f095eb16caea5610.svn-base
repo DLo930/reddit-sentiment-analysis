@@ -1,0 +1,38 @@
+#use <conio>
+#use "sol-tbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = alloc(struct text_buffer);
+
+  //test point at right
+  B->start = alloc(struct list_node);
+  B->point = alloc(struct list_node);
+  B->end = alloc(struct list_node);
+ 
+  B->start->next = alloc(struct list_node);
+  B->start->next->prev = B->start;
+  B->start->next->next = B->point;
+  B->point->prev = B->start->next;
+  B->point->next = B->end;
+  B->end->prev = B->point;
+
+  if(!(tbuf_at_right(B) == true)){
+    passed = false;
+    // error("failed to recognize point at right");
+  }
+
+  //test point not at right
+  tbuf_backward_(B);
+
+  if(!(tbuf_at_right(B) == false)){
+    passed = false;
+    // error("incorrectly recognized point at right");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

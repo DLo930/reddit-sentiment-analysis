@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage{../inc/lecnotes}
+
+\usepackage{environ}
+\usepackage{forloop}
+
+
+%% Prints body of all solution environments where \printsolutions is found
+\newcounter{solnum}
+\NewEnviron{solution}[1]
+{\stepcounter{solnum}
+ \expandafter\global\expandafter\let\csname putsolution\Roman{solnum}\endcsname\BODY}
+
+\newcommand{\printsolutions}{%
+\ifnumcomp{\value{solnum}}{>}{0}{
+%\AtEndDocument{%
+\clearpage
+\section*{Sample Solutions}
+\newcounter{isolnum}
+\forloop{isolnum}{1}{\value{isolnum} < \value{solnum} \OR \value{isolnum} = \value{solnum}} {
+  \par\bigskip\noindent
+    \textbf{Solution}
+    \csname putsolution\Roman{isolnum}\endcsname
+  }
+%}
+}{}
+}
+\newsavebox\lstbox
+\newsavebox\lstboxA
+
+
+
+%% Diderot stuff
+\newenvironment{preamble}{}{}
+\newenvironment{gram}[1][]{}{}
+\newenvironment{flex}[1][]{}{}
+
+\newcommand{\chapter}[2][]{\newcommand{\lectitle}{#2}}
+
+\newcommand{\opt}[1]{#1}
+
+% \newcounter{samplesolutions}
+% \newenvironment{solution}[1][]
+% {\floatsep=0pt%
+%  \suppressfloats%
+%  \ifnumcomp{\value{samplesolutions}}{=}{0}{%
+%    \begin{figure}[p]
+%     \parbox[t][\textheight]{\textwidth}{%
+%       \section*{Sample Solutions}}
+%     \end{figure}
+%     \stepcounter{samplesolutions}}{}
+
+%  \begin{figure}[p]%
+%  \noindent%
+%  \textbf{Solution}
+% }
+% {\end{figure}}
+
+\begin{document}

@@ -1,0 +1,29 @@
+\documentclass[lab]{inc/122handout}
+\mfcsnumber{15: Spend Some Cycles Thinking}
+\mfcsdate{\formatdate{2}{12}{\YEAR}} % day-month-year
+
+\begin{document}
+\labcollab
+
+\textbf{Setup:} Copy the lab code from our public directory to your private
+directory:
+
+\begin{lstlisting}[language={[coin]C}]
+% cd private/15122
+% cp -R /afs/andrew/course/15/122/misc/lab15 .
+% cd lab15
+\end{lstlisting}
+% formerly, lab-graphs
+
+You should add your code to the existing files \lstinline'graph.c',
+\lstinline'graph-search.c', \lstinline'graph-search.h', and
+\lstinline'graph-test.c' in the directory \lstinline'lab15'.
+
+\textbf{Grading:} Finish through (2.d) for full credit, and finish
+(3.a) and (3.b) for extra credit.
+
+\inputQuestion[questions/unigraph/]{interface}
+\inputQuestion[questions/unigraph/]{implementation}
+\inputQuestion[questions/unigraph/]{connected}
+
+\end{document}

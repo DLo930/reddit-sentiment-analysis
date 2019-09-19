@@ -1,0 +1,67 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while(0 < j && j <= 1000)
+//@loop_invariant j % 2 == (1 - i);[*\label{l:lpres-yes4-LI}*]
+{
+  j = j + 3;[*\label{l:lpres-yes4-seti}*]
+  i = (i + 1) % 2;[*\label{l:lpres-yes4-setj}*]
+}
+\end{lstlisting}
+\begin{framed}
+\newcommand{\ans}[2]{\item\makebox[10em][l]{#1} by #2}
+\ifprintanswers{\color{\answerColor}
+  ALWAYS PRESERVED.
+
+  Case \lstinline'j' is even at the beginning of the loop iteration:
+  \begin{enumerate}[~~~~~~(a)]
+  \itemsep=-0.5ex
+
+  \ans{\lstinline'1 - i' = 0}{line~\ref{l:lpres-yes4-LI}}
+  \ans{\lstinline'i' = 1}{math}
+  \ans{\lstinline'j`' = \lstinline'j+3'}{line~\ref{l:lpres-yes4-setj}}
+  \ans{\lstinline'j`\%2' = 1}{assumption and math}
+  \ans{\lstinline'i`' = \lstinline'(i+1)\%2' = 1}{line~\ref{l:lpres-yes4-seti}}
+  \ans{so \lstinline'i`' = \lstinline'j`\%2' = 1}{(d) and (e)}
+  \end{enumerate}
+
+  Case \lstinline'j' is odd at the beginning of the loop iteration:
+  \begin{enumerate}[~~~~~~(a)]
+  \itemsep=-0.5ex
+  \ans{\lstinline'1 - i' = 1}{line~\ref{l:lpres-yes4-LI}}
+  \ans{\lstinline'i' = 0}{math}
+  \ans{\lstinline'j`' = \lstinline'j+3'}{line~\ref{l:lpres-yes4-setj}}
+  \ans{\lstinline'j`\%2' = 0}{assumption and math}
+  \ans{\lstinline'i`' = \lstinline'(i+1)\%2' = 0}{line~\ref{l:lpres-yes4-seti}}
+  \ans{so \lstinline'i`' = \lstinline'j`\%2' = 0}{(d) and (e)}
+  \vspace{-2ex}
+  \end{enumerate}
+
+}\else~\vspace{2.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<y4>)
+
+Gradescope rubric:
++ 0.5 pts ALWAYS PRESERVED
++ 0.5 pts Valid proof
+
+Commentary:
+The loop invariant is always preserved.
+(Case on j odd and j even at the beginning of the loop iteration)
+Case 1: j%2 = 0
+   1 - i = 0 (Line 2)
+=> i = 1
+   j' = j + 3 (Line 4)
+=> j'%2 = 1
+   i' = (i + 1)%2 (Line 5)
+=> i' = 1 = j'%2
+
+Case 2: j%2 = 1
+   1 - i = 1 (Line 2)
+=> i = 0
+   j' = j + 3 (Line 4)
+=> j'%2 = 0
+   i' = (i + 1)%2 (Line 5)
+=> i' = 0 = j'%2
+ENDRUBRIC

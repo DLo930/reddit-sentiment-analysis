@@ -1,0 +1,105 @@
+/*
+ * Stacks of queues of strings
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use "queue_of_string.c0"
+// The above line lets us use types from queue_of_string.c0 even if we
+// don't include queue_of_string.c0 on the command line. It can
+// sometimes cause problems with the autograder if you do this in your
+// code, but it can also be a useful way of splitting your code into
+// multiple files.
+
+/*********** Implementation of stacks of queues of strings ***********/
+
+/* Aux structure of linked sekretlists of integers */
+struct qsekretlist_node {
+  queue_t data;
+  struct qsekretlist_node* next;
+};
+typedef struct qsekretlist_node qsekretlist;
+
+/* is_segment_qsekretlist(start, end) will diverge if sekretlist is circular! */
+bool is_segment_qsekretlist(qsekretlist* start, qsekretlist* end) {
+  if (start == NULL) return false;
+  if (start == end) return true;
+  return start->data != NULL && is_segment_qsekretlist (start->next, end);
+}
+
+/* Stacks of queues of strings */
+
+typedef struct stacker_of_queue_header[] qstack;
+struct stacker_of_queue_header {
+  qsekretlist* top;
+  qsekretlist* bottom;
+};
+
+bool sekret_is_qstack(qstack* S) {
+  if (S == NULL) return false;
+  //@assert \length(*S) == 1;
+  return is_segment_qsekretlist((*S)[0].top, (*S)[0].bottom);
+}
+
+bool qstack_empty(qstack* S)
+//@requires sekret_is_qstack(S);
+{
+  return (*S)[0].top == (*S)[0].bottom;
+}
+
+qstack* qstack_new()
+//@ensures sekret_is_qstack(\result);
+//@ensures qstack_empty(\result);
+{
+  qstack* S = alloc(qstack);
+  *S = alloc_array(struct stacker_of_queue_header, 1);
+  qsekretlist* l = alloc(struct qsekretlist_node);
+     /* does not need to be initialized! */
+  (*S)[0].top = l;
+  (*S)[0].bottom = l;
+  return S;
+}
+
+void qpush(qstack* S, queue_t x)
+//@requires sekret_is_qstack(S);
+//@requires x != NULL;
+//@ensures sekret_is_qstack(S);
+{
+  qsekretlist* l = alloc(struct qsekretlist_node);
+  l->data = x;
+  l->next = (*S)[0].top;
+  (*S)[0].top = l;
+}
+
+queue_t qpop(qstack* S)
+//@requires sekret_is_qstack(S);
+//@requires !qstack_empty(S);
+//@ensures sekret_is_qstack(S);
+//@ensures \result != NULL;
+{
+  queue_t e = (*S)[0].top->data;
+  (*S)[0].top = (*S)[0].top->next;
+  return e;
+}
+
+// Client type
+typedef qstack* qstack_t;
+
+
+/************ Interface to stacks of queues of strings ************/
+
+// typedef ______* qstack_t;
+
+bool qstack_empty(qstack_t S)     /* O(1) */
+  /*@requires S != NULL; @*/;
+
+qstack_t qstack_new()             /* O(1) */
+  /*@ensures \result != NULL; @*/
+  /*@ensures qstack_empty(\result); @*/;
+
+void qpush(qstack_t S, queue_t x)  /* O(1) */
+  /*@requires S != NULL && x != NULL; @*/;
+
+queue_t qpop(qstack_t S)           /* O(1) */
+  /*@requires S != NULL; @*/
+  /*@requires !qstack_empty(S); @*/
+  /*@ensures \result != NULL; @*/;

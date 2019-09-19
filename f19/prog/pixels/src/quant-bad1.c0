@@ -1,0 +1,13 @@
+// Quantize broken: return only the mask
+
+pixel_t quantize(pixel p, int q)
+//@requires 0 <= q && q < 8;
+{
+  int i;
+  int mask = (0xFF << q) & 0xFF;
+
+  return make_pixel(get_alpha(p),
+                    mask,
+                    mask,
+                    mask);
+}

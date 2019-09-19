@@ -1,0 +1,69 @@
+// My solution for Homework 2, Task 6
+// Test copying sorting function
+
+#use <string>
+#use "lib/stringsearch.c0"
+
+void copy(string[] from, string[] to, int length) 
+  //@requires \length(from) == \length(to);
+  //@requires \length(from) == length;
+{
+  for ( int i=0 ; i < length ; i++ ) 
+    //@loop_invariant 0 <= i;
+    {
+      to[i] = from[i];
+    }
+}  
+
+int main() {
+
+  int length = 10;
+  //@assert length >= 0;
+  string[] original = alloc_array(string, length);
+  string[] to_sort = alloc_array(string, length);
+  for ( int i=0 ; i<length ; i++ )
+    //@loop_invariant 0 <= i && i <= length;
+    {
+      to_sort[i] = string_fromint(100-i);
+    }
+  copy(to_sort, original, length);
+
+  string[] sorted = sort_copy(to_sort, 0, length);
+
+  //@assert \length(sorted) == length;
+  //@assert is_sorted(sorted, 0, length);
+
+  for ( int i=0 ; i < length ; i++ ) 
+    //@loop_invariant 0 <= i;
+    {
+      // check that original array is untouched
+      //@assert string_equal(to_sort[i], original[i]);
+      // check that no data was lost
+      //@assert binsearch(original[i], sorted, length) != -1;
+      {}
+    }
+  
+  copy(original, to_sort, length);
+  int lower = length / 2;
+  sorted = sort_copy(to_sort, lower, length);
+  //@assert is_sorted(sorted, 0, length-lower);
+
+  for ( int i=lower ; i < length ; i++ ) 
+    //@loop_invariant lower <= i;
+    {
+      // check that no data was lost
+      //@assert is_in(original[i], sorted, 0, length-lower);
+      {}
+    }
+
+  for ( int i=0 ; i < length ; i++ )
+    //@loop_invariant 0 <= i;
+    {
+      // check that the input is unchanged
+      //@assert string_equal(original[i], to_sort[i]);
+      {}
+    }
+  
+  return 0;
+}
+

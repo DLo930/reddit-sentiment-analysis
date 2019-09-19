@@ -1,0 +1,16 @@
+---
+general:
+  name: rec01
+  description: ''
+  display_name: 'Rec 1: C0 Basics'
+  handin_filename: handin.c
+  handin_directory: handin
+  max_grace_days: 0
+  handout: ''
+  writeup: rec01.pdf
+  max_submissions: -1
+  disable_handins: true
+  max_size: 2
+  has_svn: false
+  category_name: Recitations
+problems: []

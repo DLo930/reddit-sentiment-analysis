@@ -1,0 +1,5 @@
+: comment S, N, M || plus, Q --> S, (N+M) || Q ;
+: dup 1 pick ;
+: plus dup if plusbody 1 skip drop ;
+: plusbody 1 - plus 1 + ;
+10 100000 plus

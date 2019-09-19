@@ -1,0 +1,45 @@
+%\paragraph{Example:}~
+%\part[0]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while(j < 10000)
+//@loop_invariant 2 * i == j;
+{
+  i = i+2;
+  j = j+4;
+}
+\end{lstlisting}
+\begin{framed}\textbf{Solution:}
+ALWAYS PRESERVED.
+
+% \emph{Long version}: From line \lstinline'1', we know that \lstinline'j < 10000'
+% at the beginning of the loop and from line \lstinline'2' we know \lstinline'2 * i' =
+% \lstinline'j' at the beginning of the loop.
+
+% We use primed variables to refer to the values stored in \lstinline'i' and
+% \lstinline'j' at the end of the loop. Therefore, to show that the loop
+% invariant is preserved, we need to show that \lstinline"2 * i'" = \lstinline"j'"
+% where \lstinline"i'" = \lstinline"i+2" (line \lstinline'4') and \lstinline"j'" =
+% \lstinline"j+4" (line \lstinline'5').
+
+% Therefore we have that \lstinline"2 * i'" = \lstinline"2 * (i+2)" =
+% \lstinline"2 * (i+2)" = \lstinline"2*i + 4" = \lstinline"2*i + 4" = \lstinline"j + 4" =
+% \lstinline"j'", which by transitivity is what we needed to show.
+
+% \emph{Short version}:
+
+Assume \lstinline'2 * i == j' (line 2) before an iteration.
+We must show \lstinline'2 * i` == j`' after an iteration.
+
+Since \lstinline'i` = i + 2' (line 4)
+and \lstinline'j` = j + 4' (line 5), we need to show that
+\lstinline'2 * (i+2) ==  j+4'.
+
+\begin{tabbing}
+~ -- ~~ \lstinline'2 * i`' \== \lstinline'2 * (i+2)'\qquad\= (line 4)\\
+~ -- ~~ \phantom{\lstinline'2 * (i+2)'}\> = \lstinline'2*i + 4'        \> (distributivity)\\
+~ -- ~~ \phantom{\lstinline'2*i + 4'}  \> = \lstinline'j + 4'          \> (line 2)\\
+~ -- ~~ \phantom{\lstinline'j + 4'}    \> = \lstinline'j`'             \> (line 5)\\
+~ -- ~~ \lstinline'2 * i`'   \> = \lstinline'j`'             \> (transitivity, the four preceding facts)
+\end{tabbing}
+
+\end{framed}

@@ -1,0 +1,9 @@
+#use <conio>
+#use <string>
+
+int main () {
+  string s = "pfenning";
+  string t = string_sub(s, 1, 5);
+  println(t);
+  return 0;
+}

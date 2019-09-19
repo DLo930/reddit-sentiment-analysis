@@ -1,0 +1,25 @@
+#use <conio>
+#use "sol-tbuf.c0"
+#use "make-tbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = make_tbuf("x-|y");
+
+  //test delete
+  tbuf_delete_point(B);
+
+  if(!(tbuf_at_left_(B) == true && 
+       tbuf_at_right_(B) == true &&
+       B->point->data->buffer[0] == 'x'))
+  {
+    passed = false;
+    // error("failed to delete rightmost point");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

@@ -1,0 +1,31 @@
+#use <conio>
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  gapbuf G = alloc(struct gap_buffer);
+
+  //at left
+  G->limit = 10; 
+  G->buffer = alloc_array(char, 10);
+  G->gap_start = 0;
+  G->gap_end = 6;
+
+  if(!(gapbuf_at_left(G) == true)){
+    passed = false;
+    // error("failed gapbuf_at_left return true test case");
+  }
+
+  //not at left
+  G->gap_start = 1;
+  
+  if(!(gapbuf_at_left(G) == false)){
+    passed = false;
+    // error("failed gapbuf_at_left return false test case");
+  }
+  
+  //report
+  if(passed) return 0; else return 1;
+}

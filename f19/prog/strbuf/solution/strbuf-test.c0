@@ -1,0 +1,70 @@
+#use <string>
+
+int main() {
+  struct strbuf* sb = alloc(struct strbuf);
+  sb->limit = 4;
+  sb->len = 1;
+  sb->buf = alloc_array(char, 4);
+  assert(!is_strbuf(sb));
+
+  sb = strbuf_new(4);
+  assert(sb->len == 0);
+  assert(sb->limit == 4);
+  assert(strbuf_str(sb) != sb->buf);
+  assert(sb->buf[0] == '\0');
+
+  sb->buf[1] = 'x';
+  sb->buf[2] = 'x';
+  sb->buf[3] = 'x';
+  assert(is_strbuf(sb));
+
+  strbuf_add(sb, string_to_chararray("ab"), 2);
+  assert(sb->len == 2);
+  assert(sb->limit == 4);
+  assert(strbuf_str(sb) != sb->buf);
+  assert(0 == strcmp(sb->buf, 0, string_to_chararray("ab"), 0));
+
+  strbuf_add(sb, string_to_chararray("c"), 1);
+  assert(sb->len == 3);
+  assert(sb->limit == 4);
+  assert(strbuf_str(sb) != sb->buf);
+  assert(0 == strcmp(sb->buf, 0, string_to_chararray("abc"), 0));
+
+  strbuf_addstr(sb, string_to_chararray("de"));
+  assert(sb->len == 5);
+  assert(sb->limit > 4);
+  assert(strbuf_str(sb) != sb->buf);
+  assert(0 == strcmp(sb->buf, 0, string_to_chararray("abcde"), 0));
+
+  char[] s = alloc_array(char, 2);
+  s[0] = '\0';
+  s[1] = 'f';
+  strbuf_add(sb, s, 0);
+  assert(sb->len == 5);
+  assert(sb->limit > 4);
+  assert(strbuf_str(sb) != sb->buf);
+  assert(0 == strcmp(sb->buf, 0, string_to_chararray("abcde"), 0));
+
+  // Added test
+  sb = strbuf_new(22);
+  //println("sb created");
+
+  strbuf_addstr(sb, string_to_chararray("aliasing! "));
+  assert(is_strbuf(sb) && is_strbuf(sb));
+  //println("Added 'aliasing! ' to sb");
+
+  strbuf_addstr(sb, sb->buf); // no resize required
+  assert(is_strbuf(sb) && is_strbuf(sb));
+  //println("Added sb to itself");
+
+  strbuf_addstr(sb, sb->buf); // resize required
+  assert(is_strbuf(sb) && is_strbuf(sb));
+  //println("Added sb to itself again");
+
+  char[] out = strbuf_str(sb);
+  assert(string_equal("aliasing! aliasing! aliasing! aliasing! ",
+                      string_from_chararray(out)));
+  //println("Checking result");
+
+  return 1000;
+}

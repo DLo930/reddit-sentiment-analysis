@@ -1,0 +1,368 @@
+/* C0 string buffer tests */
+
+#use <args>
+#use <parse>
+#use <rand>
+#use <string>
+#use <util>
+
+char[] s2c(string s) { return string_to_chararray(s); }
+
+void strbuf_addbool(struct strbuf* sb, char[] str, bool b) {
+  if (b) {
+    strbuf_add(sb, str, strlen(str, 0));
+  } else {
+    strbuf_addstr(sb, str);
+  }
+}
+
+// The terrible contract hack
+bool assign(int* x, int y) {
+  *x = y;
+  return true;
+}
+
+bool stress(int num_adds, bool b) {
+  // Initialize PRNG
+  rand_t r = init_rand(0xD00FD00F);
+
+  // Allocate a max length string
+  char[] tmp = alloc_array(char, 1024);
+  for (int i = 0; i < 1024; i++) 
+    //@loop_invariant 0 <= i;
+    tmp[i] = char_chr(abs(rand(r) % 127) + 1);
+  
+  // Allocate a relatively small string buffer
+  struct strbuf *sb = strbuf_new(61);
+  int total = 0;
+  for (int k = 0; k < num_adds; k++) {
+    int len = abs(rand(r) % 1024);
+    if (int_max() - (total + 5) <= len) return true;
+    tmp[len] = '\0';
+
+    if (b) {
+      strbuf_add(sb, tmp, len);
+    } else {
+      strbuf_addstr(sb, tmp);
+    }
+
+    total = total + len;
+    if (sb->len != total) return false;
+    if (sb->buf[sb->len] != '\0') return false;
+
+    tmp[len] = '?';
+  }
+  return true;
+}
+
+
+bool task3(bool b) {
+  int *x = alloc(int);
+
+  struct strbuf *sb = alloc(struct strbuf);
+  sb->len = 0;
+  sb->limit = 10;
+  sb->buf = alloc_array(char, 10);
+  strncpy(sb->buf, 1, s2c("!@#$%^&*("), 0, 9);
+  char[] buf1 = sb->buf;
+  
+  strbuf_addbool(sb, s2c(""), b);
+  if (!(sb->len == 0)) return false;
+  if (!(buf1 == sb->buf)) return false;
+  if (!(is_cstring(sb->buf, 0, 10))) return false;
+  if (!(strcmp(sb->buf, 0, s2c(""), 0) == 0)) return false;
+
+  strbuf_addbool(sb, s2c("abc"), b);
+  if (!(sb->len == 3)) return false;
+  if (!(buf1 == sb->buf)) return false;
+  if (!(is_cstring(sb->buf, 0, 10))) return false;
+  if (!(strcmp(sb->buf, 0, s2c("abc"), 0) == 0)) return false;
+  
+  char[] s5 = alloc_array(char, 5);
+  strcpy(s5, 0, s2c("def"), 0);
+  strbuf_addbool(sb, s5, b);
+  if (!(sb->len == 6)) return false;
+  if (!(buf1 == sb->buf)) return false;
+  if (!(is_cstring(sb->buf, 0, 10))) return false;
+  if (!(strcmp(sb->buf, 0, s2c("abcdef"), 0) == 0)) return false;
+
+  // Resize not yet needed
+  char[] s4 = alloc_array(char, 4);
+  strcpy(s4, 0, s2c("ghi"), 0);
+  strbuf_addbool(sb, s4, b);
+  if (!(sb->len == 9)) return false;
+  if (!(buf1 == sb->buf)) return false;
+  if (!(is_cstring(sb->buf, 0, 10))) return false;
+  if (!(strcmp(sb->buf, 0, s2c("abcdefghi"), 0) == 0)) return false;
+
+  // Test resize on exact boundary
+  strbuf_addbool(sb, string_to_chararray("x"), b);
+  if (!(sb->limit > 10)) return false;
+  if (!(sb->len == 10)) return false;
+  if (!(sb->buf != buf1)) return false;
+  //@assert assign(x, \length(sb->buf));
+  if (!(*x == sb->limit)) return false;
+  if (!(is_cstring(sb->buf, 0, sb->limit))) return false;
+  if (!(strcmp(sb->buf, 0, s2c("abcdefghix"), 0) == 0)) return false;
+
+  for (int i = sb->len+1; i < sb->limit; i++) sb->buf[i] = '?'; 
+
+  // Presumabily this'll cause a resize
+  char[] sB = string_to_chararray("12345678912345678912345678912345678912345*");
+  strbuf_addbool(sb, sB, b);
+  if (!(sb->limit > 52)) return false;
+  if (!(sb->len == 52)) return false;
+  //@assert assign(x, \length(sb->buf));
+  if (!(*x == sb->limit)) return false;
+  if (!(sb->buf[52] == '\0')) return false;
+  if (!(sb->buf[51] == '*')) return false;
+
+  // Now test resize when boundary strictly exceeded
+  sb->len = 0;
+  sb->limit = 1;
+  sb->buf = alloc_array(char, 1);
+  strbuf_addbool(sb, sB, b);
+  if (!(sb->limit > 42)) return false;
+  if (!(sb->len == 42)) return false;
+  if (!(strcmp(sb->buf, 0, sB, 0) == 0)) return false;
+
+  return true;
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc < 1) error("Wrong number of args");
+  string cmd = args->argv[0];
+
+  struct strbuf* sb = alloc(struct strbuf);
+  sb->limit = 4;
+  sb->len = 0;
+  sb->buf = alloc_array(char, 4);
+
+  if (string_equal(cmd, "is_strbuf")) {
+
+    // Basic invariant checking
+    if (is_strbuf(NULL)) return 1;
+
+    // Correct string buffers of length 0-3 in a size 4 buffer
+    for (int i = 0; i < 3; i++) {
+      sb->buf[i] = 'x';
+      sb->len = i+1;
+      if (!is_strbuf(sb)) return 1;
+    }
+
+    // sb->buf[sb->len] must be '\0'
+    strcpy(sb->buf, 0, s2c("abc"), 0);
+    for(int i = 0; i < 3; i++) {
+      sb->len = i;
+      if (is_strbuf(sb)) return 1;
+    }
+    sb->len = 3;
+    sb->buf[2] = '\0';
+    if (is_strbuf(sb)) return 1;
+    
+  } else if (string_equal(cmd, "is_strbuf_contiguous")) {
+
+    // Is the cstring the correct length?
+    sb->buf[0] = 'x';
+    sb->buf[2] = 'x';
+    sb->len = 3;
+    if (is_strbuf(sb)) return 1;
+
+  } else if (string_equal(cmd, "is_strbuf-bogus-limit-too-small-and-wrong")) {
+
+    // Limit must be positive
+    sb->limit = -1;
+    if (is_strbuf(sb)) return 1;
+
+    // Length must be positive 
+    sb->limit = 4;
+    sb->len = -1;
+    if (is_strbuf(sb)) return 1;
+         
+    // Limit must be positive
+    sb->limit = -1;
+    if (is_strbuf(sb)) return 1;
+
+    // And shouldn't be zero
+    sb->limit = -1;
+    if (is_strbuf(sb)) return 1;
+
+  } else if (string_equal(cmd, "is_strbuf_tougher")) {
+
+    // Incorrect lengths attached to an otherwise valid string buffer
+    for (int i = 0; i < 3; i++) {
+      sb->buf[i] = 'x';
+      sb->len = i+1;
+      for (int j = -1; j < 4; j++) {
+        sb->len = j;
+        if (j != i+1 && is_strbuf(sb)) return 1;
+      }
+    }
+
+    // Incorrect lengths attached to an otherwise-invalid string buffer
+    sb->buf[3] = '*';
+    for (int i = -1; i < 6; i++) {
+      sb->len = i;
+      if (is_strbuf(sb)) return 1;
+    }
+
+    // len >= limit is invalid
+    sb->len = 4;
+    sb->limit = 4;
+    sb->buf[0] = 'a';
+    sb->buf[1] = 'b';
+    sb->buf[2] = 'c';
+    sb->buf[3] = 'd';
+    if (is_strbuf(sb)) return 1;
+    sb->len = 5;
+    if (is_strbuf(sb)) return 1;
+    sb->buf[3] = '\0';
+    if (is_strbuf(sb)) return 1;
+    sb->len = 3;
+    if (!is_strbuf(sb)) return 1;
+
+    // A string buffer that can only hold "" is valid
+    sb->limit = 1;
+    sb->len = 0;
+    sb->buf = alloc_array(char, 1);
+    if (!is_strbuf(sb)) return 1;
+
+    // A string buffer of limit 0 is always invalid
+    sb->len = 2;
+    sb->limit = 0;
+    sb->buf = alloc_array(char, 0);
+    for (int i = -1; i < 6; i++) {
+      sb->len = i;
+      if (is_strbuf(sb)) return 1;
+    }
+
+  } else if (string_equal(cmd, "is_strbuf_overly_strict")) {
+
+    // Allowing nonsense past the null terminator:
+    //  '\0' 'x' 'x' 'x'
+    //  '*' '\0' 'x' 'x'
+    //  '*' '*' '\0' 'x'
+    //  '*' '*' '*' '\0'
+    strncpy(sb->buf, 0, s2c("xxxx"), 0, 4);
+    for (int i = 0; i < 4; i++) {
+      sb->buf[i] = '\0';
+      sb->len = i;
+      if (!is_strbuf(sb)) return 1;
+      sb->buf[i] = '*';
+    }
+    
+  } else if (string_equal(cmd, "is_strbuf_limit1")) {
+
+    // Limit is invalid, only option is to fail assertion
+    strncpy(sb->buf, 0, s2c("a"), 0, 4);
+    sb->limit = 2;
+    sb->len = 1;
+    is_strbuf(sb);
+
+  } else if (string_equal(cmd, "is_strbuf_limit2")) {
+
+    // Limit is invalid, only option is to fail assertion
+    strncpy(sb->buf, 0, s2c("a"), 0, 4);
+    sb->limit = 8;
+    sb->len = 1;
+    is_strbuf(sb);
+
+  } else if (string_equal(cmd, "strbuf_new-1")) {
+    strbuf_new(-1);
+
+  } else if (string_equal(cmd, "strbuf_new0")) {
+    strbuf_new(0);
+
+  } else if (string_equal(cmd, "strbuf_new1")) {
+    sb = strbuf_new(1);
+    if (sb == NULL) return 1;
+    if (!(sb->limit == 1)) return 1;
+    if (!(sb->len == 0)) return 1;
+    //@assert \length(sb->buf) == 1;
+    if (!(sb->buf[0] == '\0')) return 1;
+
+  } else if (string_equal(cmd, "strbuf_new3")) {
+    sb = strbuf_new(3);
+    if (sb == NULL) return 1;
+    if (!(sb->limit == 3)) return 1;
+    if (!(sb->len == 0)) return 1;
+    //@assert \length(sb->buf) == 3;
+    if (!(sb->buf[0] == '\0')) return 1;
+
+  } else if (string_equal(cmd, "strbuf_str")) {
+    sb->buf[0] = '?';
+    sb->buf[1] = '\0';
+    sb->buf[2] = 'x';
+    sb->buf[3] = 'y';
+    sb->len = 1;
+
+    char[] s4 = sb->buf;
+    char[] s4a = strbuf_str(sb);
+    char[] s4b = strbuf_str(sb);
+
+    if (s4 == s4a) return 1;
+    if (s4 == s4b) return 1;
+    if (s4a == s4b) return 1;
+    
+    if (!(sb->buf == s4)) return 1;
+    if (!(sb->buf[0] == '?')) return 1;
+    if (!(sb->buf[1] == '\0')) return 1;
+    if (!(strcmp(s4, 0, s4a, 0) == 0)) return 1;
+    if (!(strcmp(s4, 0, s4b, 0) == 0)) return 1;
+
+  } else if (string_equal(cmd, "strbuf_strnull")) {
+    strbuf_str(NULL);
+
+  } else if (string_equal(cmd, "strbuf_str-size")) {
+    sb->buf[0] = '?';
+    sb->buf[1] = '\0';
+    sb->buf[2] = 'x';
+    sb->buf[3] = 'y';
+    sb->len = 1;
+
+    char[] s2 = strbuf_str(sb);
+    //@assert \length(s2) == 2;
+
+  } else if (string_equal(cmd, "strbuf_add")) {
+    if (!task3(true)) return 1;
+
+  } else if (string_equal(cmd, "strbuf_addstr")) {
+    if (!task3(false)) return 1;
+
+  } else if (string_equal(cmd, "strbuf_add1")) {
+    strbuf_add(NULL, s2c("abc"), 3);
+
+  } else if (string_equal(cmd, "strbuf_add2")) {
+    strbuf_add(sb, s2c("abc"), 0);
+
+  } else if (string_equal(cmd, "strbuf_add3")) {
+    strbuf_add(sb, s2c("abc"), 5);
+
+  } else if (string_equal(cmd, "strbuf_add4")) {
+    strbuf_add(sb, s2c("abc"), 4);
+
+  } else if (string_equal(cmd, "strbuf_add5")) {
+    strbuf_add(sb, s2c("abc"), 2);
+
+  } else if (string_equal(cmd, "strbuf_addstr1")) {
+    strbuf_addstr(NULL, s2c("abc"));
+
+  } else if (string_equal(cmd, "stress_add")) {
+    if (args->argc != 2) error("Wrong number of args");
+    int* y = parse_int(args->argv[1], 10);
+    if (y == NULL) error("stress arg bogus");
+    stress(*y, true);
+
+  } else if (string_equal(cmd, "stress_addstr")) {
+    if (args->argc != 2) error("Wrong number of args");
+    int* y = parse_int(args->argv[1], 10);
+    if (y == NULL) error("stress arg bogus");
+    stress(*y, false);
+
+  } else {
+    error("Bad argument");
+  }
+
+  return 0;
+}

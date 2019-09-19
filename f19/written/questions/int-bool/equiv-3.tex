@@ -1,0 +1,24 @@
+\subpart
+ For every \lstinline'int' $x$, $y$ and $z$, $x * y < z$ is equivalent to $x  < z / y$
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  False.  Counterexample: \lstinline'x = 3; y = 10; z= 31' or similar,
+  OR \lstinline'y=0'.
+}\else~\vspace{0.9in}\fi
+\end{framed}
+
+\RUBRIC
+Part <equiv 3>
+
+Gradescope rubric:
++0.2pt  False (x = 3; y = 10; z= 31 or similar) OR y=0
+
+Commentary:
+  This is not true.
+  --> 3*10 < 31;
+  true (bool)
+  --> 3 < 31 / 10;
+  false (bool)
+ENDRUBRIC
+
+\smallskip

@@ -1,0 +1,47 @@
+\part[0\half]\TAGS{ints, correctness}
+The function \lstinline'safe_add' is intended to check that the result of
+adding three numbers \lstinline'a', \lstinline'b', and \lstinline'c' is the
+same in normal integer arithmetic and in C0's 32-bit two's complement signed
+modular arithmetic.
+
+Does the following code satisfy this specification? If so, state why
+in one sentence. If not, give positive 32-bit values for
+\lstinline'a', \lstinline'b', and \lstinline'c' \emph{in hexadecimal}
+such that the check will return an incorrect result.  Explain why the
+result is incorrect in this case.
+
+\begin{lstlisting}
+bool safe_add(int a, int b, int c) {
+  if (a > 0 && b > 0 && c > 0 && a + b + c < 0) return false;
+  if (a < 0 && b < 0 && c < 0 && a + b + c > 0) return false;
+  return true;
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+It does not.  A counter-example is \lstinline'a = b = c = int_max()'.
+}\else~\vspace{1in}\fi
+\end{framed}
+
+\RUBRIC
+Part (safe_add)
+TAGS: ints, correctness
+
+Gradescope rubric:
++0.5pt Box states that function is not correct, gives a valid counterexample [Ex: a=b=int_min, c=-1]
+
+Commentary:
+  Lots of answers, the key is that the integer value must be
+   different than the value returned in C0. A python interpreter
+   for infinite-precision integer arithmetic + coin for 32-bit
+   signed two's complement arithmetic might be handy.
+
+   Not an answer: int_max() + int_max() + int_min()
+       (The function returns true, as it should)
+   Not an answer: int_max() + int_max() + 1
+       (The function returns false, as it should)
+   Valid answer: int_max() + int_max() + int_max()
+       (Modular arithmetic gives a positive number back)
+   Valid answer: int_max() + int_max() + -1
+       (Overflow despit all numbers)
+ENDRUBRIC

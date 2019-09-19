@@ -1,0 +1,14 @@
+\textbf{Setup:} Copy the lab code from our
+public directory to your private directory:
+
+\lstinline[language={[coin]C}]'% cd private/15122'\\
+\lstinline[language={[coin]C}]'% cp -R /afs/andrew/course/15/122/misc/lab03 .'\\
+\lstinline[language={[coin]C}]'% cd lab03'
+
+You should write your code for part (2.b) in a file,
+\lstinline'consecutive.c0', in the directory \lstinline'lab03'. For
+(3.b), use \lstinline'palindrome.c0' in the same directory.
+
+\textbf{Grading:} Work through (1.a) and (2.a) as a group.
+Finish (2.b) for lab credit.  Finish (3.a) and (3.b) for extra credit.
+Show your TA your loop invariants and how you used them in your code.

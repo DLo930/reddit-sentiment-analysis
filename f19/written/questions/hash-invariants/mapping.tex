@@ -1,0 +1,138 @@
+\clearpage
+\Question{Hash Tables: Mapping Hash Values to Hash Table Indices}
+
+\bgroup
+%% Change depending on previous exercise
+%\newcommand{\ds}{hset}
+\newcommand{\ds}{hdict}
+\newcommand{\hash}{\ifdefstring{\ds}{hset}{elem\_hash}{key\_hash}}
+\newcommand{\hashtp}{\ifdefstring{\ds}{hset}{elem}{key}}
+\newcommand{\hashvar}{\ifdefstring{\ds}{hset}{x}{k}}
+
+
+In our \texttt{\ds} implementation, we use a library helper
+function \lstinline'index_of_'\texttt{\hashtp} that takes an element,
+computes its hash value using the client's \texttt{\hash} function and
+converts this hash value to an integer. The first two functions below
+try to implement \lstinline'index_of_'\texttt{\hashtp} but have
+issues.
+
+\begin{parts}
+\part[0\half]\TAGS{hashing}
+The following function has a bug. For one specific hash value
+\lstinline'h', this function does not return an index that is valid
+for a hash table. Identify the specific hash value.
+
+\begin{lstlisting}
+int index_of_[*\hashtp*]([*\ds*]* H, [*\hashtp*] [*\hashvar*])
+//@requires H->capacity > 0;
+//@ensures 0 <= \result && \result < H->capacity;
+{
+  int h = [*\hash*]([*\hashvar*]);
+  return abs(h) % H->capacity;
+}
+\end{lstlisting}
+
+\begin{framed}
+\bigskip
+This function fails when \lstinline'h' = \uanswer{21em}{\texttt{int\_min()}}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: hashing
+
+Gradescope rubric:
++0.5pt h=int_min();
+
+Commentary:
+int_min() or int_min or 0x80000000 or -2**31
+   Be generous about how they write -2^31, but all or nothing
+ENDRUBRIC
+
+
+\part[0\half]\TAGS{hashing}
+The following function has an undesirable feature, although it always
+returns a valid index. Identify the flaw and, in one sentence, explain
+why it's a problem.  (The \emph{ternary operator} %
+\lstinline'b ? e1 : e2' evaluates to the value of expression
+\lstinline'e1' if the boolean test \lstinline'b' is
+\lstinline'true', and to the value of \lstinline'e2' if
+\lstinline'b' is \lstinline'false'.)
+
+\begin{lstlisting}
+int index_of_[*\hashtp*]([*\ds*]* H, [*\hashtp*] [*\hashvar*])
+//@requires H->capacity > 0;
+//@ensures 0 <= \result && \result < H->capacity;
+{
+  int h = [*\hash*]([*\hashvar*]);
+  return h < 0 ? 0 : h % H->capacity;
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+All negative values cluster on chain 0 causing lots of collisions and
+potentially long lookups.
+}\else~\vspace{2.2in}\fi
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: hashing
+
+Gradescope rubric:
++0.25pt Identify that lookups will be slow
++0.25pt Identify that negative values map to 0 causing lots of collisions
+
+Commentary:
+All negative values cluster on chain 0 causing
+potentially long lookups (just "lots of collisions at 0, so it will be
+slow" is fine)
+   - 1/2 pt correct
+   - 1/4 pt say it will be slow without indicating why
+   - 1/4 pt say there will be collisions without explaining that it
+     will be slow
+   - 0 pts wrong
+ENDRUBRIC
+
+
+\newpage
+\part[0\half]\TAGS{hashing}
+Complete the following function so it avoids the problems in the previous two
+implementations of \lstinline'index_of_'\texttt{\hashtp}.
+
+\begin{lstlisting}[frame=single]
+int index_of_[*\hashtp*]([*\ds*]* H, [*\hashtp*] [*\hashvar*])
+//@requires H->capacity > 0;
+//@ensures 0 <= \result && \result < H->capacity;
+{
+  int h = [*\hash*]([*\hashvar*]);
+
+  return (h < 0 ? [*\uanswer{16em}{abs(h+1)}*] : h) % H->capacity;
+}
+\end{lstlisting}
+
+\RUBRIC
+Part (c)
+TAGS: hashing
+
+Gradescope rubric:
++0.5pt Uniformly distributes negative hash indexes
++0.25pt OR -- almost correct (e.g. a few negative h values remain negative, -h keeps int_min negative)
+
+Commentary:
+Anything that moves negative values "uniformly" over to
+the positive indices, spreading them out, not clustering.
+
+Some possibilities: ~h, -(h+1), abs(h+1), h + int_min(), h & int_max()
+
+All negative values MUST be mapped to nonnegative values.
+
+   - 1/2 pt correct
+   - 1/4 pt almost correct (e.g. a few negative h values remain
+     negative, e.g. -h keeps int_min negative, otherwise ok)
+   - 0 pt wrong
+ENDRUBRIC
+
+\end{parts}
+\egroup

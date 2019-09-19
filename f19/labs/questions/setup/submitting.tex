@@ -1,0 +1,103 @@
+\newpage
+\section*{Submitting assignments}
+
+In this class you will be submitting your assignments using two tools
+that may be new to you.  This activity has the purpose to make sure
+you know what you are doing.
+
+
+\subsection*{Written assignments}
+\begin{part}\TAGS{course-policies}
+You will submit your \emph{written} assignments using
+\href{\gradescope}{Gradescope}.  But first we need to register at
+\href{https://gradescope.com}{https://gradescope.com} \textbf{using
+  YOUR ANDREW EMAIL} and entry code \textbf{\gradescopeEntryCode}.
+
+Because Gradescope doesn't support posting homeworks, we do so on
+\writtenDistributor{}.  In a browser, go to \writtenDistributor, click on %
+``\lstinline'Written 0 (UNGRADED)''' and then on %
+``\lstinline'View writeup'''.  Save a copy as \lstinline'written-test.pdf'.
+You will write just your name and section number and then submit.
+
+You can do the writing in two ways:
+\begin{enumerate}
+\item%
+  By entering annotations in \lstinline'written-test.pdf' and then
+  saving.  The easiest way is to do so online by using
+  \url{pdfescape.com} in your browser.  Alternatively, several (but
+  not all) PDF viewers support annotations.  Examples are
+  \lstinline'preview' on Mac, \lstinline'iAnnotate' on iOS and
+  Android, and \lstinline'Acrobat Pro' on pretty much anything ---
+  \lstinline'Acrobat Pro' is installed in all non-CS cluster machines.
+
+\item%
+  By printing \lstinline'written-test.pdf', writing your solution by
+  hand, and then scanning it back to PDF\@.  \emph{This is pretty
+    laborious: you will want to get the first option to work for you.}
+\end{enumerate}
+Unless you are near a scanner, you will use the first option.
+
+Now that you have a ``solved'' version of
+\lstinline'written-test.pdf', point your browser to
+\href{\gradescope}{Gradescope} and upload your solution file.  That's
+it!  If you didn't manage to find a PDF editor that works for you,
+simply submit the blank writeup for now.
+\end{part}
+
+
+\subsection*{Programming assignments}
+\begin{part}\TAGS{course-policies}
+You will submit your \emph{programming} assignments (and some lab
+solutions) using \autolab{}, the site where you downloaded the handout
+from.  Let's see how that works on the file \lstinline'factorial.c0'
+where you earlier wrote your name and section number.
+
+We will typically submit compressed archive files.  You do so by
+typing the following at the Unix prompt:
+
+\lstinline[language={[coin]C}]'% tar cfzv testing.tgz factorial.c0'
+
+The above command puts your file \lstinline'factorial.c0' into a
+compressed file named \lstinline'testing.tgz'.
+
+\begin{description}
+\item[{\em If you are on your own laptop}], you need to move the
+    \lstinline'testing.tgz' file
+    from the andrew server that you ssh'd into to your own laptop.
+    If your laptop is running Linux or Mac, use the following command
+    to do so:
+        \begin{lstlisting}[language={[coin]C}]
+% scp <your_id>@unix.andrew.cmu.edu:private/15122/lab01/handout/testing.tgz .
+        \end{lstlisting}
+Note that you need to run this command from a terminal where
+    you are \emph{not} ssh'd into Andrew (i.e., open a fresh terminal
+    and run the command there).
+
+If you're on Windows, MobaXTerm has a way to help you transfer the file.
+Ask a TA to help you if you can't find the tool.
+\end{description}
+
+Next, point your browser to \autolab, go to this lab's entry and
+upload the newly created file \lstinline'testing.tgz' using the
+``Submit File'' button.
+
+(There is also a way to submit from the prompt.  You'll see that later
+on.)
+
+Finally, check that you submitted the right file by clicking on the
+``view source'' icon.  \textbf{Always check your submissions!}
+\end{part}
+
+
+% At this point you are done with the lab, and you are free to go.
+%  \textbf{(4.c)} is strictly optional
+
+
+% \begin{part}\TAGS{unix}
+%   If you have your laptop, you can try to work through the first step
+%   of C0 at CMU, which can be found at
+%   \url{http://c0.typesafety.net/tutorial/C0-at-CMU.html},
+%   \emph{Connecting through SSH}, on your laptop. However, we'll have a
+%   laptop session on \lapsessionTime{} in \lapsessionPlace{} for you to
+%   get your laptop set up.
+% \end{part}

@@ -1,0 +1,123 @@
+#use <args>
+#use <string>
+#use <util>
+#use <rand>
+
+// 1 = signal for failure
+// 0 = signal for success
+
+bool test_compress1() {
+  int n = 50;  // max number of tests
+  string[] boards = alloc_array(string, n);
+
+  int k = -1;
+  k++; boards[k] = "grade/1a.txt";
+  k++; boards[k] = "grade/1b.txt";
+  // k++; boards[k] = "grade/1c.txt";
+  // k++; boards[k] = "grade/1d.txt";
+  // k++; boards[k] = "grade/1e.txt";
+  k++; boards[k] = "grade/1f.txt";
+  k++; boards[k] = "grade/1g.txt";
+  k++; boards[k] = "grade/1h.txt";
+  k++; boards[k] = "grade/1i.txt";
+  k++; boards[k] = "grade/1j.txt";
+  k++; boards[k] = "grade/1k.txt";
+  k++; boards[k] = "grade/1l.txt";
+  k++; boards[k] = "grade/1m.txt";
+  k++; boards[k] = "grade/1n.txt";
+  k++; boards[k] = "grade/1o.txt";
+  k++; boards[k] = "grade/2a.txt";
+  k++; boards[k] = "grade/3x3a.txt";
+  k++; boards[k] = "grade/3x3b.txt";
+  k++; boards[k] = "grade/3x3c.txt";
+  k++; boards[k] = "grade/3x4a.txt";
+  // k++; boards[k] = "grade/3x4b.txt";
+  // k++; boards[k] = "grade/3x4c.txt";
+  k++; boards[k] = "grade/4x4a.txt";
+  k++; boards[k] = "grade/4x4b.txt";
+  k++; boards[k] = "grade/4x4c.txt";
+  // k++; boards[k] = "grade/4x4d.txt";
+  k++; boards[k] = "grade/4x5a.txt";
+  k++; boards[k] = "grade/4x5b.txt";
+  k++; boards[k] = "grade/4x5c.txt";
+  // k++; boards[k] = "grade/4x5d.txt";
+  k++; boards[k] = "grade/4x5e.txt";
+  k++; boards[k] = "grade/4x5f.txt";
+  // k++; boards[k] = "grade/5x5a.txt";
+  k++; boards[k] = "grade/5x5b.txt";
+  // k++; boards[k] = "grade/5x5c.txt";
+  k++; boards[k] = "grade/5x5d.txt";
+  // k++; boards[k] = "grade/5x5e.txt";
+  // k++; boards[k] = "grade/5x5f.txt";
+  k++; boards[k] = "grade/symmetricCross.txt";
+  // k++; boards[k] = "german.txt";
+  // k++; boards[k] = "english.txt";
+  k++; boards[k] = "french1.txt";
+  // k++; boards[k] = "french2.txt";
+  // k++; boards[k] = "french3.txt";
+
+  for (int i = 0; i < k+1; i++) {
+    board B1 = alloc_array(int, 64);
+    read_board(boards[i], B1, 64);
+    cboard* C1 = compress(B1);
+    for (int j = 0; j < i; j++) {
+      board B2 = alloc_array(int, 64);
+      read_board(boards[j], B2, 64);
+      cboard* C2 = compress(B2);
+      if (C1->i1 == C2->i1 && C1->i2 == C2->i2)
+        return false;
+    }
+  }
+  return true;
+}
+
+bool our_equal_boards(board B1, board B2) {
+  for (int i = 0; i < 8*8; i++)
+    if (B1[i] != B2[i]) return false;
+  return true;
+}
+
+bool test_compress2(int n_tests) {
+  board B1 = alloc_array(int, 64);
+  board B2 = alloc_array(int, 64);
+  rand_t r = init_rand(47);
+
+  // initialize two random boards
+  for (int k = 0; k < n_tests; k++) {
+    for (int i = 0; i < 64; i++) {
+      B1[i] = rand(r) % 2;
+      B2[i] = rand(r) % 2;
+    }
+    if (!our_equal_boards(B1, B2)) {
+      cboard* C1 = compress(B1);
+      cboard* C2 = compress(B2);
+      if (C1->i1 == C2->i1 && C1->i2 == C2->i2)
+        return false;
+    }
+  }
+  return true;
+}
+
+
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  // Test compress
+         if (string_equal(arg, "compress-real")) {
+    if (!test_compress1())     return 1;
+  } else if (string_equal(arg, "compress-random")) {
+    if (!test_compress2(1000)) return 1;
+
+  // new-move and destructors: invalid jumps
+  } else if (string_equal(arg, "hash")) {
+    return 0;
+
+  } else {
+    error("No test with this name");
+  }
+
+  return 0;
+}

@@ -1,0 +1,23 @@
+\subpart
+ For every \lstinline'int' $x$, $x  < 0$ is equivalent to $-x > 0$
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  False.  Counterexample: \lstinline'x = int_min()'.
+}\else~\vspace{0.9in}\fi
+\end{framed}
+
+\RUBRIC
+Part <equiv 2>
+
+Gradescope rubric:
++0.2pt  False (x = int_min())
+
+Commentary:
+  This is not true.
+  --> int_min() < 0;
+  true (bool)
+  --> -int_min() > 0;
+  false (bool)
+ENDRUBRIC
+
+\smallskip

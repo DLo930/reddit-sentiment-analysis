@@ -1,0 +1,958 @@
+#use <util>
+#use <conio>
+#use <string>
+
+// Interface:
+
+// type real
+
+// Implementation:
+
+struct realStruct {
+    int[] A;
+    int n;
+    int pt;
+    int sgn;
+};
+
+typedef struct realStruct* real;
+
+// Interface:
+
+real real_plus(real x, real y);
+real real_minus(real x, real y);
+real real_times(real x, real y);
+real real_divide(real x, real y, int sigFigs);
+real real_fromInt(int i);
+int real_toInt(real x);
+real real_exp(real x, int i, int precision);
+void real_print(real x);
+real real_fromString(string s);
+bool real_equal(real x, real y);
+bool real_leq(real x, real y);
+bool real_lt(real x, real y);
+real real_abs(real x);
+int real_sign(real x);
+real real_iPart(real x);
+real real_fPart(real x);
+real real_floor(real x);
+real real_ceil(real x);
+real real_round(real x);
+bool real_isReal(real x);
+real real_neg(real x);
+
+// Implementation:
+
+int maxArraySize() {
+    return 268435454;
+}
+
+/* Return true if the operation x+y will not overflow, underflow, or evaluate
+ * to a number bigger than maxArraySize()
+ */
+bool safeAdd2(int x, int y) {
+    if (x <= 0 && y >= 0 || x >= 0 && y <= 0) {
+        return x + y <= maxArraySize();
+    }
+    else if (x <= 0) {
+        return x >= int_min() - y && x + y <= maxArraySize();
+    }
+    else {
+        return x <= int_max() - y && x + y <= maxArraySize();
+    }
+}
+
+/* Return true if evaluating x+y+z in C0 will yield exactly the same result
+ * as evaluating the corresponding mathematical expression and is no larger
+ * than maxArraySize()
+ */
+bool safeAdd3(int x, int y, int z) {
+    if (x == 0) {
+        return safeAdd2(y,z);
+    }
+    else if (y == 0) {
+        return safeAdd2(x,z);
+    }
+    else if (z == 0) {
+        return safeAdd2(x,y);
+    }
+    else if (x < 0 && y < 0 && z < 0 || x > 0 && y > 0 && z > 0) {
+        return safeAdd2(x,y) && safeAdd2(x+y,z);
+    }
+    else if (y < 0 && z > 0 || y > 0 && z < 0) {
+        return safeAdd2(x,y+z);
+    }
+    else {
+        return safeAdd2(x+y,z);
+    }
+}
+
+/* Allocate and return a new realStruct with n set to length and A set to a
+ * new array of that length.
+ */
+real real_new(int length)
+//@requires 0 <= length && length <= maxArraySize();
+{
+    real x = alloc(struct realStruct);
+    int[] num = alloc_array(int, length);
+    x->A = num;
+    x->n = length;
+    return x;
+}
+
+/* Assuming that x's and y's most significant digits are at the same powers
+ * of 10, that there exists some n such that the ith digit from the
+ * right in x and the jth digit from the right in y both represent the
+ * nth power of 10, and that all digits more significant than those are the
+ * same in the two numbers, return true if x < y.
+ */
+bool smallerDigits(real x, int i, real y, int j)
+//@requires real_isReal(x) && real_isReal(y);
+//@requires 0 <= i && i < x->n;
+//@requires 0 <= j && j < y->n;
+{
+    if (j == 0) {
+        return x->A[i] < y->A[j];
+    }
+    else if (i == 0) {
+        return x->A[i] <= y->A[j];
+    }
+    else if (x->A[i] < y->A[j]) {
+        return true;
+    }
+    else if (x->A[i] > y->A[j]) {
+        return false;
+    }
+    else {
+        return smallerDigits(x, i-1, y, j-1);
+    }
+}
+
+/* Assuming that x is an integer and has a real representation with at
+ * least two digits, perform a decimal unsigned right shift by 1.
+ */
+real chopInt(real x)
+//@requires real_isReal(x);
+//@requires x->pt == 0;
+//@requires x->n > 1;
+//@ensures real_isReal(\result);
+//@ensures \result->pt == 0;
+//@ensures \result->n > 0;
+{
+    real res = real_new(x->n - 1);
+    res->sgn = x->sgn;
+    for (int i = 0; i < x->n - 1; i++) {
+        res->A[i] = x->A[i+1];
+    }
+    return res;
+}
+
+// Reverse the digits in the underlying array of a real.
+real real_reverse(real x) {
+    real res = real_new(x->n);
+    res->sgn = x->sgn;
+    res->pt = x->n - x->pt;
+    for (int i = 0; i < x->n; i++) {
+        res->A[i] = x->A[x->n - i - 1];
+    }
+    return res;
+}
+
+/* Don't look! The largest representable number is (10^maxArraySize)-1.
+ * The smallest representable number has the same magnitude. An obvious
+ * but complicated improvement would multiply that value by (1/9)int_max.
+ */
+real real_max()
+//@ensures real_isReal(\result);
+{
+    real res = real_new(maxArraySize());
+    res->sgn = 1;
+    res->pt = 0;
+    for (int i = 0; i < res->n; i++)
+    //@loop_invariant 0 <= i;
+    {
+        res->A[i] = 9;
+    }
+    return res;
+}
+
+// Make a non-destructive copy of a real.
+real real_copy(real x)
+//@ensures x != \result;
+{
+    real y = real_new(x->n);
+    y->pt = x->pt;
+    y->sgn = x->sgn;
+    for (int i = 0; i < x->n; i++) {
+        y->A[i] = x->A[i];
+    }
+    return y;
+}
+
+// Return the number of digits in a C0 int.
+int int_numDigits(int i)
+//@ensures \result >= 0;
+{
+    int res = 0;
+    while (i != 0) {
+        i /= 10;
+        res++;
+    }
+    return res;
+}
+
+int int_pow(int i, int j)
+//@requires j >= 0;
+{
+    return j == 0 ? 1 : i * int_pow(i, j-1);
+}
+
+int int_sign(int i)
+//@ensures -1 <= \result && \result <= 1;
+{
+    return i == 0 ? 0 : i < 0 ? -1 : 1;
+}
+
+// Return the place of the most significant digit of x.
+int highestPower(real x)
+//@requires real_isReal(x);
+//@ensures \result >= -1;
+{
+    return (x->n - x->pt - 1) * abs(x->sgn);
+}
+
+// Return the place of the least significant digit of x.
+int lowestPower(real x)
+//@requires real_isReal(x);
+{
+    return -1 * x->pt;
+}
+
+/* Add zeros if necessary to the real x so that it extends from decimal places
+ * low to high.
+ */
+real real_expand(real x, int low, int high)
+//@requires real_isReal(x);
+//@requires safeAdd3(high, -1 * low, 1);
+//@requires high - low + 1 >= x->n;
+{
+    int newLen = high - low + 1;
+    real res = real_new(newLen);
+    res->sgn = x->sgn;
+    int start = lowestPower(x) - low;
+    for (int i = 0; i < x->n; i++)
+    //@loop_invariant 0 <= i && i <= x->n;
+    {
+        res->A[i + start] = x->A[i];
+    }
+    // Fix the decimal point:
+    res->pt = x->pt + start;
+    return res;
+}
+
+/* Given a real that is valid except for maybe extra zeros on the left
+ * and right, make it valid.
+ */
+real real_contract(real x)
+//@ensures real_isReal(\result);
+{
+    int left = 0;
+    int right = x->n - 1;
+    int point = x->pt;
+
+    // Remove extra 0s on the right:
+    while (left < x->n && left < x->pt && x->A[left] == 0) {
+        left++;
+        point--;
+    }
+
+    // Remove extra 0s on the left:
+    while (right >= 0 && right > x->pt - 1 && x->A[right] == 0) {
+        right--;
+    }
+    int newLen = right - left + 1;
+    //@assert newLen >= 0;
+    real res = real_new(newLen);
+    res->sgn = newLen == 0 ? 0 : x->sgn;
+    res->pt = point;
+    for (int i = 0; i < newLen; i++)
+    //@loop_invariant 0 <= i && i <= newLen;
+    {
+        res->A[i] = x->A[i + left];
+    }
+    return res;
+}
+
+/* Given a real whose least significant digit is at the 10^i place,
+ * where i < -1, round to the 10^(i+1) place. If i = -1, truncate to zero.
+ */
+real real_chop(real x)
+//@requires real_isReal(x);
+//@requires x->pt > 0;
+//@ensures real_isReal(\result);
+//@ensures \result->n < x->n;
+{
+    if (x->n == 1) {
+        // A one-digit number with magnitude between 0.1 and 0.9
+        return real_fromInt(0);
+    }
+    real res = real_new(x->n - 1);
+    res->sgn = x->sgn;
+    res->pt = x->pt - 1;
+    for (int i = 0; i < res->n; i++)
+    //@loop_invariant 0 <= i && i <= res->n;
+    //@loop_invariant i < x->n;
+    {
+        res->A[i] = x->A[i+1];
+    }
+
+    // Rounding:
+    if (x->A[0] >= 5) {
+        res->A[0]++;
+    }
+    return real_contract(res);
+}
+
+void doAddition(int[] x, int[] y, int[] sum, int n, int i, bool carry)
+//@requires n == \length(x) && \length(x) == \length(y);
+//@requires \length(y) == \length(sum);
+//@requires 0 <= i && i <= n;
+{
+    if (i < n) {
+        int res = x[i] + y[i] + (carry ? 1 : 0);
+        //@assert 0 <= res && res <= 19;
+        if (res < 10) {
+            sum[i] = res;
+            doAddition(x, y, sum, n, i+1, false);
+        }
+        else {
+            sum[i] = res - 10;
+            doAddition(x, y, sum, n, i+1, true);
+        }
+    }
+}
+
+// Given two reals, return the closest possible real to their mathematical sum.
+real real_plus(real x, real y)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+//@ensures real_isReal(\result);
+{
+    if (x->sgn == 0) {
+        return real_copy(y);
+    }
+    else if (y->sgn == 0) {
+        return real_copy(x);
+    }
+    else if (x->sgn < 0 && y->sgn < 0) {
+        return real_neg(real_plus(real_neg(x), real_neg(y)));
+    }
+    else if (x->sgn < 0) {
+        return real_minus(y, real_neg(x));
+    }
+    else if (y->sgn < 0) {
+        return real_minus(x, real_neg(y));
+    }
+    else {
+        int low = min(lowestPower(x), lowestPower(y));
+        int high = max(highestPower(x), highestPower(y));
+        while (!safeAdd3(high, -1 * low, 2)) {
+            // The number of digits in the result will be too high.
+            // Chop off the least significant digits.
+            if (lowestPower(x) == low && low < 0) {
+                x = real_chop(x);
+                low = min(lowestPower(x), lowestPower(y));
+            }
+            else if (low < 0) {
+                y = real_chop(y);
+                low = min(lowestPower(x), lowestPower(y));
+            }
+            else {
+                // Both numbers are integers. There's nothing more we can do.
+                return real_max();
+            }
+        }
+        real sum = real_new(high - low + 2);
+        x = real_expand(x, low, high+1);
+        y = real_expand(y, low, high+1);
+        //@assert x->pt == y->pt;
+        sum->pt = x->pt;
+        sum->sgn = 1;
+        doAddition(x->A, y->A, sum->A, y->n, 0, false);
+        return real_contract(sum);
+    }
+}
+
+/* Given two reals, return the closest possible real to their
+ * mathematical difference.
+ */
+real real_minus(real x, real y)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+//@ensures real_isReal(\result);
+{
+    if (y->sgn == 0) {
+        return real_copy(x);
+    }
+    if (x->sgn == 0) {
+        return real_neg(y);
+    }
+    if (x->sgn == 1 && y->sgn == -1) {
+        return real_plus(x, real_neg(y));
+    }
+    if (x->sgn == -1 && y->sgn == 1) {
+        return real_neg(real_plus(real_neg(x), y));
+    }
+    if (x->sgn == -1 && y->sgn == -1) {
+        return real_minus(real_neg(y), real_neg(x));
+    }
+    //@assert x->sgn == 1 && y->sgn == 1;
+    if (real_lt(x,y)) {
+        return real_neg(real_minus(y,x));
+    }
+
+    /* Chop off the lowest significant digits of the smaller number
+     * until the result fits.
+     */
+    int low = min(lowestPower(x), lowestPower(y));
+    int high = max(highestPower(x), highestPower(y));
+    while (!safeAdd3(high, -1 * low, 1)) {
+        //@assert y->pt > 0;
+        //@assert low == lowestPower(y);
+        //@assert high == highestPower(x);
+        y = real_chop(y);
+        low = lowestPower(y);
+    }
+
+    // Line the two numbers up and subtract:
+    x = real_expand(x, low, high);
+    y = real_expand(y, low, high);
+    //@assert x->n == y->n && y->n == high - low + 1;
+    real res = real_new(x->n);
+    //@assert x->pt == y->pt;
+    res->pt = x->pt;
+    res->sgn = 1;
+    bool carry = false;
+    for (int i = 0; i < res->n; i++)
+    //@loop_invariant 0 <= i && i <= res->n;
+    {
+        int xd = x->A[i];
+        int yd = y->A[i];
+        if (carry) {
+            if (xd > 0) {
+                xd--;
+                carry = false;
+            }
+            else {
+                xd = 9;
+            }
+        }
+        if (yd > xd) {
+            carry = true;
+            res->A[i] = 10 - (yd - xd);
+        }
+        else {
+            res->A[i] = xd - yd;
+        }
+    }
+    return real_contract(res);
+}
+
+/* Given two reals, return the closest possible real to their
+ * mathematical product.
+ */
+real real_times(real x, real y)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+//@ensures real_isReal(\result);
+{
+    // Assign x, the top number, to be the longer of the two:
+    if (y->n > x->n) {
+        real temp = y;
+        y = x;
+        x = temp;
+    }
+
+    // Unless/until both numbers are integrs, chop off the least significant
+    // digits until the result is guaranteed to fit.
+    while ((x->pt > 0 || y->pt > 0) && !safeAdd2(x->n, y->n)) {
+        if (lowestPower(y) < lowestPower(x)) {
+            y = real_chop(y);
+        }
+        else {
+            x = real_chop(x);
+        }
+    }
+    real result = real_fromInt(0);
+    bool stop = false;
+    for (int i = 0; i < y->n && !stop; i++)
+    //@loop_invariant 0 <= i && i <= y->n;
+    {
+        if (!safeAdd3(x->n, 1, i)) {
+            // This line in the sum will by itself be too long. The numbers
+            // are too big.
+            //@assert x->pt == 0 && y->pt == 0;
+            result = real_max();
+            stop = true;
+        }
+        else {
+            real summand = real_new(x->n + 1 + i);
+            summand->sgn = 1;
+            int carry = 0;
+            for (int j = 0; j < x->n; j++)
+            //@loop_invariant 0 <= j && j <= x->n;
+            //@loop_invariant 0 <= carry && carry <= 8;
+            {
+                int digit = x->A[j] * y->A[i] + carry;
+                //@assert 0 <= digit && digit <= 89;
+                carry = digit / 10;
+                summand->A[j+i] = digit % 10;
+            }
+            summand->A[x->n + i] = carry;
+            summand = real_contract(summand);
+
+            // Add up the lines in the sum as we go:
+            result = real_plus(result, summand);
+        }
+    }
+    result->sgn = x->sgn * y->sgn;
+
+    // For the last step, shift the decimal point to the right place.
+    result->pt = x->pt + y->pt;
+    if (result->pt > result->n) {
+        // The point was shifted past the left of all the digits.
+        // Expand the number with zeros:
+        int[] newNum = alloc_array(int, result->pt);
+        for (int i = 0; i < result->n; i++)
+        //@loop_invariant 0 <= i && i <= \length(result->A);
+        {
+            newNum[i] = result->A[i];
+        }
+        result->A = newNum;
+        result->n = result->pt;
+    }
+    return real_contract(result);
+}
+
+/* Perform the division x/y, truncating the result after the requested number
+ * of digits. The divisor will be truncated to at most 8 digits so that
+ * the division can be done safely.
+ */
+real real_divide(real x, real y, int sigFigs)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+//@requires 0 < sigFigs && sigFigs <= maxArraySize();
+//@requires y->sgn != 0;
+//@ensures real_isReal(\result);
+{
+    real res = real_new(sigFigs);
+    res->sgn = x->sgn * y->sgn;
+    int ptL = x->n - x->pt; // Where the point is in the answer, from the left
+    int resIdx = 0;
+    int hold = 0;
+    y = real_copy(y);
+    //@assert real_isReal(y);
+
+    // Make the divisor an integer:
+    if (y->pt > 0) {
+        ptL += y->pt;
+        y->pt = 0;
+        y = real_contract(y);
+    }
+    while (y->n >= int_numDigits(int_max()) - 1)
+    //@loop_invariant real_isReal(y);
+    //@loop_invariant y->sgn != 0;
+    {
+        // The digits we take from the dividend to divide by y could be
+        // greater than int_max(). "Decimal shift" y to the right by 1 and
+        // make sure to divide the end result by 10.
+        y = chopInt(y);
+        if (ptL > 0) {
+            ptL--;
+        }
+        else {
+            resIdx++;
+            if (resIdx == sigFigs) {
+                return real_fromInt(0);
+            }
+        }
+    }
+    int yInt = abs(real_toInt(y));
+    //@assert yInt > 0;
+    if (ptL > sigFigs) {
+        // The decimal point is already so far to the right, the digits
+        // to the left of it are more than the number of digits asked for.
+        // Proceed anyway but on "hold" and hope that the excess digits
+        // are all zeros.
+        hold = ptL - sigFigs;
+        ptL = sigFigs;
+    }
+    int nextIdx = x->n - 1;
+    int carry = 0;
+    bool nonzero = false;
+    while (resIdx < sigFigs)
+    //@loop_invariant 0 <= resIdx && resIdx <= sigFigs;
+    //@loop_invariant nextIdx < x->n;
+    {
+        int nextNum = (nextIdx >= 0 ? x->A[nextIdx] : 0) + carry * 10;
+        int digitRes = nextNum / yInt;
+        //@assert 0 <= digitRes && digitRes <= 9;
+        carry = nextNum % yInt;
+        if (!nonzero && digitRes > 0) {
+            // We've hit the first nonzero digit in the result.
+            nonzero = true;
+        }
+        if (hold > 0 && digitRes > 0) {
+            // We were holding and hoping that the excess digits would all be
+            // zero, but they weren't. Give up and return the biggest
+            // possible number that will fit in the number of digits asked for.
+            for (int i = 0; i < sigFigs; i++)
+            //@loop_invariant 0 <= i && i <= res->n;
+            {
+                res->A[i] = 9;
+            }
+            return res;
+        }
+        else if (hold == 0 && (nonzero || resIdx >= ptL)) {
+            res->A[resIdx] = digitRes;
+            resIdx++;
+        }
+        else if (hold > 0) {
+            // We're holding and have only hit zeros so far.
+            hold--;
+        }
+        else if (nextIdx < 0 && carry == 0) {
+            // We haven't written the number of digits asked for yet,
+            // but we've gotten to the end of the dividend without any
+            // nonzero digits and there's no carry. The result will be 0.
+            return real_fromInt(0);
+        }
+        else {
+            // We haven't hit any nonzero digits yet. Instead of writing a
+            // zero, shift the decimal point to the left.
+            ptL--;
+        }
+        nextIdx--;
+    }
+    res->pt = ptL;
+    res = real_reverse(res);
+    res = real_contract(res);
+    return res;
+}
+
+// Convert an int to a real. All ints are uniquely representable as reals.
+real real_fromInt(int i)
+//@ensures real_isReal(\result);
+{
+    int len = int_numDigits(i);
+    real res = real_new(len);
+    res->pt = 0;
+    res->sgn = int_sign(i);
+    for (int j = 0; j < len; j++)
+    //@loop_invariant 0 <= j && j <= len;
+    //@loop_invariant j == len || i != 0;
+    {
+        res->A[j] = abs(i % 10);
+        i /= 10;
+    }
+    //@assert i == 0;
+    return res;
+}
+
+/* Given a real representing the number x, return an int representing the
+ * number i between int_min() and int_max() such that i is congruent to n
+ * modulo 2^32, where n is the nearest integer to x.
+ */
+int real_toInt(real x)
+//@requires real_isReal(x);
+{
+    real y = real_round(x);
+    int res = 0;
+    for (int i = 0; i < y->n; i++)
+    //@loop_invariant 0 <= i && i <= y->n;
+    {
+        res += y->A[i] * int_pow(10,i);
+    }
+    res *= y->sgn;
+    return res;
+}
+
+/* Return x^i with the same specifications as regular real multiplication
+ * or division. The number of digits will only be truncated to the precision
+ * requested if necessary for division.
+ */
+real real_exp(real x, int i, int precision)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+{
+    if (i == 0) {
+        return real_fromInt(1);
+    }
+    else if (i < 0) {
+        return real_divide(real_fromInt(1), real_exp(x, -1*i, -1), precision);
+    }
+    else {
+        return real_times(x, real_exp(x, i-1, -1));
+    }
+}
+
+// Print the number x represents to standard output.
+void real_print(real x)
+//@requires real_isReal(x);
+{
+    if (x->sgn == 0) {
+        println("0");
+    }
+    else {
+        if (x->sgn == -1) {
+            print("-");
+        }
+        if (x->pt == x->n) {
+            print("0");
+        }
+        for (int i = x->n - 1; i >= 0; i--)
+        //@loop_invariant -1 <= i && i < x->n;
+        {
+            if (x->pt == i+1) {
+                print(".");
+            }
+            printint(x->A[i]);
+        }
+        print("\n");
+    }
+}
+
+/* Convert a string to a real. The first period will be interpreted as the
+ * decimal point, a "-" or "~" at the front will be interpreted as making
+ * the number negative, and all other non-digit characters will be ignored.
+ */
+real real_fromString(string s)
+//@ensures real_isReal(\result);
+{
+    char[] digits = string_to_chararray(s);
+    int n = string_length(s);
+    bool ptReached = false;
+    bool nonzero = false;
+    real res = real_new(n);
+    int j = n - 1;
+    for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= n;
+    //@loop_invariant -1 <= j && j <= n-1;
+    {
+        int digit = char_ord(digits[i]);
+        if (48 <= digit && digit <= 57) {
+            res->A[j] = digit - 48;
+            j--;
+            if (!nonzero && digit != 48) {
+                nonzero = true;
+            }
+        }
+        else if (digit == 46 && !ptReached) {
+            res->pt = j+1;
+            ptReached = true;
+        }
+    }
+    if (!ptReached) {
+        res->pt = j+1;
+    }
+    if (nonzero) {
+        int firstDigit = char_ord(digits[0]);
+        res->sgn = firstDigit == 45 || firstDigit == 126 ? -1 : 1;
+    }
+    return real_contract(res);
+}
+
+// Return true if x and y represent exactly the same number.
+bool real_equal(real x, real y)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+{
+    if (x->n != y->n || x->pt != y->pt || x->sgn != y->sgn) {
+        return false;
+    }
+    int[] A = x->A;
+    int[] B = y->A;
+    int n = x->n;
+    //@assert \length(A) == \length(B) && \length(B) == n;
+    for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= n;
+    //@loop_invariant i == 0 || A[i-1] == B[i-1];
+    {
+        if (A[i] != B[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Exactly the same behavior as the mathematical expression x <= y.
+bool real_leq(real x, real y)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+{
+    return real_equal(x,y) || real_lt(x,y);
+}
+
+// Exactly the same behavior as the mathematical expression x < y.
+bool real_lt(real x, real y)
+//@requires real_isReal(x);
+//@requires real_isReal(y);
+{
+    if (x->sgn == 0) {
+        return y->sgn == 1;
+    }
+    else if (y->sgn == 0) {
+        return x->sgn == -1;
+    }
+    else if (x->sgn == -1 && y->sgn == -1) {
+        return real_lt(real_neg(y), real_neg(x));
+    }
+    else if (x->sgn == -1) {
+        return true;
+    }
+    else if (y->sgn == -1) {
+        return false;
+    }
+    else {
+        int diff = highestPower(y) - highestPower(x);
+        if (diff > 0) {
+            // y's most significant digit is more significant than x's.
+            return true;
+        }
+        else if (diff < 0) {
+            // x's most significant digit is more significant than y's.
+            return false;
+        }
+        else {
+            return smallerDigits(x, x->n - 1, y, y->n - 1);
+        }
+    }
+}
+
+// Exactly the same behavior as the mathematical expression |x|.
+real real_abs(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+//@ensures real_sign(\result) >= 0;
+{
+    return x->sgn >= 0 ? real_copy(x) : real_neg(x);
+}
+
+/* Return -1 if x represents a negative number, 0 if it represents 0,
+ * and 1 if it represents a positive number. Exactly the same behavior as the
+ * mathematical expression sgn x as long as x <> 0.
+ */
+int real_sign(real x)
+//@ensures -1 <= \result && \result <= 1;
+{
+    return x->sgn;
+}
+
+real real_iPart(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+{
+    int n = x->n - x->pt;
+    real res = real_new(n);
+    res->sgn = n == 0 ? 0 : x->sgn;
+    for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= res->n;
+    {
+        res->A[i] = x->A[i + x->pt];
+    }
+    return res;
+}
+
+real real_fPart(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+{
+    int n = x->pt;
+    real res = real_new(n);
+    res->pt = n;
+    res->sgn = n == 0 ? 0 : x->sgn;
+    for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= res->n;
+    {
+        res->A[i] = x->A[i];
+    }
+    return res;
+}
+
+real real_floor(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+{
+    real ans = real_iPart(x);
+    return x->sgn >= 0 || x->pt == 0 ? ans : real_minus(ans, real_fromInt(1));
+}
+
+real real_ceil(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+{
+    real ans = real_iPart(x);
+    return x->sgn <= 0 || x->pt == 0 ? ans : real_plus(ans, real_fromInt(1));
+}
+
+real real_round(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+//@ensures lowestPower(\result) == 0;
+{
+    bool roundUp = x->pt > 0 && x->A[x->pt - 1] >= 5;
+    int s = x->sgn;
+    if (!roundUp) {
+        return real_iPart(x);
+    }
+    else if (s >= 0) {
+        return real_ceil(x);
+    }
+    else {
+        return real_floor(x);
+    }
+}
+
+bool real_isReal(real x) {
+    if (x == NULL) {
+        return false;
+    }
+    
+    // Check that the length, sign, and decimal point make sense:
+    if (x->n < 0 || x->sgn < -1 || x->sgn > 1 || x->pt < 0 || x->pt > x->n) {
+        return false;
+    }
+    if (x->n == 0 && x->sgn != 0) {
+        return false;
+    }
+    //@assert x->n == \length(x->A);
+
+    // Make sure there are no unnecessary 0s at the beginning or end:
+    if (x->pt > 0 && x->n > 0 && x->A[0] == 0) {
+        return false;
+    }
+    if (x->pt < x->n && x->A[(x->n) - 1] == 0) {
+        return false;
+    }
+
+    // Make sure all digits are digits:
+    for (int i = 0; i < x->n; i++)
+    //@loop_invariant 0 <= i && i <= x->n;
+    {
+        if (x->A[i] < 0 || x->A[i] > 9) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Exactly the same behavior as the mathematical expression -x.
+real real_neg(real x)
+//@requires real_isReal(x);
+//@ensures real_isReal(\result);
+//@ensures real_sign(x) == -1 * real_sign(\result);
+{
+    real res = real_copy(x);
+    res->sgn *= -1;
+    return res;
+}

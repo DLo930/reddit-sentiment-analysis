@@ -1,0 +1,16 @@
+\clearpage
+\Question{Implementing Priority Queues as Arrays}
+
+% This question refers to the array implementation of priority queues as
+% heaps discussed in class that is available on the course website.
+
+\begin{parts}
+\input{representation} % See file
+
+%\input{lowest} % S19 S18 S17 S16
+\input{add-assert} % F19 F18 F17 S16 F16
+
+%\input{remove} % S19 S18
+\input{build} % F19 F18 S17 S16
+
+\end{parts}

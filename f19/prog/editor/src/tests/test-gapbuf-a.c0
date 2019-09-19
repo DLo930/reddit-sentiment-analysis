@@ -1,0 +1,55 @@
+// Only used on programs that are supposed to fail assertions
+#use <string>
+#use <args>
+
+void process_char(gapbuf G, char c) 
+{
+  if (c == '<') { gapbuf_backward(G); }
+  else if (c == '>') { gapbuf_forward(G); }
+  else if (c == '^') { gapbuf_delete(G); } 
+  else { gapbuf_insert(G,c); }
+}
+
+void process_string(gapbuf G, string s)
+{
+  int limit = string_length(s);
+  for(int i = 0; i < limit; i++) {
+    process_char(G, string_charat(s, i));
+  }
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) 4/0; // Bug in autograder!
+  string s = args->argv[0];
+
+  gapbuf G = alloc(struct gap_buffer);
+
+  // Magic arguments for testing invalid input
+  if (string_equal("empty1", s)) { gapbuf_empty(NULL); }
+  else if (string_equal("empty2", s)) { gapbuf_empty(G); }
+  else if (string_equal("full1", s)) { gapbuf_full(NULL); }
+  else if (string_equal("full2", s)) { gapbuf_full(G); }
+  else if (string_equal("at_left1", s)) { gapbuf_at_left(NULL); }
+  else if (string_equal("at_left2", s)) { gapbuf_at_left(G); }
+  else if (string_equal("at_right1", s)) { gapbuf_at_right(NULL); }
+  else if (string_equal("at_right2", s)) { gapbuf_at_right(G); }
+  else if (string_equal("new0", s)) { gapbuf_new(0); }
+  else if (string_equal("new-1", s)) { gapbuf_new(-1); }
+  else if (string_equal("forward1", s)) { gapbuf_forward(NULL); }
+  else if (string_equal("forward2", s)) { gapbuf_forward(G); }
+  else if (string_equal("backward1", s)) { gapbuf_backward(NULL); }
+  else if (string_equal("backward2", s)) { gapbuf_backward(G); }
+  else if (string_equal("insert1", s)) { gapbuf_insert(NULL, 'f'); }
+  else if (string_equal("insert2", s)) { gapbuf_insert(G, 'f'); }
+  else if (string_equal("delete1", s)) { gapbuf_delete(NULL); }
+  else if (string_equal("delete2", s)) { gapbuf_delete(G); }
+  else {
+    G->limit = 4;
+    G->gap_end = 4;
+    G->buffer = alloc_array(char, 4);
+    process_string(G, args->argv[0]);
+  }
+
+  return 0;
+}

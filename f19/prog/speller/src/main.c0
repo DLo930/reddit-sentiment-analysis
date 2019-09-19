@@ -1,0 +1,329 @@
+#use <conio>
+#use <args>
+#use <string>
+#use "lib/arrayutil.c0"
+#use "lib/readfile.c0"
+
+/* This is the reference solution for the speller assignment */
+
+// function that merges two sorted segments removing duplicates
+// returns the number of array elements without duplicates
+int merge(string[] A, int lo1, int hi1, int lo2, int hi2)
+//@requires 0 <= lo1 && lo1 < hi1 && hi1 <= lo2 && lo2 < hi2 && hi2 <= \length(A);
+//@requires is_sorted(A, lo1, hi1) && is_sorted(A, lo2, hi2);
+//@requires no_dupes(A, lo1, hi1) && no_dupes(A, lo2, hi2);
+//@ensures is_sorted(A, lo1, lo1 + \result);
+//@ensures no_dupes(A, lo1, lo1 + \result);
+//@ensures 0 <= \result && \result <= hi2 - lo1;
+{
+   // total interval of things we care about
+   int interval = (hi1 - lo1) + (hi2 - lo2);
+
+   // get the actual array
+   string[] B = alloc_array(string, interval);
+
+   // i ranges over  the first array interval and j ranges over the second array interval
+   int i = lo1;
+   int j = lo2;
+   int k = 0;
+
+   while (i < hi1 && j < hi2)
+     //@loop_invariant lo1 <= i && i <= hi1;
+     //@loop_invariant lo2 <= j && j <= hi2;
+     {
+       int cmp = string_compare(A[i], A[j]);
+       // if have duplicate words want to collapse them
+       if (cmp == 0)
+       {
+         // take one of them but increment both indices
+         B[k] = A[i];
+         i++;
+         j++;
+       }
+
+       // usual mergesort code
+       else if (cmp < 0)
+       {
+         B[k] = A[i];
+         i++;
+       }
+       else
+       {
+         B[k] = A[j];
+         j++;
+       }
+
+       k++;
+     }
+
+   while (i < hi1)
+     //@loop_invariant lo1 <= i && i <= hi1;
+     {
+       B[k] = A[i];
+       i++;
+       k++;
+     }
+
+   while (j < hi2)
+     //@loop_invariant lo1 <= j && j <= hi2;
+     {
+       B[k] = A[j];
+       j++;
+       k++;
+     }
+
+   // here we only copy the nonduplicates which go up to k
+   for (int m = 0; m < k; m++)
+   //@loop_invariant lo1 <= lo1 + m && lo1 + m <= hi2;
+       A[lo1 + m] = B[m];
+
+   return k;
+}
+
+// function that sorts an array of strings and removed duplicates
+// returns the number of elements with the duplicates removed
+int mergesort (string[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+//@ensures is_sorted(A, lo, lo + \result);
+//@ensures no_dupes(A, lo, lo + \result);
+//@ensures 0 <= \result && \result <= hi - lo;
+{
+  // array of size <= 1, no duplicates to remove
+  if (hi - lo <= 1)
+    return (hi - lo);
+
+  else
+  {
+    int mid = lo + (hi - lo)/2;
+
+    // keep a running total of the array elements without duplicates
+    int elts1 =  mergesort(A, lo, mid);
+    int elts2 =  mergesort(A, mid, hi);
+
+    // set the new upper bounds
+    int hi1 = lo + elts1;
+    int hi2 = mid + elts2;
+
+    // call the merge with the new bounds
+    int elts3 = merge(A, lo, hi1, mid, hi2);
+
+    // add all the dupes together and return them
+    return elts3;
+ }
+}
+
+// function that performs a binary search on an array of strings
+int binsearch(string[] A, int n, string e)
+//@requires \length(A) == n;
+//@requires is_sorted(A,0,n);
+/*@ensures (-1 == \result && !is_in(e, A, 0, n)) || (0 <= \result && \result < n &&
+     string_compare(A[\result], e) == 0);
+ @*/
+{
+  int low = 0;
+  int high = n;
+  while (low < high)
+     //@loop_invariant 0 <= low && high <= n;
+     //@loop_invariant low == 0 || (string_compare(A[low-1], e) == -1);
+     //@loop_invariant high == n || (string_compare(e, A[high]) == -1);
+  {
+     int mid = low + (high - low)/2;
+     int comp = string_compare(A[mid], e);
+
+     if (comp == 0)
+         return mid;
+     else if (comp < 0)
+         low = mid + 1;
+     else
+         high = mid;
+  }
+
+  return -1;
+}
+
+// just does a binary search for a given string in the dictionary
+bool part1(string[] dict, int dict_len, string s)
+//@requires \length(dict) == dict_len;
+//@requires is_sorted(dict,0,dict_len);
+//@requires no_dupes(dict,0,dict_len);
+//@ensures \result == true ? is_in(s,dict,0,dict_len) : !is_in(s,dict,0,dict_len);
+{
+  int res = binsearch(dict, dict_len, s);
+  if (res >= 0) return true;
+  else return false;
+}
+
+// we give them a sorted dictionary and some text to spell check against it
+// returns the number of mispelled words and populates the mispelled array
+int part2 (string[] dict, int dict_len, string[] text, int text_len, string[] misspelled)
+//@requires \length(dict) == dict_len;
+//@requires \length(text) == text_len;
+//@requires \length(misspelled) == text_len;
+//@requires is_sorted(dict,0,dict_len);
+//@requires no_dupes(dict,0,dict_len);
+//@ensures 0 <= \result & \result <= text_len;
+{
+  int num_misspelled = 0;
+
+  // need to sort and collapse the test array
+  int new_len = mergesort(text, 0, text_len);
+
+  // make an array of bools of the length of test to track if a word is mispelled
+  bool[] marked = alloc_array(bool, new_len);
+
+  // set all of its fields to false
+  for (int i = 0; i < new_len; i++)
+  {
+    marked[i] = false;
+  }
+
+  // actually do the spell checking
+  // go through the test array and look for every word in the dictionary via binary search
+  // if it is mispelled increment counter, and set its mark to true
+  for (int i = 0; i < new_len; i++)
+  {
+    // not going to search through the junk part of the array due to duplicates
+    int found = binsearch(dict, dict_len, text[i]);
+
+    // means the word was not found
+    if (found < 0)
+    {
+      // increment the mispelled counter
+      num_misspelled++;
+
+      // set the mark to true
+      marked[i] = true;
+    }
+  }
+
+  // index for the mispelled array
+  int misspelled_index = 0;
+
+  // go through and copy  the mispelled words from the test array into the mispelled array
+  for (int i = 0; i < new_len; i++)
+  {
+    // this is the index into the resulting array
+    if (marked[i])
+    {
+      // copy the mispelled word
+      misspelled[misspelled_index] = text[i];
+
+      // increment the mispelled index so we don't clobber anything
+      misspelled_index++;
+    }
+  }
+
+  return num_misspelled;
+}
+
+// this is clever spellcheck implementation that exploits that both of the arrays are sorted
+// assumes that text has no duplicates!
+// does a linear scan and does not call binary search
+// returns the number of mispelled words and populates the mispelled array
+int part3(string[] dict, int dict_len, string[] text, int text_len, string[] misspelled)
+//@requires \length(dict) == dict_len;
+//@requires \length(text) == text_len;
+//@requires \length(misspelled) == text_len;
+//@requires is_sorted(dict,0,dict_len);
+//@requires is_sorted(text,0,text_len);
+//@requires no_dupes(dict,0,dict_len);
+//@requires no_dupes(text,0,text_len);
+//@ensures 0 <= \result & \result <= text_len;
+{
+  int spelled_right = 0;
+
+  // assume to start that everything is spelled wrong; look for intersections of arrays
+  bool[] marked = alloc_array(bool, text_len);
+
+  // set all of its fields to true
+  for (int i = 0; i < text_len; i++)
+  {
+    marked[i] = true;
+  }
+
+  int i = 0;
+  int j = 0;
+
+// don't search through the duplicates
+  while (i < dict_len && j < text_len)
+  {
+    int cmp = string_compare(text[j], dict[i]);
+    if (cmp > 0)
+       // need to look farther in the dictionary for this word
+       i++;
+    else if (cmp < 0)
+       // we've passed this word, it's not in the dictionary, move on to next one
+       j++;
+
+    // this means text[j] == dict[i]
+    else
+       // this means this word is spelled right!
+       // mark it not mispelled
+       {
+         spelled_right++;
+         marked[j] = false;
+
+         // move both indices forward
+         i++;
+         j++;
+       }
+  }
+  // figure out the number of mispelleed words
+  int num_misspelled = text_len - spelled_right;
+
+  // index for the misspelled array we are going to populate
+  int misspelled_index = 0;
+
+  // go through and copy  the mispelled words from the test array into the mispelled array
+  for (int k = 0; k < text_len; k++)
+  {
+    // this is the index into the resulting array
+    if (marked[k])
+    {
+      // copy the mispelled word
+      misspelled[misspelled_index] = text[k];
+
+      // increment the mispelled index so we don't clobber anything
+      misspelled_index++;
+    }
+  }
+
+  return num_misspelled;
+}
+
+// assuming that the dictionary is passed in and then the text
+int main()
+{
+  // read in the dictionary and the text
+  args_t args = args_parse();
+  bundle_t dict_stuff  = read_words(args->argv[0]);
+  bundle_t text_stuff =  read_words(args->argv[1]);
+  string[] dict = string_bundle_array(dict_stuff);
+  string[] text = string_bundle_array(text_stuff);
+  int dict_len = string_bundle_length(dict_stuff);
+  int text_len = string_bundle_length(text_stuff);
+
+  // check if have only passed in one word -- then run part1
+  if (text_len == 1)
+  {
+      string word = text[0];
+      bool spelled_right = part1(dict, dict_len, word);
+      if (spelled_right) return 1;
+      else return -1;
+  }
+
+ //  if have more than one word run part 2 or part 3
+  else
+  {
+     // allocate an array for the misspelled words
+    string[] misspelled = alloc_array(string, text_len);
+
+     // run part 2 or 3 here 
+    int res = part2(dict, dict_len, text, text_len, misspelled);
+
+  //  for (int i = 0; i < text_len; i++)
+    //     println(misspelled[i]);
+
+     return res;
+   }
+ }

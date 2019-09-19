@@ -1,0 +1,56 @@
+---
+general:
+  name: pixels
+  description: ''
+  display_name: Pixels
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: pixels-handout.tgz
+  writeup: pixels-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: 7
+  category_name: Programming
+problems:
+- name: pixel
+  description: ''
+  max_score: 3.0
+  optional: false
+- name: pixelpostconditions
+  description: ''
+  max_score: 1.0
+  optional: false
+- name: badpixel
+  description: ''
+  max_score: 2.0
+  optional: false
+- name: testpixel
+  description: ''
+  max_score: 7.0
+  optional: false
+- name: modifypixel
+  description: ''
+  max_score: 2.0
+  optional: false
+- name: quantize
+  description: ''
+  max_score: 3.0
+  optional: false
+- name: testquantize
+  description: ''
+  max_score: 4.0
+  optional: false
+- name: multireturn
+  description: ''
+  max_score: 3.0
+  optional: false
+autograder:
+  autograde_timeout: 180
+  autograde_image: rhel.img
+  release_score: true
+scoreboard:
+  banner: ''
+  colspec: '{"scoreboard": [ {"hdr": "Total bugs caught"}, {"hdr": "Pixel bugs caught"},
+    {"hdr": "Quantize bugs caught"} ]}'

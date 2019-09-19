@@ -1,0 +1,10 @@
+#use <conio>
+
+int main()
+{
+  int j;
+  j = 15122;
+  printint(j);
+  return 0;
+}
+

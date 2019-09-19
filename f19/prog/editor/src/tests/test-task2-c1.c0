@@ -1,0 +1,31 @@
+#use <conio>
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  gapbuf G = alloc(struct gap_buffer);
+
+  //empty buffer
+  G->limit = 10; 
+  G->buffer = alloc_array(char, 10);
+  G->gap_start = 0;
+  G->gap_end = 10;
+
+  if(!(gapbuf_empty(G) == true)){
+    passed = false;
+    // error("failed gapbuf_empty return true test case");
+  }
+
+  //not empty buffer
+  G->gap_start = 8;
+  
+  if(!(gapbuf_empty(G) == false)){
+    passed = false;
+    // error("failed gapbuf_empty return false test case");
+  }
+  
+  //report
+  if(passed) return 0; else return 1;
+}

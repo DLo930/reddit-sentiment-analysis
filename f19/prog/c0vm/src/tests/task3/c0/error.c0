@@ -1,0 +1,7 @@
+int main() {
+  int x = 42;
+  int y = 0;
+  if (y == 0 || (x == -2147483648 && y == -1))
+    error("Division by zero");
+  return x/y;
+}

@@ -1,0 +1,92 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 00             # string pool total size
+# string pool
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 05             # number of local variables = 5
+00 79             # code length = 121 bytes
+BB 10    # new 16          # alloc(struct list)
+36 00    # vstore 0        # node1 = alloc(struct list);
+BB 10    # new 16          # alloc(struct list)
+36 01    # vstore 1        # node2 = alloc(struct list);
+BB 10    # new 16          # alloc(struct list)
+36 02    # vstore 2        # node3 = alloc(struct list);
+15 00    # vload 0         # node1
+62 00    # aaddf 0         # &node1->data
+BB 04    # new 4           # alloc(int)
+4F       # amstore         # node1->data = alloc(int);
+15 00    # vload 0         # node1
+62 00    # aaddf 0         # &node1->data
+2F       # amload          # node1->data
+10 01    # bipush 1        # 1
+4E       # imstore         # *(node1->data) = 1;
+15 01    # vload 1         # node2
+62 00    # aaddf 0         # &node2->data
+BB 04    # new 4           # alloc(int)
+4F       # amstore         # node2->data = alloc(int);
+15 01    # vload 1         # node2
+62 00    # aaddf 0         # &node2->data
+2F       # amload          # node2->data
+10 02    # bipush 2        # 2
+4E       # imstore         # *(node2->data) = 2;
+15 02    # vload 2         # node3
+62 00    # aaddf 0         # &node3->data
+BB 04    # new 4           # alloc(int)
+4F       # amstore         # node3->data = alloc(int);
+15 02    # vload 2         # node3
+62 00    # aaddf 0         # &node3->data
+2F       # amload          # node3->data
+10 03    # bipush 3        # 3
+4E       # imstore         # *(node3->data) = 3;
+15 00    # vload 0         # node1
+62 08    # aaddf 8         # &node1->next
+15 01    # vload 1         # node2
+4F       # amstore         # node1->next = node2;
+15 01    # vload 1         # node2
+62 08    # aaddf 8         # &node2->next
+15 02    # vload 2         # node3
+4F       # amstore         # node2->next = node3;
+15 02    # vload 2         # node3
+62 08    # aaddf 8         # &node3->next
+01       # aconst_null     # NULL
+4F       # amstore         # node3->next = NULL;
+15 00    # vload 0         # node1
+36 03    # vstore 3        # p = node1;
+10 00    # bipush 0        # 0
+36 04    # vstore 4        # sum = 0;
+# <00:loop>
+15 03    # vload 3         # p
+62 00    # aaddf 0         # &p->data
+2F       # amload          # p->data
+01       # aconst_null     # NULL
+A0 00 06 # if_cmpne +6     # if (p->data != NULL) goto <01:body>
+A7 00 18 # goto +24        # goto <02:exit>
+# <01:body>
+15 04    # vload 4         # sum
+15 03    # vload 3         # p
+62 00    # aaddf 0         # &p->data
+2F       # amload          # p->data
+2E       # imload          # *(p->data)
+60       # iadd            # 
+36 04    # vstore 4        # sum += *(p->data);
+15 03    # vload 3         # p
+62 08    # aaddf 8         # &p->next
+2F       # amload          # p->next
+36 03    # vstore 3        # p = p->next;
+A7 FF E2 # goto -30        # goto <00:loop>
+# <02:exit>
+15 04    # vload 4         # sum
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

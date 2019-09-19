@@ -1,0 +1,146 @@
+/*
+ * Interface for dictionaries
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <conio>
+
+/* Interface to dictionaries (leave this alone) */
+
+// typedef ______* dict_t;
+typedef struct dict_header[]* dict_t;
+
+// Returns NULL if the input array has the same operator twice
+dict_t dict_new(string[] A, int n)
+  /*@requires \length(A) == n; @*/
+  /*@requires is_infix_array(A, n); @*/ ;
+
+// Returns NULL if no definition is found
+int dict_lookup(dict_t D, string oper)
+  /*@requires D != NULL; @*/ 
+  /*@ensures \result >= -1; @*/ ;
+
+/* Implementation to dictionaries should go here (implement this) */
+
+typedef struct dict_header dicty;
+struct dict_header {
+  int len;
+  string[] key;
+  int[] value;
+};
+
+bool is_strictly_sorted(string[] A, int lo, int hi) 
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  for (int i = lo+1; i < hi; i++) 
+  //@loop_invariant lo+1 <= i;
+  {
+    if (string_compare(A[i-1], A[i]) >= 0) return false;
+  }
+
+  return true;
+}
+
+bool is_dict(dicty[]* D) {
+  if (D == NULL) return false;
+  //@assert \length((*D)[0].key) == (*D)[0].len;
+  //@assert \length((*D)[0].value) == (*D)[0].len;
+  return is_strictly_sorted((*D)[0].key, 0, (*D)[0].len);
+}
+
+void swap_down(dicty[]* D, int i) 
+//@requires D != NULL;
+//@requires \length((*D)[0].key) == (*D)[0].len;
+//@requires \length((*D)[0].value) == (*D)[0].len;
+//@requires 1 <= i && i < (*D)[0].len;
+{
+  string key = (*D)[0].key[i-1];
+  int value = (*D)[0].value[i-1];
+  
+  (*D)[0].key[i-1] = (*D)[0].key[i];
+  (*D)[0].value[i-1] = (*D)[0].value[i];
+  (*D)[0].key[i] = key;
+  (*D)[0].value[i] = value;
+}
+
+int total_tokens(string[] A, int lo, int hi) 
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  int n = 0;
+  for (int i = lo; i < hi; i++) 
+  //@loop_invariant 0 <= lo && lo <= hi;
+  {
+    n += num_tokens(A[i]);
+  }
+
+  return n;
+}
+
+dicty[]* dict_new(string[] A, int n) 
+//@requires \length(A) == n; 
+//@requires is_infix_array(A, n); 
+//@ensures \result == NULL || is_dict(\result);
+{
+  dicty[]* D = alloc(dicty[]);
+  *D = alloc_array(dicty, 1);
+  (*D)[0].len = total_tokens(A, 0, n);
+  (*D)[0].key = alloc_array(string, (*D)[0].len);
+  (*D)[0].value = alloc_array(int, (*D)[0].len);
+
+  int m = 0;
+  for (int i = 0; i < n; i++) 
+  //@loop_invariant 0 <= i && i <= n;
+  //@loop_invariant m == total_tokens(A, 0, i);
+  //@loop_invariant is_strictly_sorted((*D)[0].key, 0, m);
+  {
+    int toks = num_tokens(A[i]);
+    string[] B = parse_tokens(A[i]);
+
+    // Add each token with precedence i into the array
+    // (This loop body is a good candidate for a helper function)
+    for (int j = 0; j < toks; j++) 
+    //@loop_invariant 0 <= j && j <= toks;
+    //@loop_invariant m == total_tokens(A, 0, i) + j;
+    //@loop_invariant is_strictly_sorted((*D)[0].key, 0, m);
+    {
+      // Add to the end of the sorted array
+      string tok = B[j];
+      (*D)[0].key[m] = tok;
+      (*D)[0].value[m] = i;
+      m++;
+
+      // Bubble sort backwards
+      int k = m-1;
+      while (k > 0 && string_compare((*D)[0].key[k-1], (*D)[0].key[k]) == 1) 
+      //@loop_invariant 0 <= k && k < m;
+      {
+        swap_down(D, k);
+        k--;
+      }
+
+      if (k > 0 && string_compare((*D)[0].key[k-1], (*D)[0].key[k]) == 0) {
+        return NULL; // Duplicate key!
+      }
+    }
+  }
+
+  return D; // Ok array!
+}
+
+// PERF: linear search, could use binary search
+int dict_lookup(dicty[]* D, string key) 
+//@requires is_dict(D);
+{
+  for (int i = 0; i < (*D)[0].len; i++) 
+  //@loop_invariant 0 <= i && i <= (*D)[0].len;
+  {
+    if (string_equal((*D)[0].key[i], key)) {
+      return (*D)[0].value[i];
+    }
+  }
+
+  return -1;
+}
+

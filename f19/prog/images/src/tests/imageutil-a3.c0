@@ -1,0 +1,8 @@
+#use <conio>
+
+int main()
+{
+	get_row(0,1,0);
+	println("EXPECTED ANNOTATION FAILURE");
+	return 0;
+}

@@ -1,0 +1,42 @@
+\section*{Hexadecimal notation%
+\TAGS{ints}}
+
+\bgroup
+\newcommand{\base}[1]{\textcolor{Brown}{#1}}
+\newcommand{\bin}[1]{\textcolor{blue}{#1}}
+\newcommand{\dec}[1]{\textcolor{red}{#1}}
+\newcommand{\hex}[1]{\textcolor{Purple}{#1}}
+
+Hex is useful because every hex digit corresponds to exactly 4 binary
+digits (bits).  Base 8 (octal) is similarly useful: each octal digit
+corresponds to exactly 3 bits. However, hex more evenly divides up a
+32-bit integer.  In C0 we indicate we are using base \base{16} with an
+\lstinline'0x' prefix, so $\hex{7f2c}_{[\base{16}]}$ is
+\hex{\lstinline'0x7f2c'}.
+
+{\footnotesize
+\begin{tabular}{@{}l||*{16}{p{15.4px}|}@{}}
+  \hex{Hex} & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & a & b & c & d & e & f
+\\\hline
+  \bin{Bin.} & 0000 & 0001 & 0010 & 0011 & 0100 & 0101 & 0110 & 0111 & 1000 & 1001 & 1010 & 1011 & 1100 & 1101 & 1110 & 1111
+\\\hline
+  \dec{Dec.} & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15
+\end{tabular}}
+
+
+Convert the binary number $\bin{1011111010101101}_{[\base{2}]}$ to hex.
+\answerline{$~~~\hex{BEAD}_{[\base{16}]}~~~$}
+
+Convert the hexadecimal number \hex{\lstinline'0x20'} to decimal.  \answerline{$~~~\dec{32}_{[\base{10}]}~~~$}
+
+Why wouldn't it make sense to write a C0 function that converts hex
+numbers to decimal numbers?
+
+%\answerline{see below}
+\begin{solution}
+  Hex and decimal numbers are just ways of representing integers in
+  C0.  They're in fact identical; they're just notational
+  differences.(There is an int2hex function that returns a string, but
+  that's not exactly the same).
+\end{solution}
+\egroup

@@ -1,0 +1,35 @@
+\section*{Reviewing the BST implementation}
+
+Recall that we implemented a binary search tree in lecture as nodes, structs
+containing data and two (possibly \lstinline'NULL') pointers
+\lstinline'left' and \lstinline'right'.
+
+\bgroup
+\smalllistings
+\begin{lstlisting}
+  typedef void* elem;
+  typedef int compare_fn(elem x, elem y)
+      /*@requires x != NULL && y != NULL; @*/;
+
+  typedef struct tree_node tree;
+  struct tree_node {
+      elem data;
+      tree* left;
+      tree* right;
+  };
+
+  typedef struct bst_header bst;
+  struct bst_header {
+      tree* root;
+      compare_fn* compare; // Function pointer must be non-NULL
+  };
+\end{lstlisting}
+
+Functions that the client will call are usually implemented as a
+function that takes a \lstinline'bst*'.  This function then calls an
+internal helper function that actually does the work, node by node,
+hiding the internal representation of the tree.  These helper
+functions are often implemented recursively due to their naturally
+recursive nature.
+
+\egroup

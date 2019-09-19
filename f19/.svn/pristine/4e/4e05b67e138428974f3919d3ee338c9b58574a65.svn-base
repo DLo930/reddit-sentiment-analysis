@@ -1,0 +1,70 @@
+\section*{Testing for graph connectedness}
+
+We say that a graph $G$ is \emph{connected} if there is a path
+from any vertex to any other vertex in $G$. In an undirected graph,
+this definition is equivalent to saying that there is a path from a
+\emph{single arbitrary vertex} to any other vertex. Can you see why?
+
+\begin{part}\TAGS{graph, traverse-ds}
+  Write a function \lstinline'connected(G)' in
+  \lstinline'graph-search.c' that returns \lstinline'true' if a graph
+  $G$ is connected, or \lstinline'false' otherwise. Make sure
+  your implementation is as efficient as possible.
+
+  \textbf{Hint:} Perform a BFS and count the number of vertices
+  visited. For a connected graph, the total should be a specific
+  value. Test your function on several graphs, connected and not
+  connected.
+
+\begin{solution}
+\begin{lstlisting}
+bool connected(graph_t G) {
+  REQUIRES(G != NULL);
+
+  bool mark[graph_size(G)];
+  mark[0] = true;
+  for (unsigned int i = 1; i < graph_size(G); i++) {
+    mark[i] = false;
+  }
+  queue_t Q = queue_new();
+  enq(Q, 0);
+  unsigned int num_found = 1;
+  while (!queue_empty(Q)) {
+    vertex v = deq(Q);
+    vert_list *nbors = graph_get_neighbors(G, v);
+    for (vert_list *p = nbors; p != NULL; p = p->next) {
+      vertex w = p->vert;  // w is one of v's neighbors
+      if (!mark[w]) {
+        mark[w] = true;
+        num_found++;
+        enq(Q, w);
+      }
+    }
+    graph_free_neighbors(nbors);
+  }
+  queue_free(Q);
+  return num_found == graph_size(G);
+}
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{graph, traverse-ds}
+  Update \lstinline'graph-search.h' with the new function, and write
+  at least two test cases in \lstinline'graph-test.c': one where
+  \lstinline'connected' returns \lstinline'true', and one where
+  it returns \lstinline'false'.
+
+\threePT
+
+\begin{solution}
+Example Tests:
+\begin{lstlisting}
+printf("Testing disconnected graph for connectedness...\n");
+printf("%s\n", connected(maze6) ? "failed" : "passed");
+
+printf("Testing connected graph for connectedness...\n");
+printf("%s\n", connected(maze15c) ? "passed" : "failed");
+\end{lstlisting}
+\end{solution}
+\end{part}

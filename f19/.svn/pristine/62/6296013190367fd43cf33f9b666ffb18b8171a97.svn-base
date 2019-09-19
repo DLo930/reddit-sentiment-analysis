@@ -1,0 +1,43 @@
+---
+general:
+  name: huffman
+  description: ''
+  display_name: Huffman
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: huffman-handout.tgz
+  writeup: huffman-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  version_threshold: 10
+  has_svn: false
+  category_name: Programming
+problems:
+- name: htrees
+  description: 'Tasks 1-2'
+  max_score: 7.0
+  optional: false
+- name: encodings
+  description: 'Tasks 3-6'
+  max_score: 15.0
+  optional: false
+- name: bitpacking
+  description: 'Tasks 7'
+  max_score: 2.0
+  optional: false
+- name: submission
+  description: 'Task 8'
+  max_score: 1.0
+  optional: false
+autograder:
+  autograde_timeout: 240
+  autograde_image: rhel.img
+  release_score: true
+version_penalty:
+  kind: 0
+  value: 0.5
+scoreboard:
+  banner: ''
+  colspec: '{"scoreboard": [{"hdr":"Tests passed"}]}'

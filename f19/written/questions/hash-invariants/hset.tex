@@ -1,0 +1,236 @@
+\clearpage
+\Question{Hash Sets: Data Structure Invariants}
+
+A \emph{hash set} is a hash table where keys and entries coincide: it
+is a convenient data structure to implement sets whose elements are these
+keys/entries.  The type \lstinline'hset' defines hash sets similarly to
+separate-chaining hash tables.  The code below checks that a given
+hash set is valid.
+\begin{lstlisting}
+// typedef _________ elem;      // type of elements -- client defined
+typedef struct chain_node chain;
+struct chain_node {
+  elem data;
+  chain* next;
+};
+
+struct hset_header {
+  int size;           // number of elements stored in hash set
+  int capacity;       // maximum number of chains in hash set
+  chain*[] table;
+};
+typedef struct hset_header hset;
+
+bool is_array_expected_length(chain*[] table, int length) {
+  //@assert \length(table) == length;
+  return true;  }
+
+bool is_hset(hset* H) {
+  return H != NULL && H->capacity > 0 && H->size >= 0
+      && is_array_expected_length(H->table, H->capacity);
+}
+\end{lstlisting}
+
+An obvious data structure invariant of our hash set is that every
+element of a chain hashes to the index of that chain.  Then, the above
+specification function is incomplete: we never test that the contents
+of the hash table satisfy this additional invariant.  That is, we test
+only on the struct \lstinline'hset', and not on the properties of the
+array within.
+
+On the next page, extend \lstinline'is_hset' from above, adding a helper
+function to check that every element in the hash table belongs in the
+chain it is located in, and that each chain is acyclic.  You should
+assume we will use the following two functions for hashing elements
+and for comparing them for equality:
+\enlargethispage{1ex}
+\begin{lstlisting}
+int elem_hash(elem x);
+bool elem_equiv(elem x, elem y);
+\end{lstlisting}
+Additionally, the function
+\begin{lstlisting}[belowskip=0pt]
+int index_of_elem(hset* H, elem x)
+/*@requires H->capacity > 0; @*/
+/*@ensures 0 <= \result && \result < H->capacity; @*/ ;
+\end{lstlisting}
+maps an element to a valid index.  It is provided for your convenience.
+
+
+\newpage
+\enlargethispage{5ex}
+\begin{parts}
+\part[2]\TAGS{ds-invariant, hashing, set}
+Note: your answer needs only to work for hash tables containing a few
+hundred million elements --- do not worry about the number of elements
+exceeding \lstinline'int_max()'.
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+bool has_valid_chains(hset* H)
+// Preconditions (H != NULL, H->size >= 0...) omitted for space
+{
+    int nodecount = 0;
+
+    for (int i = 0; i < [*\uanswer{18.5em}{H->capacity}*]; i++) {
+        // set p to the first node of chain i in table, if any
+
+        chain* p = [*\uanswer{26em}{H->table[i]}*];
+
+        while ([*\uanswer{27em}{p != NULL}*]) {
+            elem x = p->data;
+
+            if ([*\uanswer{24.8em}{index\_of\_elem(H,x)}*] != i)
+
+                return false;
+
+            nodecount++;
+
+            if (nodecount > [*\uanswer{20.5em}{H->size}*])
+
+                return false;
+
+            p = [*\uanswer{27.8em}{p->next}*];
+      }
+    }
+
+    if ([*\uanswer{32.5em}{nodecount != H->size}*])
+
+        return false;
+
+    return true;
+}
+
+bool is_hset(hset* H) {
+    return H != NULL && H->capacity > 0 && H->size >= 0
+        && is_array_expected_length(H->table, H->capacity)
+        && has_valid_chains(H);
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: ds-invariant, hashing, set
+
+Gradescope rubric:
++0.75 Lines involving p correct
++0.75 Lines involving i correct
++0.5 Lines involving H->size correct
+
+Commentary:
+3 groups of blanks, A, B, and C:
+  B:    for (int i = 0; i < __H->capacity__; i++)
+  A:    chain* p = __H->table[i]__;
+  A:    while (__p != NULL__);
+  B:    if (__index_of_elem(H,x)__ != i)
+     OR if (abs(elem_hash(x) % H->capacity) != i)
+  C:    if (nodecount > __H->size__)
+  A:    p = __p->next__
+  C:    if (nodecount != H->size)
+     OR if (nodecount < H->size)
+
+
+  A: 3/4 point for the lines involving p
+     1/4pt for each error up to 3/4 point max
+
+  B: 3/4 point for the lines involving i
+     1/4 point if they just use elem_hash
+     1/4 point if they say index_of_elem but get the arguments wrong (index_of_elem(x))
+     Larger errors 0 points
+
+     (In the past we've been soft on the little syntax errors here,
+     but because the index_of_elem helper function makes this easier to
+     get right, they shouldn't have had problems.)
+
+  C: 1/2 pt if they use capacity instead of size but otherwise are correct
+     1/2 pt if they get inside loop correct but outside loop wrong
+     0 pts otherwise
+ENDRUBRIC
+
+\newpage
+\part[0\half]\TAGS{complexity}
+We generally don't care about the cost of specification functions, but
+what is the worst case complexity of \lstinline'has_valid_chains' as a
+function of the number $n$ of elements in the hash set?
+
+\begin{framed}
+\bigskip
+$O(\uanswer{16em}{$n$})$
+\end{framed}
+
+\RUBRIC
+Part (b1)
+TAGS: complexity
+
+Gradescope rubric:
++ 0.5 pt:  O(n)
+ENDRUBRIC
+
+\part[1\half]\TAGS{complexity, divide-and-conquer, ds-invariant, hashing, ordering}
+The updated function \lstinline'is_hset' still falls short of flagging
+all possible invalid hash sets: nothing prevents a chain from
+containing multiple occurrences of an element.  Given the above
+declarations, describe how you could check whether the hash set
+contains duplicate elements without allocating any extra memory.  What
+is the cost?
+
+\begin{framed}
+\bigskip
+\uanswer{34em}{You have to check that each element is not equal to
+  every other element.\hfill}
+\par\bigskip
+\uanswer{34em}{\hfill}
+
+\bigskip
+Cost: $O(\uanswer{16em}{$n^2$})$
+\end{framed}
+
+
+\RUBRIC
+Part (b2)
+TAGS: complexity, divide-and-conquer, ds-invariant, hashing, ordering
+
+Gradescope rubric:
++0.5pt Box 1: You have to check that each element is not equal to every other element.
++0.25pt Box 1: O(n^2)
+
+Commentary:
+. because we have an equality function, the best we can hope for is to compare each element with each other, which gets us O(n^2).
+. this check can be limited to each chain by embedding it inside has_valid_chains, but that doesn't change the cost in the worst case.
+
+ENDRUBRIC
+
+Assume you have a comparison function, %
+\mbox{\lstinline'int elem_compare(elem x, elem y)'} which returns -1 if
+\lstinline'x' is to be considered less than \lstinline'y', 0 if they
+are equal, and 1 if \lstinline'x' is greater than \lstinline'y'.  How
+could you modify the behavior of the hash set to make the cost of
+finding duplicates asymptotically faster?
+
+\begin{framed}
+\bigskip
+Change: \uanswer{30.3em}{The elements can be sorted, so \texttt{elem\_equiv} is replaced with\hfill}
+\par\bigskip
+\uanswer{34em}{\texttt{elem\_compare} returning -1, 0 or 1.\hfill}
+\par\bigskip
+\uanswer{34em}{\hfill}
+
+\bigskip
+Cost: $O(\uanswer{16em}{$n$})$
+\end{framed}
+
+
+\RUBRIC
+Part (b3)
+
+Gradescope rubric:
++0.5pt  Box 1: The elements can be sorted, so elem_equiv is replaced with elem_compare returning -1, 0 or 1
++0.25pt  Box 2: O(n)
+
+Commentary:
+. If elements are sorted and we have a functions that says so, a single pass is sufficient to identify duplicates:
+  . elements in different chains are necessarily different
+  . then, check that each chain is sorted.
+ENDRUBRIC
+
+\end{parts}

@@ -1,0 +1,96 @@
+{
+  "title" : "Recitations",
+  "label" : "book:recitations",
+  "chapters" : [
+  {
+    "number": 1,
+    "title": "C0 Basics",
+    "label": "rec:01",
+    "release date": "Aug 30 2019, 8:00"
+  },
+  {
+    "number": 2,
+    "title": "A Bit About Bytes",
+    "label": "rec:02",
+    "release date": "Sep 06 2019, 8:00"
+  },
+  {
+    "number": 3,
+    "title": "Function Family Reunion",
+    "label": "rec:03",
+    "release date": "Sep 13 2019, 8:00"
+  },
+  {
+    "number": 4,
+    "title": "A Strange Sort of Proof",
+    "label": "rec:04",
+    "release date": "Sep 20 2019, 8:00"
+  },
+  {
+    "number": 5,
+    "title": "A queue_t Interface",
+    "label": "rec:05",
+    "release date": "Sep 27 2019, 8:00"
+  },
+  {
+    "number": 6,
+    "title": "Link it All Together",
+    "label": "rec:06",
+    "release date": "Oct 4 2019, 8:00"
+  },
+  {
+    "number": 7,
+    "title": "Array Disarray",
+    "label": "rec:07",
+    "release date": "Oct 11 2019, 8:00"
+  },
+  {
+    "number": 8,
+    "title": "Mid-semester break (no classes)",
+    "label": "rec:08",
+    "release date": "Oct 18 2019, 8:00"
+  },
+  {
+    "number": 9,
+    "title": "Rotating Rotation",
+    "label": "rec:09",
+    "release date": "Oct 25 2019, 8:00"
+  },
+  {
+    "number": 10,
+    "title": "Heaps of Fun",
+    "label": "rec:10",
+    "release date": "Nov 01 2019, 8:00"
+  },
+  {
+    "number": 11,
+    "title": "From C1 to Shining C",
+    "label": "rec:11",
+    "release date": "Nov 08 2019, 8:00"
+  },
+  {
+    "number": 12,
+    "title": "C-ing is Believing",
+    "label": "rec:12",
+    "release date": "Nov 15 2019, 8:00"
+  },
+  {
+    "number": 13,
+    "title": "Computing on the Edge",
+    "label": "rec:13",
+    "release date": "Nov 22 2019, 8:00"
+  },
+  {
+    "number": 14,
+    "title": "Thanksgiving (no classes)",
+    "label": "rec:14",
+    "release date": "Nov 29 2019, 8:00"
+  },
+  {
+    "number": 15,
+    "title": "Union-finding your Roots",
+    "label": "rec:15",
+    "release date": "Dec 6 2019, 8:00"
+  }
+  ]
+}

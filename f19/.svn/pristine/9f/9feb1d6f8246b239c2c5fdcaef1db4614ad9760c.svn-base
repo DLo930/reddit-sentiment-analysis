@@ -1,0 +1,6 @@
+// Compiles with cc0 -d -b assert3.c0
+
+int main() {
+  //@assert true;
+  return 0;
+}

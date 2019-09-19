@@ -1,0 +1,130 @@
+/* Tools for grading the text buffers assignment */
+
+#use <args>
+#use <conio>
+#use <file>
+#use <string>
+#use <rand>
+#use <util>
+
+bool ___sekret__is_dll_segment(dll* start, dll* end) {
+  if (start == NULL) return false;
+  if (start == end) return true;
+  return start->next != NULL
+    && start->next->prev == start
+    && ___sekret__is_dll_segment(start->next, end);
+}
+
+bool ___sekret__dll_segment_contains(dll* start, dll* cursor, dll* end)
+//@requires ___sekret__is_dll_segment(start, end);
+{
+  if (start == end) return cursor == start;
+  return cursor == start 
+    || ___sekret__dll_segment_contains(start->next, cursor, end);
+}
+
+bool ___sekret__is_tbuf(tbuf* B) {
+  return B != NULL
+    && B->start != B->end
+    && ___sekret__is_dll_segment(B->start, B->end)
+    && ___sekret__dll_segment_contains(B->start->next, B->cursor, B->end);
+}
+
+
+char randchar(rand_t r) {
+  return char_chr(abs(rand(r) % 90) + 32);
+}
+
+// Construct a character buffer with 
+tbuf* construct(int size, int cursor, int newline_bitmap) 
+//@requires 0 <= cursor && cursor <= size && size <= 31;
+//@requires (-1 << size & newline_bitmap) == 0;
+{
+  rand_t r = init_rand((961 * size + 31 * cursor + newline_bitmap) | 1);
+  tbuf* B = alloc(tbuf);
+  B->start = alloc(dll);
+  B->end = alloc(dll);
+
+  dll* p = B->start;
+  for (int i = 0; i < size; i++) {
+    p->next = alloc(dll);
+    p->next->prev = p;
+    p = p->next;
+
+    if ((newline_bitmap & 1) == 1) p->data = '\n';
+    else p->data = randchar(r);
+    newline_bitmap = newline_bitmap >> 1;
+
+    if (i == cursor) B->cursor = p;
+  }
+
+  p->next = B->end;
+  B->end->prev = p;
+  if (B->cursor == NULL) {
+    //@assert cursor == size;
+    B->cursor = B->end;
+  }
+
+  return B;
+}
+
+typedef bool tbuf_test_fn(tbuf* B, int row, int col);
+
+// Exhaustively tests all buffers from length lo to length hi
+bool exhaustively_test(int lo, int hi, tbuf_test_fn* test) 
+//@requires 0 <= lo && lo <= hi && hi <= 30;
+{
+  for (int length = lo; length <= hi; length++) 
+  //@loop_invariant 0 <= length && length <= hi+1;
+  {
+    for (int cursor = lo; cursor <= length; cursor++) 
+    //@loop_invariant 0 <= cursor;
+    {
+      for (int bitmap = 0; bitmap < 1 << length; bitmap++) 
+      //@loop_invariant 0 <= bitmap;
+      {
+        tbuf* B = construct(length, cursor, bitmap);
+
+        // Calculate the row and column based on the integer
+        int row = 1; 
+        int col = 0;
+        int bits = bitmap;
+        for (int i = 0; i < cursor; i++) {
+          if ((bits & 1) == 1) {
+            row++;
+            col = 0;
+          } else {
+            col++;
+          }
+          bits = bits >> 1;
+        }
+
+        if (!(*test)(construct(length, cursor, bitmap), row, col)) return false;
+      }
+    }
+  }
+
+  return true; 
+}
+
+string stringify(tbuf* B) 
+//@requires ___sekret__is_tbuf(B);
+{
+  int i = 0;
+  for (dll* p = B->start; p != B->end; p = p->next) i++;
+  char[] A = alloc_array(char, i+2);
+
+  i = 0;
+  for (dll* p = B->start->next; p != B->end; p = p->next) {
+    if (p == B->cursor) { 
+      A[i] = '~';
+      i++;
+    }
+    A[i] = p->data == '\n' ? '|' : p->data;
+    i++;
+  }
+  if (B->cursor == B->end) A[i] = '~';
+  
+  return string_from_chararray(A);
+}
+

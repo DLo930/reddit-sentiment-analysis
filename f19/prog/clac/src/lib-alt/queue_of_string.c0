@@ -1,0 +1,127 @@
+/*
+ * Queues of string
+ *
+ * 15-122 Principles of Imperative Computation */
+
+
+/************************** Implementation **************************/
+
+/* Aux structure of linked sekretlists of strings */
+struct ssekretlist_node {
+  string data;
+  struct ssekretlist_node* next;
+};
+typedef struct ssekretlist_node ssekretlist;
+
+/* is_segment(start, end) will diverge if sekretlist is circular! */
+bool is_segment_ssekretlist(ssekretlist* start, ssekretlist* end) {
+  if (start == NULL) return false;
+  if (start == end) return true;
+  return is_segment_ssekretlist (start->next, end);
+}
+
+/* Queues */
+
+typedef struct queued_header[] queue;
+struct queued_header {
+  bool is_read_only;
+  ssekretlist* front;
+  ssekretlist* back;
+};
+
+bool sekret_is_queue(queue* Q) {
+  if (Q == NULL) return false;
+  //@assert \length(*Q) == 1;
+  return is_segment_ssekretlist((*Q)[0].front, (*Q)[0].back);
+}
+
+bool queue_empty(queue* Q)
+//@requires sekret_is_queue(Q);
+{
+  return (*Q)[0].front == (*Q)[0].back;
+}
+
+bool queue_is_read_only(queue* Q)
+//@requires sekret_is_queue(Q);
+{
+  return (*Q)[0].is_read_only;
+}
+
+queue* queue_new()
+//@ensures sekret_is_queue(\result);
+//@ensures queue_empty(\result);
+{
+  queue* Q = alloc(queue);
+  *Q = alloc_array(struct queued_header, 1);
+  ssekretlist* l = alloc(struct ssekretlist_node);
+  (*Q)[0].is_read_only = false;
+  (*Q)[0].front = l;
+  (*Q)[0].back = l;
+  return Q;
+}
+
+void enq(queue* Q, string s)
+//@requires sekret_is_queue(Q);
+//@ensures sekret_is_queue(Q);
+{
+  ssekretlist* l = alloc(struct ssekretlist_node);
+  (*Q)[0].back->data = s;
+  (*Q)[0].back->next = l;
+  (*Q)[0].back = l;
+  return;
+}
+
+string deq(queue* Q)
+//@requires sekret_is_queue(Q);
+//@requires !queue_empty(Q);
+//@ensures sekret_is_queue(Q);
+{
+  string s = (*Q)[0].front->data;
+  (*Q)[0].front = (*Q)[0].front->next;
+  return s;
+}
+
+queue* queue_read_only_copy(queue* Q)
+//@requires sekret_is_queue(Q);
+//@ensures sekret_is_queue(Q);
+//@ensures sekret_is_queue(\result);
+//@ensures queue_is_read_only(\result);
+{
+  queue* QC = alloc(queue);
+  *QC = alloc_array(struct queued_header, 1);
+  (*QC)[0].is_read_only = true;
+  (*QC)[0].front = (*Q)[0].front;
+  (*QC)[0].back = (*Q)[0].back;
+  return QC;
+}
+
+// Client type
+typedef queue* queue_t;
+
+
+/************************** Interface **************************/
+
+// typedef ______* queue_t;
+
+bool queue_empty(queue_t Q)        /* O(1) */
+  /*@requires Q != NULL; @*/;
+
+bool queue_is_read_only(queue_t Q) /* O(1) */
+  /*@requires Q != NULL; @*/;
+
+queue_t queue_new()                /* O(1) */
+  /*@ensures \result != NULL; @*/
+  /*@ensures queue_empty(\result); @*/;
+
+void enq(queue_t Q, string e)      /* O(1) */
+  /*@requires Q != NULL; @*/;
+
+string deq(queue_t Q)              /* O(1) */
+  /*@requires Q != NULL; @*/
+  /*@requires !queue_empty(Q); @*/ ;
+
+/* O(1) operation to create a copy of the queue that can only be
+ * dequeued from, not enqueued onto. */
+queue_t queue_read_only_copy(queue_t Q)
+  /*@ensures \result != NULL; @*/
+  /*@ensures queue_is_read_only(\result); @*/ ;

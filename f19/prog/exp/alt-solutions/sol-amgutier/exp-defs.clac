@@ -1,0 +1,13 @@
+: nop ;
+: || if 7 skip nop if 9 skip nop 3 skip drop 3 skip 0 1 skip 1 ;
+
+: && * if 1 1 skip 0 ;
+
+: error 1 0 / ;
+: rshift_body 1 - swap 2 * swap rshift ;
+: rshift 1 pick 1 < if drop 1 skip rshift_body ;
+: << 1 pick 0 < if error 1 skip 1 pick 31 swap < if error 1 skip rshift ;
+
+: lshift_body 1 - swap 2 / swap lshift ;
+: lshift 1 pick 1 < if drop 1 skip lshift_body ;
+: >> 1 pick 0 < if error 1 skip 1 pick 31 swap < if error 1 skip lshift ;

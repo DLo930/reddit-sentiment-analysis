@@ -1,0 +1,7 @@
+int main() {
+  int w = 4401;
+  int x = 15122;
+  int y = 21127;
+  int z = 0x51561AB3;
+  return x;
+}

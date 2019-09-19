@@ -1,0 +1,34 @@
+\section*{Hashing faculty}
+
+In file \lstinline'profs.txt', there is a list of CS faculty info,
+which we will parse for you into the following structs.  We would like
+to hash such structs into a hash table (some fields may be blank):
+\begin{lstlisting}[belowskip=0pt]
+typedef struct prof prof_t;
+struct prof {
+  string name;  string title;  string office;  string email;
+  int area_code;    // 0 if no phone number
+  int phone;        // 0 if no phone number
+};
+\end{lstlisting}
+\begin{part}\TAGS{hashing, testing}
+  Implement two different ways of hashing faculty within a function
+  called \lstinline'hash_prof(prof_t* p)' in two different C0
+  files.  Try and think of two different strategies.  You can use your
+  code for hashing a string if you would like to hash the strings
+  separately.
+
+Compile and run your code as follows:
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle,
+                   belowskip=0pt]
+  % cc0 <your hash file>.c0 hash-profs.c0 visualizer.c0
+  % ./a.out -o mullcg.png
+\end{lstlisting}
+Run them through the visualizer and compare the
+results.  You and your neighbor can each write one and then compare.
+Try and understand what makes a better hashing function!
+\textbf{Hint:} try lowering the bucket size as there is way less
+faculty than words in the dictionary.
+
+\threePT
+\end{part}

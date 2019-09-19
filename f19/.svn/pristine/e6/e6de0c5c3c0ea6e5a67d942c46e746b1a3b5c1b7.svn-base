@@ -1,0 +1,118 @@
+\part[0\half] In this example,
+you are using two functions with the following declarations:
+
+\medskip
+
+\begin{lstlisting}[numbers=left]
+bool f(int x);
+int mid(int lo, int hi)
+  /*@requires 0 <= lo && lo < hi; @*/[*\label{l:lpres-yes2-mid-pre}*]
+  /*@ensures lo <= \result && \result < hi; @*/ ;[*\label{l:lpres-yes2-mid-post}*]
+\end{lstlisting}
+
+\medskip
+
+That is, \lstinline'mid(lo, hi)' takes two integers and returns an
+integer in the non-empty range \lstinline'[lo, hi)'.  The function
+\lstinline'f(x)' takes an integer and returns a boolean; we don't know
+anything about its return value, so we reason about both cases.
+
+Now consider the following code that uses functions \lstinline'f' and
+\lstinline'mid':
+
+\medskip
+\begin{lstlisting}[numbers=left, firstnumber=11]
+while (lo < hi)
+//@loop_invariant 0 <= lo && lo <= hi;[*\label{l:lpres-yes2-LI}*]
+{
+    m = mid(lo, hi);
+    if (f(m)) {[*\label{l:lpres-yes2-if}*]
+        lo = m+1;[*\label{l:lpres-yes2-lo}*]
+    } else {
+        hi = m;[*\label{l:lpres-yes2-hi}*]
+    }
+}
+\end{lstlisting}
+
+\begin{framed}
+ALWAYS PRESERVED (Complete the indicated parts of the proof)
+
+\bigskip
+Assume: \hfill\uanswer{4.8in}{\lstinline'0 <= lo && lo <= hi'}
+
+\medskip
+To show: \hfill\uanswer{4.8in}{\lstinline'0 <= lo` && lo` <= hi`'}
+
+\bigskip
+\textbf{Case 1:} \lstinline'f(m)' returns \lstinline'true'
+
+\medskip
+By lines~\ref{l:lpres-yes2-if} and~\ref{l:lpres-yes2-lo}, %
+\lstinline'lo`' = \hfill\uanswer{3.8in}{\lstinline'm+1'}
+
+\medskip
+By line~\ref{l:lpres-yes2-if}, \lstinline'hi`' = %
+\hfill\uanswer{4.3in}{\lstinline'hi'}
+
+\medskip
+Therefore
+
+\smallskip
+\ifprintanswers{\color{\answerColor}
+\begin{itemize}
+\item
+  \lstinline'lo <= m' by line~\ref{l:lpres-yes2-mid-post}, %
+  \lstinline'0 <= m' by line~\ref{l:lpres-yes2-LI}, and %
+  \lstinline'0 <= m+1' by line~\ref{l:lpres-yes2-mid-post}.  %
+  Thus, \lstinline'0 <= lo`'.
+\item
+  \lstinline'm < hi' by line~\ref{l:lpres-yes2-mid-post} and %
+  \lstinline'm+1 <= hi' by math. %
+  Thus, \lstinline'lo` <= hi`'.
+\end{itemize}
+}\else~\vspace{1.0in}\fi
+
+\textbf{Case 2:} \lstinline'f(m)' returns \lstinline'false'
+
+\medskip
+By line~\ref{l:lpres-yes2-if}, \lstinline'lo`' =
+\hfill\uanswer{4.3in}{\lstinline'lo'}
+
+\medskip
+By lines~\ref{l:lpres-yes2-if} and~\ref{l:lpres-yes2-hi}, %
+\lstinline'hi`' = \hfill\uanswer{3.7in}{\lstinline'm'}
+
+\medskip
+Therefore\ldots
+\emph{(Skip this, as it looks much like the previous case)}
+\end{framed}
+
+\RUBRIC
+Part (<y2>)
+
+Gradescope rubric:
++ 0.1 pts Correct assumption (0 <= lo && lo <= hi) and to-show (0 <= lo' && lo' <= hi')
++ 0.1 pts Case 1: Correct lo' = m+1, hi' = hi
++ 0.2 pts Case 1: Proof correctly combines the postcondition of mid (line 4) and the loop invariant (line 12)
++ 0.1 pts Case 2: Correct lo' = lo, hi' = m
+
+Commentary:
+ Blanks:
+   1/2 point for these two together:
+   Assume:                       0 <= lo && lo <= hi
+   To show:                     0 <= lo' && lo' <= hi'
+
+  1/2 point for these two lines together:
+   By lines 15 and 16, lo' = m+1
+   By line 15, hi' =         hi
+
+  1/2 point for completing "Therefore..."
+   BOTH the loop invariant (line 12) and the postcondition to mid (line 4) are
+   necessary to show that the postcondition holds. It's okay if they
+   identify them unambiguously as "postcondition to mid" and "loop
+   invariant" even if they don't refer to the line numbers.
+
+  1/2 point for these two lines together:
+   By line 15, lo' =         lo
+   By lines 15 and 18, hi' = m
+ENDRUBRIC

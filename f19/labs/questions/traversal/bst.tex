@@ -1,0 +1,53 @@
+\section*{Reviewing the BST implementation}
+
+This implementation is
+slightly different from lecture --- we're using
+\lstinline'void*' as the \lstinline'elem' type, and we're treating the
+entire element as a key. We still have two (possibly \lstinline'NULL')
+pointers \lstinline'left' and \lstinline'right'. We show
+the interface to generic stacks (implemented in \lstinline'lib/stack.c1') for convenience.
+
+\bgroup
+\smalllistings
+\vspace{-2ex}
+\begin{minipage}[t]{0.54\linewidth}
+\begin{lstlisting}
+  /*** Implementation of BSTs ***/
+  typedef void* elem;
+  typedef int compare_fn(elem x, elem y)
+    /*@requires x != NULL && y != NULL; @*/ ;
+  typedef struct tree_node tree;
+  struct tree_node {
+      elem data;
+      tree* left;
+      tree* right; };
+  typedef struct bst_header bst;
+  struct bst_header {
+      tree* root;
+      compare_fn* compare; // Non-NULL };
+\end{lstlisting}
+\end{minipage}
+\rule[-34ex]{0.01em}{32ex}
+\begin{minipage}[t]{0.44\linewidth}
+\begin{lstlisting}
+  /*** Interface to generic stacks ***/
+  typedef struct stack_header* stack_t;
+  typedef void* stackelem;
+  bool stack_empty(stack_t S)
+    /*@requires S != NULL; @*/;
+  stack_t stack_new()
+    /*@ensures \result != NULL; @*/
+    /*@ensures stack_empty(\result); @*/;
+  void push(stack_t S, stackelem x)
+    /*@requires S != NULL; @*/;
+  stackelem pop(stack_t S)
+    /*@requires S != NULL; @*/
+    /*@requires !stack_empty(S); @*/;
+\end{lstlisting}
+\end{minipage}
+\vspace{-2ex}
+\egroup
+
+% this file doesn't have any tasks, but the question number is automatically
+%   incremented, resulting in weird numbering. Don't do that.
+\addtocounter{TheQuestionNumber}{-1}

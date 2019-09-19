@@ -1,0 +1,14 @@
+int main () {
+  int i = 15;
+  int j;
+  int sum = 0;
+  while (i < 122) {
+    j = i;
+    while (j < 122) {
+      sum += j;
+      j++;
+    }
+    i++;
+  }
+  return sum;
+}

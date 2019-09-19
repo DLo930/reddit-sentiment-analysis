@@ -1,0 +1,52 @@
+\documentclass[lab]{inc/122handout}
+\mfcsnumber{10: This One's a Treet}
+\mfcsdate{\formatdate{28}{10}{\YEAR}} % day-month-year
+
+\begin{document}
+\labcollab
+
+\textbf{Setup:} Copy the lab code from our public directory to your private
+directory:
+
+\begin{lstlisting}[language={[coin]C}]
+% cd private/15122
+% cp -R /afs/andrew/course/15/122/misc/lab10 .
+% cd lab10
+\end{lstlisting}
+% formerly, lab-traversal
+
+You should add your code to the existing file \lstinline'bst.c1'.
+
+\textbf{Grading:} Finish through task (2.b) for 2 points, and additionally
+finish (3.a) for 3 points. Make sure you have reasonable contracts!
+
+\inputQuestion[questions/traversal/]{intro}
+\inputQuestion[questions/traversal/]{bst}
+\inputQuestion[questions/traversal/]{traverse}
+\inputQuestion[questions/traversal/]{equal}
+
+
+%%%%%%% OLD
+%\textbf{Setup:} Copy the lab code from our public directory to your private
+%directory:
+%
+%\begin{lstlisting}[language={[coin]C}]
+%% cd private/15122
+%% cp -R /afs/andrew/course/15/122/misc/lab-dict .
+%% cd lab-dict
+%\end{lstlisting}
+%
+%You should add your code to the existing file \lstinline'gen-dict.c1'
+%and a new file \lstinline'lcs-fast.c1' in the directory
+%\lstinline'lab-dict'.
+%
+%\textbf{Grading:} Finish at least task (3.a) for 2 points, and additionally
+%finish (4.a) for 3 points. Use the Makefile in the directory for testing your
+%code. Once your code passes the tests, show it to a TA. Make sure you have
+%reasonable contracts!
+%
+%\inputQuestion[questions/generic/]{lcs}
+%\inputQuestion[questions/generic/]{bst}
+%\inputQuestion[questions/generic/]{dict}
+%\inputQuestion[questions/generic/]{memo-lcs}
+\end{document}

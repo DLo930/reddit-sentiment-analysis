@@ -1,0 +1,13 @@
+// The awful implementation
+
+void sort_by_freq(string[] vocab, int[] freq, int v) 
+//@requires v == \length(vocab) && v == \length(freq);
+//@ensures is_sorted_int(freq, 0, v);
+{
+  for (int i = 0; i < v; i++) 
+  //@loop_invariant 0 <= v;
+  //@loop_invariant is_sorted_int(freq, 0, i);
+  {
+    freq[i] = i - v; // told you it was awful
+  }
+}

@@ -1,0 +1,336 @@
+\clearpage
+\Question{Policies}
+
+\begin{parts}
+\part[1]\TAGS{course-policies}
+\textbf{Collaboration Policy}%
+
+Read the collaboration policy on the course website. For each of the following
+situations, decide whether or not the students' actions are permitted by the
+policy. Explain your answers.
+
+\enlargethispage{5ex}
+\begin{enumerate}[(a)]
+% \item%
+%   Stephanie is really stuck on problem 3, and the deadline is looming.
+%   She asks Frank, who took 15-122 two semesters ago, for help.  Frank
+%   sends her his solution.  She changes the wording and submits.  Is
+%   Stephanie in violation of the policy?  Is Frank?
+% \begin{framed}
+% \ifprintanswers{\color{\answerColor}
+%   Both Stephanie and Frank are in violation.  Copying a homework
+%   solution from another student is not allowed.  In all likelihood,
+%   both students will be reported.
+% }\else~\vspace{0.75in}\fi
+% \end{framed}
+
+\item%
+  Tom is having a hard time installing C0 on his dorm computer.  The
+  deadline for homework 1 is in less an hour.  He Skypes his friend
+  Hyrum who walks him through the installation process.  With 15
+  minutes to go, they get \lstinline'cc0' working and Tom manages to
+  turn in 3 out of 4 exercises.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+Tom and Hyrum did not violate the policy: helping each other with the
+infrastructure is allowed.
+}\else~\vspace{0.75in}\fi
+\end{framed}
+
+% \item%
+%   Frank and Penny sketch out a solution to Problem 2 on a whiteboard in
+%   GHC\@.  Then they erase the whiteboard and go to class.  In the
+%   evening, sitting at opposite sides of a computer cluster, each
+%   student types up the solution.
+% \begin{framed}
+% \ifprintanswers{\color{\answerColor}
+%   Frank and Penny are in compliance: the whiteboard policy allows to
+%   collaborate on a problem as long as nothing is recorded and there is
+%   enough before writing down the solution.
+% }\else~\vspace{0.75in}\fi
+% \end{framed}
+
+% \item%
+%   Penny and Tom write the solution code for Problem 2 on a whiteboard
+%   in GHC\@.  Once they have the solution, they run to their respective
+%   dorm rooms, types it up and submit. %
+% \begin{framed}
+% \ifprintanswers{\color{\answerColor}
+%   Both Penny and Tom are in violation: writing code (or even
+%   pseudocode) for a problem with another person is not allowed.
+% }\else~\vspace{0.75in}\fi
+% \end{framed}
+
+\item%
+  Stephanie and Anna are working on problem 5 on a whiteboard in the
+  9th floor of GHC\@.  An hour later, they have come up with a complex
+  solution.  They go their separate ways but Anna takes a picture so
+  that she can improve the solution.  The next day, both type up their
+  solution.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Stephanie is fine but Anna is in violation of the whiteboard policy:
+  when working together, recording a solution is not allowed.
+}\else~\vspace{0.75in}\fi
+\end{framed}
+
+\item%
+  Andre is working on a problem alone on a whiteboard in the GHC
+  commons.  He accidentally forgets to erase his solution and goes to a
+  cluster to write it up.  Later, Tom walks by, reads Andre's notes,
+  and then writes the solution when he gets home a few hours later.
+  Is Tom in violation of the policy? Is Andre?
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Both Andre and Tom are in violation: Andre was negligent for not
+  cleaning up after himself and Tom should have walked away the moment
+  he recognized it was a solution for a problem he was working on.
+  (Yes, we can tell!)
+}\else~\vspace{0.75in}\fi
+\end{framed}
+
+\item%
+  Iliano is having a really hard time with 122.  So much so that he
+  has hired an expert tutor, Rob, who goes over the lecture notes and
+  the assignment writeups with him, nearly line by line.  As a result,
+  he manage to get 74\% in the first homework. %
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Iliano did not violate the policy: clarifying the phrasing of
+  homeworks is allowed.  Had expert Rob done Iliano's homework (which
+  is not allowed), he would have gotten much better than 74\%.
+}\else~\vspace{0.75in}\fi
+\end{framed}
+
+% \item%
+%   Rob is working on a tricky question shortly before the deadline and just
+%   can't figure it out. To get a hint, he looks at the staff solution to the
+%   problem from when his friend Hyrum took it last semester.
+% \begin{framed}
+% \ifprintanswers{\color{\answerColor}
+%   Rob is in violation: looking up solutions from previous semesters is
+%   not allowed.
+% }\else~\vspace{0.75in}\fi
+% \end{framed}
+
+\item%
+  Jean realizes that problem 2 is very similar to when she took 15-122
+  last time, a semester ago.  She retrieves her old solution, fixes
+  the one issue where she lost points, and submits.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Jean is in violation: reusing one's solution from a previous
+  semester is not allowed.
+}\else~\vspace{0.75in}\fi
+\end{framed}
+
+\end{enumerate}
+
+\RUBRIC
+Part (allowed behaviors)
+TAGS: course-policies
+
+Gradescope rubric:
++0.2pt Tom and Hyrum did not violate the policy: helping each other with the infrastructure is allowed.
++0.2pt Stephanie is fine but Anna is in violation of the whiteboard policy: when working together, recording a solution is not allowed.
++0.2pt Both Andre and Tom are in violation: Andre was negligent for not cleaning up after himself and Tom should have walked away the moment he recognized it was a solution for a problem he was working on.  (Yes, we can tell!)
++0.2pt Iliano did not violate the policy: clarifying the phrasing of homeworks is allowed.  Had expert Rob done Iliano's homework (which is not allowed), he would have gotten much better than 74\%.
++0.2pt Jean is in violation: reusing one's solution from a previous semester is not allowed.
+
+Commentary:
+* 1 points max
+* -0.2 for each incorrect answer
+ENDRUBRIC
+%%% UNUSED PROBLEMS
+%+0.2pt  Both Stephanie and Frank are in violation.  Copying a homework solution from another student is not allowed.  In all likelihood, both students will be reported.
+%+0.2pt Both Penny and Tom are in violation: writing code (or even pseudocode) for a problem with another person is not allowed.
+%+0.2 pts [STRICT POLICY] Both Frank and Penny are in violation: solving a problem with another person is not allowed (unless explicitly stated).
+%+0.2 pts [WHITEBOARD POLICY] Frank and Penny are in compliance: the whiteboard policy allows to collaborate on a problem as long as nothing is recorded and there is enough before writing down the solution.
+%+0.2 pts  Rob is in violation: looking up solutions from previous semesters is not allowed
+
+
+
+
+\part[0\half]\TAGS{course-policies}
+\textbf{MOSS}%
+
+The course relies on a software service called MOSS to check for plagiarized
+code.  What does MOSS do exactly?  A quick online search will bring up examples
+of MOSS output, possibly for languages other than C/C0.  If a student
+is pressed for time, what is likely to be least time consuming: writing
+his/her own code or ``borrowing'' code from a friend and modifying it in
+such a way that MOSS won't flag them as similar?  Explain.
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+MOSS is a tool to identify similiarities in student code.
+
+Deceiving MOSS is possible, but it typically takes quite some effort.
+}\else~\vspace{1.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (MOSS)
+TAGS: course-policies
+
+Gradescope rubric: (negative grading)
+* -0.25 pts Incorrect or grossly inaccurate description of MOSS.
+* -0.25 pts Unconvincing explanation. (It takes a lot of work to fool MOSS.)
+
+Commentary:
+* The purpose of this exercise is to get students to gain awareness about MOSS.
+* The actual answers don't matter all that much as long has they put some thought into them.
+ENDRUBRIC
+
+\begin{comment}
+\part[1]\TAGS{course-policies}
+\textbf{Bonuses}%
+
+Go to the class web page, read carefully the part that explains how the grades
+are calculated, and answer the following questions:
+\begin{enumerate}
+\item%
+  Assume you get 100\% on each homework assignment in the course.  How much
+  extra credit will you receive if you submit every assignment three full days
+  before the deadline.  Compute it as a percentage of the final grade for the
+  course, whose maximum is 100\%.
+
+\item%
+  What if you consistently get 85\% in each homework assignments.
+\end{enumerate}
+Justify your answers
+
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+1. 4.5\%
+
+2. 4.49\%
+}\else~\vspace{1in}\fi
+\end{framed}
+
+\RUBRIC
+Part (academic integrity contract)
+TAGS: course-policies
+
+Gradescope rubric:
+- 0.5 pts  5.4%.
+- 0.5 pts  4.59%.
+
+Commentary:
+- The goals is for students to understand what they can get out of the bonus points.
+- Accept answers that are in the ballpark (+/- 1%, say)
+- The general formula is 2% / 12 hours * 2 * 12 hours / day * 3 days * 45\% ovrerall points for the assignmemnts.
+ENDRUBRIC
+\end{comment}
+
+\bigskip
+\part[0]{\bf Academic Integrity Contract}
+
+Now that you had a chance to reflect on the collaboration policy of
+the course, we ask you to complete and sign the contract on the next
+page.  By doing this, you declare that you understand the course
+policy on academic integrity and commit to abide by it.  Like any
+contract, read it carefully.  Please reach out to the course staff if
+you have any questions.
+
+Although this tasks is worth 0 points, failure to complete and sign
+the contract will carry a penalty of \textbf{-500 points}, i.e.,
+guaranteed failure in the course.
+
+\RUBRIC
+Part (Academic Integrity contract)
+TAGS: course-policies
+
+Gradescope rubric:
+* -500 pts  Contract is not filled and signed
+
+Commentary:
+- If student fails to complete the form, the penalty will be erased if
+  he/she submits it within a reasonable amount of time.
+ENDRUBRIC
+\end{parts}
+
+\newpage
+\thispagestyle{empty}
+\begin{figure}[p]
+\vspace*{-5ex}%
+\hspace*{-0.02\linewidth}%
+\framebox[1.04\linewidth]{\centering
+\begin{minipage}{\linewidth}
+\setlength{\parskip}{1ex}
+
+\medskip
+\begin{center}\large\bf
+15--122 --- Principles of Imperative Computation, \semester{}
+\end{center}
+
+The value of your degree depends on the academic integrity of yourself
+and your peers in each of your classes. It is expected that, unless
+otherwise instructed, the work you submit as your own will be your own
+work and not someone else's work or a collaboration between yourself
+and other(s).
+
+Please read the
+\href{http://www.cmu.edu/policies/documents/Academic\%20Integrity.htm}{University
+  Policy on Academic Integrity} carefully to understand the penalties
+associated with academic dishonesty at Carnegie Mellon. In this class,
+cheating/copying/plagiarism means copying all or part of a program or
+homework solution from another student or unauthorized source such as
+the Internet, having someone else do a homework or take an exam for
+you, knowingly giving such information to another student, reusing
+answers or solutions from previous editions of the course, or giving
+or receiving unauthorized information during an examination. In
+general, \textbf{each solution you submit (quiz, written assignment,
+  programming assignment, midterm or final exam) must be your own
+  work}.  In the event that you use information written by another
+person in your solution, you must cite the source of this information
+(and receive prior permission if unsure whether this is permitted). It
+is considered cheating to compare complete or partial answers,
+% discuss details of %
+copy or adapt others' solutions, read other students' code or show
+your code to other students, or sit near another person who is taking
+the same course and complete the assignment together.  Writing code on
+a whiteboard is never permitted.  It is also considered cheating for a
+repeating student to reuse one's solutions from a previous semester,
+or any instructor-provided sample solution.
+
+\textbf{It is a violation of this policy to hand in work for other students.}
+
+Your course instructor reserves the right to determine an appropriate
+penalty based on the violation of academic dishonesty that occurs.
+\emph{Penalties are severe: a typical violation of the university policy
+results in the student failing this course, but may go all the way to
+expulsion from Carnegie Mellon University.}  If you have any questions
+about this policy and any work you are doing in the course, please
+feel free to contact your instructor for help.
+
+We will be using the \href{https://theory.stanford.edu/~aiken/moss/}{Moss} system to detect software plagiarism.
+
+It is not considered cheating to clarify vague points in the
+assignments, lectures, lecture notes, or to give help or receive help
+in using the computer systems, compilers, debuggers, profilers, or
+other facilities, but you must refrain from looking at other students'
+code while you are getting or receiving help for these tools. It is
+not cheating to review graded assignments or exams with students in
+the same class as you, but it is considered unauthorized assistance to
+share these materials between different iterations of the course.  \textbf{Do
+not post code from this course publicly (e.g., to Bitbucket or
+GitHub).}
+
+\bigskip
+
+By signing below, I have read the statements above and have reviewed
+the course policy for cheating and plagiarism, and I will abide by
+these policies in this course.
+
+\medskip
+Andrew ID \uanswer{20.9em}{bovik}
+
+\medskip
+Name (print) \uanswer{20em}{Harry Bovik}\hfill Section \uanswer{8em}{X}
+
+\medskip
+Signature \uanswer{21.65em}{H.B.}\hfill Date \uanswer{8em}{1/1/1989}
+
+\medskip
+\end{minipage}}
+\end{figure}

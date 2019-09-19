@@ -1,0 +1,9 @@
+// Compiles with cc0 -d -b assert5.c0
+
+int main() {
+  int i = 42;
+  int j = 15122;
+  string s = "Testing assert";
+  //@assert true;
+  return 0;
+}

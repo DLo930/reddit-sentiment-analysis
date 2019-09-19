@@ -1,0 +1,47 @@
+---
+general:
+  name: scavhunt
+  description: ''
+  display_name: Scavenger Hunt
+  handin_filename: handin.tgz
+  handin_directory: handin
+  max_grace_days: 1
+  handout: scavhunt-handout.tgz
+  writeup: scavhunt-writeup.pdf
+  max_submissions: -1
+  disable_handins: false
+  max_size: 2
+  has_svn: false
+  category_name: Programming
+problems:
+- name: handout
+  description: ''
+  max_score: 2.0
+  optional: false
+- name: tutorial
+  description: ''
+  max_score: 2.0
+  optional: false
+- name: piazza
+  description: ''
+  max_score: 3.0
+  optional: false
+- name: afsimg
+  description: ''
+  max_score: 2.0
+  optional: false
+- name: feedback
+  description: ''
+  max_score: 4.0
+  optional: false
+- name: puzzle
+  description: ''
+  max_score: 12.0
+  optional: false
+autograder:
+  autograde_timeout: 180
+  autograde_image: rhel.img
+  release_score: true
+scoreboard:
+  banner: ''
+  colspec: ''

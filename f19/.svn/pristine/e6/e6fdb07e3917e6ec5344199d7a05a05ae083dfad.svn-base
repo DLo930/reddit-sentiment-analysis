@@ -1,0 +1,42 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 0C             # string pool total size
+# string pool
+68 65 6C 6C 6F 00  # "hello"
+77 6F 72 6C 64 00  # "world"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 01             # number of local variables = 1
+00 25             # code length = 37 bytes
+BB 18    # new 24          # alloc(struct x)
+36 00    # vstore 0        # temp = alloc(struct x);
+15 00    # vload 0         # temp
+62 00    # aaddf 0         # &temp->a
+10 01    # bipush 1        # 1
+4E       # imstore         # temp->a = 1;
+15 00    # vload 0         # temp
+62 08    # aaddf 8         # &temp->b
+14 00 00 # aldc 0          # s[0] = "hello"
+14 00 06 # aldc 6          # s[6] = "world"
+B7 00 00 # invokenative 0  # string_join("hello", "world")
+4F       # amstore         # temp->b = string_join("hello", "world");
+15 00    # vload 0         # temp
+62 10    # aaddf 16        # &temp->c
+10 0A    # bipush 10       # 10
+BC 04    # newarray 4      # alloc_array(int, 10)
+4F       # amstore         # temp->c = alloc_array(int, 10);
+10 00    # bipush 0        # 0
+B0       # return          # 
+
+00 01             # native count
+# native pool
+00 02 00 64       # string_join
+

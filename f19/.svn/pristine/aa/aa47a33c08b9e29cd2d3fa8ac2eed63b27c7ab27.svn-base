@@ -1,0 +1,13 @@
+int sum()
+{
+  return 15122;
+}
+
+int main()
+{
+  int j;
+  j = sum();
+  j += 4401;
+  return j;
+}
+

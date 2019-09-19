@@ -1,0 +1,212 @@
+#use <args>
+#use <string>
+
+bool ts(rope_t r, rope_t a, rope_t b, rope_t c, rope_t d, rope_t e, rope_t f) {
+  return r->left == b
+    && r->left->left == a
+    && r->left->right == c
+    && r->right == e
+    && r->right->left == d
+    && r->right->right == f
+    && string_equal(a->data, "t") && a->left == NULL
+    && string_equal(c->data, "otally") && c->left == NULL
+    && string_equal(d->data, "efficien") && d->left == NULL
+    && string_equal(f->data, "t") && f->left == NULL;
+}
+
+string sekret__(rope_t R) {
+  if (R == NULL) return "";
+  if (R->left == NULL) return R->data;
+  return string_join(sekret__(R->left), 
+                     sekret__(R->right));
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  rope_t r = alloc(struct rope_node);
+  r->len = 16;
+  r->left = totally();
+  r->right = efficient();
+  rope_t a = r->left->left;
+  rope_t b = r->left;
+  rope_t c = r->left->right;
+  rope_t d = r->right->left;
+  rope_t e = r->right;
+  rope_t f = r->right->right;
+ 
+  if (string_equal(arg, "edge")) {
+    if (NULL != rope_sub(NULL, 0, 0)) return 1;
+
+    for (int i = 0; i < 16; i++) {
+      if (NULL != rope_sub(r, i, i)) return 1;
+      if (!ts(r,a,b,c,d,e,f)) return 1;
+    }
+
+  } else if (string_equal(arg, "simple")) {
+    r = r->right->left; // efficien
+    a = rope_sub(r, 0, 8);
+    if (a == NULL || !string_equal(a->data, "efficien")) return 1;
+    a = rope_sub(r, 0, 7);
+    if (a == NULL || !string_equal(a->data, "efficie")) return 1;
+    a = rope_sub(r, 1, 8);
+    if (a == NULL || !string_equal(a->data, "fficien")) return 1;
+    a = rope_sub(r, 1, 3);
+    if (a == NULL || !string_equal(a->data, "ff")) return 1;
+
+
+    for (int i = 0; i < 15; i++) {
+      string s = string_sub("0123456789:;<=>", i, 15);
+      rope_t rb = balist(48 + i, 63);
+      rope_t rl = leftist(48 + i, 63);
+      rope_t rr = rightist(48 + i, 63);
+      for (int j = 0; j < 15-i; j++) {
+        for (int k = j+1; k < 15-i; k++) {
+          string ss = string_sub(s, j, k);
+          if (!string_equal(ss, sekret__(rope_sub(rb, j, k)))) return 1;
+          if (!string_equal(ss, sekret__(rope_sub(rl, j, k)))) return 1;
+          if (!string_equal(ss, sekret__(rope_sub(rr, j, k)))) return 1;
+        } 
+      }
+    }
+
+  } else if (string_equal(arg, "noalloc")) {
+    if (r != rope_sub(r, 0, 16)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    if (a != rope_sub(r, 0, 1)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    if (b != rope_sub(r, 0, 7)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    if (c != rope_sub(r, 1, 7)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    if (d != rope_sub(r, 7, 15)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    if (e != rope_sub(r, 7, 16)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    if (f != rope_sub(r, 15, 16)) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+  } else if (string_equal(arg, "noshare")) {
+    rope_t n;
+
+    n = rope_sub(r, 1, 2);
+    if (n == NULL || !string_equal(n->data, "o")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 1, 3);
+    if (n == NULL || !string_equal(n->data, "ot")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 6, 7);
+    if (n == NULL || !string_equal(n->data, "y")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 4, 7);
+    if (n == NULL || !string_equal(n->data, "lly")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 7, 8);
+    if (n == NULL || !string_equal(n->data, "e")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 7, 9);
+    if (n == NULL || !string_equal(n->data, "ef")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 11, 13);
+    if (n == NULL || !string_equal(n->data, "ci")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 13, 15);
+    if (n == NULL || !string_equal(n->data, "en")) return 1; 
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 6, 8);
+    if (n == NULL || n->left == NULL || n->right == NULL) return 1;
+    if (n->left->left != NULL || n->right->left != NULL) return 1;
+    if (!string_equal(n->left->data, "y")) return 1;
+    if (!string_equal(n->right->data, "e")) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 5, 8);
+    if (n == NULL || n->left == NULL || n->right == NULL) return 1;
+    if (n->left->left != NULL || n->right->left != NULL) return 1;
+    if (!string_equal(n->left->data, "ly")) return 1;
+    if (!string_equal(n->right->data, "e")) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+    n = rope_sub(r, 6, 10);
+    if (n == NULL || n->left == NULL || n->right == NULL) return 1;
+    if (n->left->left != NULL || n->right->left != NULL) return 1;
+    if (!string_equal(n->left->data, "y")) return 1;
+    if (!string_equal(n->right->data, "eff")) return 1;
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+
+  } else if (string_equal(arg, "someshare")) {
+    rope_t n;
+
+    n = rope_sub(r, 0, 2);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left != a || n->right == NULL) return 1;
+    if (!string_equal(n->right->data, "o")) return 1;
+
+    n = rope_sub(r, 0, 9);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left != b || n->right == NULL) return 1;
+    if (!string_equal(n->right->data, "ef")) return 1;
+
+    n = rope_sub(r, 1, 16);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left != c || n->right != e) return 1;
+
+    n = rope_sub(r, 1, 15);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left != c || n->right != d) return 1;
+
+    n = rope_sub(r, 3, 16);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left == NULL || n->right != e) return 1;
+    if (!string_equal(n->left->data, "ally")) return 1;
+
+    n = rope_sub(r, 4, 15);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left == NULL || n->right != d) return 1;
+    if (!string_equal(n->left->data, "lly")) return 1;
+
+    n = rope_sub(r, 1, 11);
+    if (!ts(r,a,b,c,d,e,f)) return 1;
+    if (n == NULL || n->left != c || n->right == NULL) return 1;
+    if (!string_equal(n->right->data, "effi")) return 1;
+
+    r = abra1();
+    a = r->left->right;
+    b = r->right->left;
+    c = b->left;
+
+    n = rope_sub(r, 2, 9);
+    if (n == NULL || n->left != a || n->right != b) return 1;
+
+    n = rope_sub(r, 3, 9);
+    if (n == NULL || n->left == NULL || n->right != b) return 1;
+    if (!string_equal(n->left->data, "a")) return 1;
+
+    n = rope_sub(r, 2, 8);
+    if (n == NULL || n->left != a || n->right == NULL) return 1;
+    if (n->right->left != c || n->right->right == NULL) return 1;
+    if (!string_equal(n->right->right->data, "a")) return 1;
+
+  } else {
+    error("Bad arg");
+  }
+
+  
+  return 0;
+}

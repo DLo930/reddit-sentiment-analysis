@@ -1,0 +1,56 @@
+\section*{Making C0 work the next time you do something}
+\enlargethispage{3em}
+
+The steps executed in Task~\textbf{(3.a)} only set the path variable
+for \lstinline[language={[coin]C}]'cc0' and
+\lstinline[language={[coin]C}]'coin' for the current session, and you
+don't want to have to repeat that every time you log in.  To set the
+path variable permanently, follow these instructions:
+
+
+\vspace*{-1ex}
+\begin{part}
+  Go to \url{http://c0.typesafety.net/tutorial/C0-at-CMU.html} and do
+  the \textbf{second} step, \emph{Setting up your environment}.
+\end{part}
+
+\vspace*{-1ex}
+\begin{part}
+  Test that this works by \textbf{closing and reopening your
+    terminal}, and typing
+
+  \lstinline[language={[coin]C}]'% coin -d'
+
+  If the command above correctly starts the interpreter, then you're
+  set up!  \textbf{Don't forget to log out again before you leave.}
+\end{part}
+
+\vspace*{-1ex}
+\begin{part}
+  \newcommand{\lapsessionTime}{Wednesday from 4:30 to 6:30}
+  \newcommand{\lapsessionPlace}{DH 2315}
+
+  If you have your laptop, you can try to work through the first step
+  of C0 at CMU, \emph{Connecting through SSH}, on your
+  laptop. However, we'll have a laptop session on \lapsessionTime{} in
+  \lapsessionPlace{} for you to get your laptop set up.
+\end{part}
+
+\begin{comment}
+Exercise: %
+
+As you type code in C0, you will likely get a lot of syntax errors, so
+you need to read them carefully to figure out what the compiler is
+telling you. In this final exercise, use the text editor you chose to
+edit the factorial.c0 file and change one instruction to introduce a
+syntax error. Save and exit from the editor and then use the compiler
+or interpreter to generate a syntax error. Read the error and see if
+it makes sense based on the edit you did. Does the error include a
+line number? If so, was the error on that line number, or before that
+line number? Go back into the editor and fix the program and make sure
+it compiles and runs successfully.  FUN ACTIVITY If someone sitting
+next to you is also done, edit your factorial function so it generates
+a syntax error, and see if they can figure out what you did!  4 Handin
+There is no hand in required for Lab 0. Your teaching assistant will
+give you instructions on what to do next.
+\end{comment}

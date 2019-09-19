@@ -1,0 +1,23 @@
+#use <string>
+
+int main()
+{
+  string a0 = "0123456789A";
+  string a1 = "0123456789B";
+  string a2 = "0123456789C";
+  string a3 = "0123456789D";
+  string a4 = "0123456789E";
+  string a5 = "0123456789F";
+  string a6 = "0123456789G";
+  string a7 = "0123456789H";
+  string a8 = "0123456789I";
+  string a9 = "0123456789J";
+  string a10 = "0123456789K";
+  string a11 = "0123456789L";
+  string a12 = "0123456789M";
+  string a13 = "0123456789N";
+
+  if (string_charat(a13,10) != 'N') return 1;
+  return 0;
+}
+

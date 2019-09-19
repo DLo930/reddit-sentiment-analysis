@@ -1,0 +1,157 @@
+#use <args>
+#use <string>
+#use <util>
+
+// 1 = signal for failure
+// 0 = signal for success
+
+// Compiled against student code (e.g., it's their get_alpha)
+// Here, actual solution functions are hardcoded
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+// Once case for each functions/tasks students need to write
+  if (string_equal(arg, "get_component")) {
+    for (int i = 0; i >= 0; i += 2111) {
+      // Loop iterates 1017283 times, covering space haphazardly
+      int j = i | int_min(); // Negative value
+      if (get_alpha(i) != ((i >> 24) & 0xFF)) return 1;
+      if (get_alpha(j) != ((j >> 24) & 0xFF)) return 1;
+      if (get_red(i) != ((i >> 16) & 0xFF)) return 1;
+      if (get_red(j) != ((i >> 16) & 0xFF)) return 1;
+      if (get_green(i) != ((i >> 8) & 0xFF)) return 1;
+      if (get_green(j) != ((i >> 8) & 0xFF)) return 1;
+      if (get_blue(i) != (i & 0xFF)) return 1;
+      if (get_blue(j) != (i & 0xFF)) return 1;
+    }
+
+    // Spot checks
+    if (get_red(0xFF10FFFF) != 0x10) return 1;
+    if (get_red(0x0034FFFF) != 0x34) return 1;
+    if (get_red(0x00FF0000) != 0xFF) return 1;
+    if (get_green(0xFFFF00FF) != 0x00) return 1;
+    if (get_green(0xFF001100) != 0x11) return 1;
+    if (get_green(0x00FF78FF) != 0x78) return 1;
+    if (get_blue(0xFFFFFF00) != 0x00) return 1;
+    if (get_blue(0xFF666F01) != 0x01) return 1;
+    if (get_blue(0xF5F00F10) != 0x10) return 1;
+    if (get_alpha(0x31FFFFFF) != 0x31) return 1;
+    if (get_alpha(0xFFFFFFFF) != 0xFF) return 1;
+    if (get_alpha(0x00FFFFFF) != 0x00) return 1;
+
+  } else if (string_equal(arg, "make_pixel")) {
+    for (int i = 0; i >= 0; i += 2131) {
+      // Loop iterates 1007736 times, covering space haphazardly
+      int a = (i >> 24) & 0xFF;
+      int r = (i >> 16) & 0xFF;
+      int g = (i >> 8) & 0xFF;
+      int b = i & 0xFF;
+      if (i != make_pixel(a,r,g,b)) return 1;
+      if ((i | int_min()) != make_pixel(a|0x80,r,g,b)) return 1;
+    }
+  } else if (string_equal(arg, "make_pixel_toobig1")) {
+    make_pixel(256, 100, 100, 100);
+  } else if (string_equal(arg, "make_pixel_toobig2")) {
+    make_pixel(100, 256, 100, 100);
+  } else if (string_equal(arg, "make_pixel_toobig3")) {
+    make_pixel(100, 100, 256, 100);
+  } else if (string_equal(arg, "make_pixel_toobig4")) {
+    make_pixel(100, 100, 100, 256);
+  } else if (string_equal(arg, "make_pixel_toosmall1")) {
+    make_pixel(-1, 100, 100, 100);
+  } else if (string_equal(arg, "make_pixel_toosmall2")) {
+    make_pixel(100, -1, 100, 100);
+  } else if (string_equal(arg, "make_pixel_toosmall3")) {
+    make_pixel(100, 100, -1, 100);
+  } else if (string_equal(arg, "make_pixel_toosmall4")) {
+    make_pixel(100, 100, 100, -1);
+  } else if (string_equal(arg, "test_pixel_interface")) {
+    
+    // These tests should be redundant with get_component and make_pixel
+    // - rjs Sep 4, 2013
+    pixel p;
+
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(i, 0x00, 0x00, 0x00);
+      if (get_alpha(p) != i) return 1;
+      if (get_red(p) != 0x00) return 1;
+      if (get_green(p) != 0x00) return 1;
+      if (get_blue(p) != 0x00) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(0x00, i, 0x00, 0x00);
+      if (get_alpha(p) != 0x00) return 1;
+      if (get_red(p) != i) return 1;
+      if (get_green(p) != 0x00) return 1;
+      if (get_blue(p) != 0x00) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(0x00, 0x00, i, 0x00);
+      if (get_alpha(p) != 0x00) return 1;
+      if (get_red(p) != 0x00) return 1;
+      if (get_green(p) != i) return 1;
+      if (get_blue(p) != 0x00) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(0x00, 0x00, 0x00, i);
+      if (get_alpha(p) != 0x00) return 1;
+      if (get_red(p) != 0x00) return 1;
+      if (get_green(p) != 0x00) return 1;
+      if (get_blue(p) != i) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(i, 0xFF, 0xFF, 0xFF);
+      if (get_alpha(p) != i) return 1;
+      if (get_red(p) != 0xFF) return 1;
+      if (get_green(p) != 0xFF) return 1;
+      if (get_blue(p) != 0xFF) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(0xFF, i, 0xFF, 0xFF);
+      if (get_alpha(p) != 0xFF) return 1;
+      if (get_red(p) != i) return 1;
+      if (get_green(p) != 0xFF) return 1;
+      if (get_blue(p) != 0xFF) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(0xFF, 0xFF, i, 0xFF);
+      if (get_alpha(p) != 0xFF) return 1;
+      if (get_red(p) != 0xFF) return 1;
+      if (get_green(p) != i) return 1;
+      if (get_blue(p) != 0xFF) return 1;
+    }
+    
+    for (int i = 0; i < 256; i++) {
+      p = make_pixel(0xFF, 0xFF, 0xFF, i);
+      if (get_alpha(p) != 0xFF) return 1;
+      if (get_red(p) != 0xFF) return 1;
+      if (get_green(p) != 0xFF) return 1;
+      if (get_blue(p) != i) return 1;
+    }
+    
+    p = make_pixel(0x01, 0x02, 0x03, 0x04);
+    if (0x01 != get_alpha(p)) return 1;
+    if (0x02 != get_red(p)) return 1;
+    if (0x03 != get_green(p)) return 1;
+    if (0x04 != get_blue(p)) return 1;
+    
+    p = make_pixel(0xF1, 0xF2, 0xF3, 0xF4);
+    if (0xF1 != get_alpha(p)) return 1;
+    if (0xF2 != get_red(p)) return 1;
+    if (0xF3 != get_green(p)) return 1;
+    if (0xF4 != get_blue(p)) return 1;
+  } else {
+    error("No test with this name");
+  }
+
+  return 0;
+}

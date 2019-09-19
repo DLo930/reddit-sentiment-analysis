@@ -1,0 +1,25 @@
+#use <conio>
+#use "sol-tbuf.c0"
+#use "make-tbuf.c0"
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = make_tbuf("abcdefgh|ijklm");
+
+  forward_char(B);
+
+  if (!no_cycle(B)){
+    passed = false;
+    // error("forward_char didn't work correctly, cycle detected");
+  }
+
+  if (!string_equal("abcdefghi|jklm", tbuf_to_string(B))) {
+    passed = false;
+    // error("forward_char didn't work correctly");
+  }
+    
+  //report
+  if(passed) return 0; else return 1;
+}

@@ -1,0 +1,25 @@
+/*
+ * Text buffers
+ *
+ * The back end for a one-character text editor, a doubly-linked list
+ * whose elements are 16-character gap buffers.
+ *
+ * 15-122 Principles of Imperative Computation */
+
+/*** Interface (missing appropriate contracts) ***/
+
+typedef dll_pt tbuf;
+
+bool is_tbuf(tbuf* B);
+
+tbuf* tbuf_new();                  /* Creates an empty text buffer with   */
+                                   /* gap buffers of size 16              */
+void tbuf_split_pt(tbuf* B);       /* Splits a full point into two nodes  */
+                                   /* so that the new point is not full   */
+void tbuf_forward(tbuf* B);        /* Move the cursor forward/right by 1  */
+void tbuf_backward(tbuf* B);       /* Move the cursor backward/left by 1  */
+void tbuf_insert(tbuf* B, char c); /* Insert c before the cursor          */
+void tbuf_delete(tbuf* B);         /* Delete the char before the cursor   */
+                                   /* and delete point if it is empty     */
+
+/*** Implementation ***/

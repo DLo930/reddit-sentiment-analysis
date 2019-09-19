@@ -1,0 +1,23 @@
+\documentclass[lab]{inc/122handout}
+\mfcsnumber{6: Misclaculations}
+\mfcsdate{\formatdate{30}{9}{\YEAR}} % day-month-year
+
+\begin{document}
+\labcollab
+
+During the Clac/Exp programming assignment (not just during this lab),
+we furthermore encourage you to share any interesting Clac programs
+you write with other students on \qatool{}.
+
+\textbf{Setup:} \emph{There is no handout for this lab.}
+
+\textbf{Grading:} For two points, you must correctly answer (1.a), (2.a), and
+(2.b). Write down your answers and get a TA to check them. For three points,
+finish the rest of the lab.
+
+%OLD \inputQuestion[questions/clac/]{postfix}
+%OLD \inputQuestion[questions/clac/]{practice}
+%OLD \inputQuestion[questions/clac/]{reference}
+\inputQuestion[questions/clac/]{postfix}
+\inputQuestion[questions/clac/]{practice}
+\end{document}

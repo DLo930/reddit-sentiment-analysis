@@ -1,0 +1,22 @@
+#use <conio>
+#use "sol-tbuf.c0"
+#use "make-tbuf.c0"
+
+//EXPECT RETURN 0
+
+int main()
+{
+  bool passed = true;
+  tbuf B = make_tbuf("G|-A");
+
+  //don't move off end
+  tbuf_backward(B);
+
+  if(!(tbuf_at_left_(B) == true)){
+    passed = false;
+    // error("didn't handle moving off the end");
+  }
+
+  //report
+  if(passed) return 0; else return 1;
+}

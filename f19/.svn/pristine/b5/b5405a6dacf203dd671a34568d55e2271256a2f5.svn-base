@@ -1,0 +1,47 @@
+#use <conio>
+
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A, 0, n);
+/*@ensures (\result == -1 && !is_in(x, A, 0, n))
+        || (0 <= \result && \result < n
+            && A[\result] == x
+
+            && (\result == n-1 || A[\result + 1] > x)); @*/         // FIXME
+{
+    int lo = 0;
+    int hi = n;
+    print("--> entering the loop with lo=0 and hi="); printint(n); println("");
+
+    while (lo < hi)
+    //@loop_invariant 0 <= lo;
+    //@loop_invariant lo <= hi;
+    //@loop_invariant hi <= n;
+
+    //@loop_invariant ge_seg(x, A, 0, lo);                          // FIXME
+
+    //@loop_invariant le_seg(x, A, hi, n);                          // FIXME
+    {
+        int mid = lo + (hi-lo)/2;
+
+        print("----> in the loop with lo="); printint(lo);
+        print(", mid="); printint(mid);
+        print(" and hi="); printint(hi); println("");
+
+        if ((mid != n-1 && A[mid] == x && A[mid+1] == x) || A[mid] < x) lo = mid + 1;                       // FIXME
+
+        else { /*@assert true; @*/                            // FIXME
+            hi = mid;
+        }
+    }
+    //@assert lo == hi;
+
+    println("--> Exited the loop");
+
+      if (lo != n && A[lo] == x) {                                  // FIXME
+
+        return lo;                                                  // FIXME
+    }
+
+    return -1;
+}

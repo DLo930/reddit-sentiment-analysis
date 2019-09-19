@@ -1,0 +1,160 @@
+\clearpage
+\Question{Computing Overlaps}
+
+\begin{parts}
+  We define the \emph{overlap problem} as the task of computing the
+  number of shared elements between two arrays of the same length.
+  Assume that neither array contains duplicate entries.
+
+  Consider the following function which counts the number of integers
+  that appear in \emph{both} \lstinline'A' and \lstinline'B'.  The
+  code uses \lstinline'linsearch', where
+  \lstinline'linsearch(x, A, i, j)' %
+  returns the index of the first occurrence of \lstinline'x' in
+  $A[i,j)$ (or \lstinline'-1' if \lstinline'x' is not found) in linear
+  time.
+
+\begin{lstlisting}[numbers=left]
+int overlap(int[] A, int[] B, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires \length(A) == \length(B);
+{
+  int count = 0;
+  for (int i = 0; i < n; i++)
+  //@loop_invariant 0 <= i;
+  {
+    if (linsearch(A[i], B, 0, n) != -1) {
+      count = count + 1;
+    }
+  }
+  return count;
+}
+\end{lstlisting}
+
+\part[1]\TAGS{complexity}
+Using big-$O$ notation, what is the worst-case runtime of this
+algorithm?  Express your answer in its simplest, tightest form.
+
+\begin{framed}
+\bigskip
+$O(\uanswer{12em}{$n^2$})$
+\end{framed}
+
+\RUBRIC
+Part(a)
+TAGS: complexity
+
+Gradescope rubric:
++ 1 pt 0(n^2)
+
+Commentary:
+. All or nothing.
+ENDRUBRIC
+
+\part[1]\TAGS{complexity, sorting}
+Suppose we add an additional precondition to the function:
+\begin{lstlisting}
+//@requires is_sorted(B, 0, n);
+\end{lstlisting}
+With this change, explain how to modify the function to solve the
+Overlap Problem asymptotically faster than it currently does. (State
+which line(s) in the original function change and what the change(s)
+should be.)
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Use binary search rather than linear search.
+}\else~\vspace{1.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part(b)
+TAGS: complexity, sorting
+
+Gradescope rubric:
++ 1 pt Change linear search to binary search
+
+Commentary:
+. On line 9, use binary search rather than linear search.
+ENDRUBRIC
+
+
+\newpage
+\part[0\half]\TAGS{big-o}
+Using big-$O$ notation, what is the worst-case runtime complexity of
+your revised algorithm? Again, use the simplest, tightest form.
+\begin{framed}
+\bigskip
+$O(\uanswer{12em}{$n \log n$})$
+\end{framed}
+
+\RUBRIC
+Part(c)
+TAGS: big-o
+
+Gradescope rubric:
++ 0.5pts EITHER O(n log n) for our answer
++ 0.5pts OR correct big-O for incorrect answer in previous part
+
+Commentary:
+O(n log n)
+. It's correct as long as it's plausibly consistent with 1(b), even if it's not
+  n log n.
+ENDRUBRIC
+
+
+\part[1]\TAGS{big-o, sorting}
+Suppose we added both of the following preconditions to the function:
+\begin{lstlisting}
+//@requires is_sorted(A, 0, n);
+//@requires is_sorted(B, 0, n);
+\end{lstlisting}
+With this change, give a new algorithm that is asymptotically faster
+than your previous algorithm.  You may write either code or precise
+pseudocode.  [\emph{Hint:} you may find inspiration in the
+\lstinline'merge' operation of merge sort.]
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  Scan both arrays at once counting the number of elements found in both.
+}\else~\vspace{1.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part(d)
+TAGS: big-o, sorting
+
+Gradescope rubric:
++ 1 pts EITHER Scan both arrays at once counting the number of elements found in both
+
++ 1 pts OR Call merge and then scan the merged array looking for duplicates.
+
++ 1 pts OR Other O(n) algorithm.
+
++ 0.5pts OR Idea is there but there is not enough detail to reconstruct the algorithm.
+
+Commentary:
+. No points for algorithms that are not linear
+ENDRUBRIC
+
+
+\part[0\half]\TAGS{big-o}
+Using big-$O$ notation, what is the worst-case runtime complexity of
+this final algorithm? Again, use the simplest, tightest form.
+
+\begin{framed}
+\bigskip
+$O(\uanswer{12em}{$n$})$
+\end{framed}
+
+\RUBRIC
+Part(e)
+TAGS: big-o
+
+Gradescope rubric:
++ 0.5pts EIHER O(n) for our answer
++ 0.5pts OR correct big-O for incorrect answer in previous part
+
+Commentary:
+. It's correct as long as it's plausibly consistent with 1(d), even if it's not O(n).
+ENDRUBRIC
+
+\end{parts}

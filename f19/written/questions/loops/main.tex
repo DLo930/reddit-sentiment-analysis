@@ -1,0 +1,41 @@
+\clearpage
+\Question{Thinking about Loops}
+
+%% Change questions at the bottom of this file
+
+When we think about loops in 15-122, we will always concentrate on a
+single iteration of the loop. A loop will almost always modify something;
+the following loop modifies the local assignable \lstinline'i'.
+
+\begin{lstlisting}
+while (i < n) {
+   i = i + 4;
+}
+\end{lstlisting}
+
+In order to reason about the loop, we have to think about the two
+different values stored in the local assignable \lstinline'i' during
+an iteration.
+
+We use the variable $i$ to talk about the value stored in the local
+\lstinline'i' before the loop runs (before the loop guard is checked
+for the first time).
+
+We use the ``primed'' variable $i'$ to talk about the value stored in
+the local \lstinline'i' after the loop runs exactly one more time
+(before the loop guard is next checked).
+
+\begin{parts}
+\newcommand{\ans}[2][7.5em]{\fbox{\rule[-0.25ex]{0em}{3ex}\answer{#1}{#2}}}
+\newcommand{\ansB}[1]{\fbox{\rule{0em}{1ex}~\answer{0em}{#1}~}}
+
+%\input{loop-1a}   % S19 S18 S17 F16 S16
+\input{loop-1b}   % F19 F18
+
+%\input{loop-2a}   % S19 S18 S17 F16 S16
+\input{loop-2b}   % F19 F18
+
+%\input{loop-3a}   % S19 S18 S17 F16 S16
+\input{loop-3b}   % F19 F18
+
+\end{parts}

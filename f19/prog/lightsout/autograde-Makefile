@@ -1,0 +1,86 @@
+default: 
+	@$(MAKE) extract -s
+	@$(MAKE) compile -is
+	@$(MAKE) grade -s
+
+CC=gcc -Wall -Wextra -Werror -std=c99 -pedantic -g
+CCD=gcc -Wall -Wextra -Werror -std=c99 -pedantic -g -DDEBUG
+
+.PHONY: extract compile grade
+extract:
+	date
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar 
+	tar -mkxvf handin.tgz 
+
+	if [ ! -f board-ht.h ]; then \
+	echo "*** Using default board-ht.h"; \
+	mv board-ht-orig.h board-ht.h; \
+	fi
+
+	echo ""
+
+compile:
+	date
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(CC) -o bitvector-grade lib/*.c bitvector.c bitvector-grade.c c0main.c
+	$(CCD) -o bitvector-grade-d lib/*.c bitvector.c bitvector-grade.c c0main.c
+
+	$(CC) -o board-ht-grade lib/*.c bitvector.c board-ht.c board-ht-grade.c c0main.c
+	$(CCD) -o board-ht-grade-d lib/*.c bitvector.c board-ht.c board-ht-grade.c c0main.c
+
+	$(CC) -o lightsout lib/*.c bitvector.c board-ht.c lightsout.c
+	$(CCD) -o lightsout-d lib/*.c bitvector.c board-ht.c lightsout.c
+
+	echo ""
+	echo "[15-122] Compilation with <25-bit bitvectors that are uint32_t"
+	echo "============================================="
+	mv bitvector5.h lib/bitvector.h
+	$(CCD) -o bitvector32-small lib/*.c bitvector.c bitvector-grade.c c0main.c
+
+	echo ""
+	echo "[15-122] Compilation with >25-bit bitvectors that are uint32_t"
+	echo "============================================="
+	mv bitvector32.h lib/bitvector.h
+	$(CCD) -o bitvector32-big lib/*.c bitvector.c bitvector-grade.c c0main.c
+	$(CC) -o lightsout2 lib/*.c bitarray-alt.c board-ht.c lightsout.c
+	$(CCD) -o lightsout2-d lib/*.c bitarray-alt.c board-ht.c lightsout.c
+
+	echo ""
+	echo "[15-122] Compilation with non-uint32_t bitvectors"
+	echo "============================================="
+	mv bitvector4.h lib/bitvector.h
+	$(CCD) -o bitvector-tiny lib/*.c bitvector.c bitvector-grade.c c0main.c
+	$(CC) -o lo-small lib/*.c bitarray-alt.c board-ht.c lightsout.c
+	$(CCD) -o board-ht-small-grade lib/*.c bitvector.c board-ht.c board-ht-grade.c c0main.c
+
+	mv bitvector12.h lib/bitvector.h
+	$(CCD) -o bitvector-small lib/*.c bitvector.c bitvector-grade.c c0main.c
+
+	mv bitvector48.h lib/bitvector.h
+	$(CCD) -o bitvector-big lib/*.c bitvector.c bitvector-grade.c c0main.c
+	$(CC) -o lo-large lib/*.c bitarray-alt.c board-ht.c lightsout.c
+	$(CCD) -o loplayer lib/*.c bitarray-alt.c loplayer.c
+	$(CCD) -o board-ht-big-grade lib/*.c bitvector.c board-ht.c board-ht-grade.c c0main.c
+
+	mv bitvector-array.h lib/bitvector.h
+	$(CC) -o lightsout-bitvec-is-bool-arr lib/*.c bitvector-array.c board-ht.c lightsout.c
+	$(CCD) -o board-ht-array-grade lib/*.c bitvector-array.c board-ht.c board-ht-grade.c c0main.c
+
+
+	# $(CCD) -o bitvector-small lib/*.c bitvector.c bitvector-grade.c c0main.c
+	# 
+
+	# mv bitvector48.h lib/bitvector.h
+	# $(CCD) -o bitvector-big lib/*.c bitvector.c bitvector-grade.c c0main.c
+	# 
+
+	echo ""
+
+grade:
+	date
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

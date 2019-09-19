@@ -1,0 +1,424 @@
+\chapter{Search}
+\label{ch:linsearch}
+
+\newcommand{\lecnum}{4}
+%\newcommand{\lectitle}{Searching Arrays}
+\newcommand{\lecturer}{Frank Pfenning}
+
+\chapterTAGS{complexity, correctness, loop-invariant, safety, search, sorting}
+\maketitle
+
+\begin{preamble}
+One of the fundamental and recurring problems in computer science is
+to find elements in collections, such as elements in sets.  An
+important algorithm for this problem is \emph{binary search}.  We use
+binary search for an integer in a sorted array to exemplify it.  As a
+preliminary study in this lecture we analyze \emph{linear search},
+which is simpler, but not nearly as efficient.  Still it is often used
+when the requirements for binary search are not satisfied, for
+example, when the elements we have to search are not arranged in a
+sorted array.
+\end{preamble}
+
+
+\begin{gram}[Learning Goals]
+In term of our learning goals, we address the following:
+\begin{description}
+\item[Computational Thinking:] %
+  Developing contracts (pre- and post-conditions, assertions, and loop
+  invariants) that establish the safety and correctness of imperative
+  programs.
+
+  Evaluating the use of \emph{order}
+  (sorted data) as a problem-solving tool.
+
+  Identifying the difference between \emph{specification} and
+  \emph{implementation}.
+
+\item[Algorithms and Data Structures:] %
+  Describing linear search.
+
+\item[Programming:] %
+  We will practice \emph{deliberate programming} together in lectures.
+  Furthermore, identifying, describing, and effectively using
+  short-circuiting Boolean operators will play an important role.
+
+\end{description}
+\end{gram}
+
+\section{Linear Search in an Unsorted Array}
+\label{sec:linsearch:linear}
+\TAGS{loop-invariant, safety, search}
+
+If we are given an array of integers $A$ without any further
+information and have to decide if an element $x$ is in $A$, we just
+have to search through it, element by element.  We return \lstinline'true'
+as soon as we find an element that equals $x$, \lstinline'false' if no
+such element can be found.
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+bool is_in(int x, int[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  for (int i = lo; i < hi; i++)
+    //@loop_invariant lo <= i && i <= hi;
+    {
+      if (A[i] == x) return true;
+    }
+  return false;
+}
+\end{lstlisting}
+
+\noindent
+We used the statement \lstinline'i++' which is equivalent
+to \lstinline'i = i+1' to step through the array, element by element.
+
+The precondition is very common when working with arrays. We pass an
+array, and we also pass bounds --- typically we will let ${\it lo}$
+be 0 and ${\it hi}$ be the length of the array. The added
+flexibility of allowing ${\it lo}$ and ${\it hi}$ to take other
+values will be useful if we want to limit search to the first $n$
+elements of an array and do not care about the others. It will also be
+useful later to express invariants such as \emph{$x$ is not among the
+  first $k$ elements of $A$}, which we will write in code as
+\lstinline'!is_in(x, A, 0, k)' and which we will write in mathematical
+notation as $x \notin A\lbrack 0,k)$.
+
+The loop invariant is also typical for loops over an array.  We
+examine every element ($i$ ranges from ${\it lo}$ to ${\it
+  hi}-1$).  But we will have $i = {\it hi}$ after the last
+iteration, so the loop invariant which is checked \emph{just before
+  the exit condition} must allow for this case.
+
+Could we strengthen the loop invariant, or write a post-condition?
+% For the loop invariant, we might want to express that $x$
+% is not in $A[0] \ldots A[i-1]$.  We would have to express
+We could try something like
+\begin{lstlisting}[language={[C0]C}]
+//@loop_invariant !is_in(x, A, lo, i);
+\end{lstlisting}
+where \lstinline'!b' is the negation of $b$.  However, it is difficult to
+make sense of this use of recursion in a contract or loop invariant
+so we will avoid it.
+
+This is a small illustration of the general observation that some
+functions are basic specifications and are themselves not subject to
+further specification.  Because such basic specifications are
+generally very inefficient, they are mostly used in other
+specifications (that is, pre- or post-conditions, loop invariants,
+general assertions) rather than in code intended to be executed.
+
+\section{Sorted Arrays}
+\label{sec:linsearch:invariants}
+\TAGS{search, sorting}
+
+A number of algorithms on arrays would like to assume that they are
+sorted.  Such algorithms would return a correct result only if they
+are actually running on a sorted array. Thus, the first thing we need
+to figure out is how to specify sortedness in function specifications.
+The specification function \lstinline'is_sorted(A,lo,hi)' traverses
+the array $A$ from left to right, starting at ${\it lo}$ and stopping
+just before reaching ${\it hi}$, checking that each element is smaller
+than or equal to its right neighbor.  We need to be careful about the
+loop invariant to guarantee that there will be no attempt to access a
+memory element out of bounds.
+
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+bool is_sorted(int[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  for (int i = lo; i < hi-1; i++)
+    //@loop_invariant lo <= i;
+    if (!(A[i] <= A[i+1])) return false;
+  return true;
+}
+\end{lstlisting}
+\noindent
+The loop invariant here does not have an upper bound on $i$.
+Fortunately, when we are inside the loop, we know the loop condition
+is true so we know $i < {\it hi}-1$.  That together with ${\it
+  lo} \leq i$ guarantees that \emph{both} accesses are in bounds.
+
+We could also try $i \leq {\it hi}-1$ as a loop invariant, but this turns out
+to be false.  It is instructive to think about why.  If you cannot
+think of a good reason, try to prove it carefully.  Your proof should
+fail somewhere.
+
+Actually, the attempted proof already fails at the initial
+step.  If ${\it lo} = {\it hi} = 0$
+(which is permitted by the precondition)
+then it is \emph{not} true that
+$0 = {\it lo} = i \leq {\it hi}-1 = 0-1 = -1$.
+We could say $i \leq {\it hi}$, but that wouldn't seem to serve
+any particular purpose here since the array accesses are
+already safe.
+
+Let's reason through that.  Why is the access $A[i]$ safe?  By the
+loop invariant ${\it lo} \leq i$ and the precondition $0 \leq {\it
+  lo}$ we have $0 \leq i$, which is the first part of safety.
+%
+Secondly, we
+have $i < {\it hi}-1$ (by the loop condition, since we are in the body of the
+loop) and ${\it hi} \leq \m{length}(A)$ (by the precondition), so $i$ will be
+in bounds.  In fact, even $i+1$ will be in bounds, since $0 \leq {\it lo}
+\leq i <
+i+1$ (since $i$ is bounded from above) and
+$i+1 < ({\it hi}-1)+1 = {\it hi} \leq
+\m{length}(A)$.
+
+Whenever you see an array access, you must have a very good reason why
+the access must be in bounds.  You should develop a coding instinct
+where you \emph{deliberately pause} every time you access an array
+in your code and verify that it should be safe according to your
+knowledge at that point in the program.  This knowledge can be
+embedded in preconditions, loop invariants, or assertions that
+you have verified.
+
+% Why is it necessary?  If we ask if a zero-length array is sorted, then
+% before we check the exit condition of the loop the first time we have
+% $i = 0$ and $n = 0$, so it is not the case that $i \leq n-1$.
+% Therefore the second part of the loop invariant does not hold.  We
+% account for that explicitly by allowing $n$ to be $0$.
+
+% For an example of reasoning with loop invariants, we verify in
+% some detail why this is a valid loop invariant.
+% \begin{description}
+% \item[Initially:] Upon loop entry, $i = 0$.  We distinguish two
+%   cases.  If $n = 0$, then the left disjunction \lstinline'n == 0' holds.
+%   If $n \not= 0$ then $n > 0$ because the precondition of the function
+%   requires $n \geq 0$.  But if $n > 0$ and $i = 0$ then $i \leq n-1$.
+%   We also have $0 \leq i$ so \lstinline'0 <= i && i <= n-1' holds.
+
+% \item[Preservation:] Assume the loop invariant holds before the
+%   test, so either $n = 0$ or $0 \leq i \leq n-1$.  Because we do not
+%   exit the loop, we also have $i < n-1$.  The step statement in the
+%   loop increments $i$ so we have $i' = i+1$.
+
+%   Since $i' = i+1$ and $0 \leq i$ we have $0 \leq i'$.  Also, since $i
+%   < n-1$ and $i' = i+1$ we have $i'-1 < n-1$ and so $i' < n$.
+%   Therefore $i' \leq n-1$.
+
+%   So $0 \leq i' \leq n-1$ and the loop invariant is still satisfied
+%   because the right disjunct is true for the new value $i'$ of $i$.
+% \end{description}
+
+% One pedantic point (and we \emph{do} want to be pedantic in this class
+% when assessing function correctness, just like the machine is): from
+% $0 \leq i$ and $i' = i+1$ we inferred $0 \leq i'$.  This is only
+% justified in modular arithmetic if we know that $i+1$ does not
+% overflow.  Fortunately, we also know $i < n-1$, so $i+1\leq n$ and $i$ is
+% bounded from above by a positive integer (and from below by 0).  Therefore incrementing $i$
+% cannot overflow.
+
+
+% We generally do not verify loop invariants in this amount of detail,
+% but it is important for you do know how to reason attentively through
+% loop invariants to uncover errors, be they in the program or in the
+% loop invariant itself.
+
+\section{Linear Search in a Sorted Array}
+\label{sec:linsearch:sorted}
+\TAGS{correctness, search}
+
+Next, we want to search for an element $x$ in an array $A$ which we
+know is sorted in ascending order.  We want to return $-1$ if
+$x$ is not in the array and the index of the element if it is.
+
+The pre- and post-condition as well as a first version of the function
+itself are relatively easy to write.
+%\lstinputlisting{\code/search-slow.c0}
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A,0,n);
+/*@ensures (\result == -1 && !is_in(x, A, 0, n))
+        || ((0 <= \result && \result < n) && A[\result] == x);
+  @*/
+{
+  for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= n;
+   if (A[i] == x) return i;
+  return -1;
+}
+\end{lstlisting}
+
+
+This does not exploit that the array is sorted.  We would like
+to exit the loop and return $-1$ as soon as we find that
+$A[i] > x$.  If we haven't found $x$ already, we will not find
+it subsequently since all elements to the right of $i$ will be
+greater or equal to $A[i]$ and therefore strictly greater than
+$x$.  But we have to be careful: the following program has a bug.
+
+\clearpage
+%\lstinputlisting{\code/search-bad.c0}
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A,0,n);
+/*@ensures (-1 == \result && !is_in(x, A, 0, n))
+        || ((0 <= \result && \result < n) && A[\result] == x);
+  @*/
+{
+  for (int i = 0; A[i] <= x && i < n; i++)
+    //@loop_invariant 0 <= i && i <= n;
+    if (A[i] == x) return i;
+  return -1;
+}
+\end{lstlisting}
+
+Can you spot the problem?  If you cannot spot it immediately,
+reason through the loop invariant.  Read on if you are confident
+in your answer.
+
+\clearpage
+The problem is that the loop invariant only guarantees
+that $0 \leq i \leq n$ before the exit condition is tested.
+So it is possible that $i = n$ and the test \lstinline'A[i] <= x'
+will try to access an array element out of bounds: the $n$
+elements of $A$ are numbered from $0$ to $n-1$.
+
+We can solve this problem by taking advantage of the so-called
+\emph{short-circuiting evaluation} of the boolean operators of
+conjunction (``and'') \lstinline'&&' and disjunction (``or'') \lstinline'||'.
+If we have condition \lstinline'e1 && e2' ($e_1$ \emph{and} $e_2$) then we
+do not attempt to evaluate $e_2$ if $e_1$ is \lstinline'false'.  This is
+because a conjunction will always be false when the first conjunct is
+false, so the work would be redundant.
+
+Similarly, in a disjunction \lstinline'e1 || e2' ($e_1$ \emph{or} $e_2$)
+we do not evaluate $e_2$ if $e_1$ is \lstinline'true'.  This is because
+a disjunction will always be true when the first disjunct it
+true, so the work would be redundant.
+
+In our linear search program, we just swap the two conjuncts in
+the exit test.
+%\lstinputlisting{\code/search.c0}
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A,0,n);
+/*@ensures (-1 == \result && !is_in(x, A, 0, n))
+        || ((0 <= \result && \result < n) && A[\result] == x);
+  @*/
+{
+  for (int i = 0; i < n && A[i] <= x; i++)
+    //@loop_invariant 0 <= i && i <= n;
+   if (A[i] == x) return i;
+  return -1;
+}
+\end{lstlisting}
+
+\noindent
+Now \lstinline'A[i] <= x' will only be evaluated if $i < n$ and
+the access will be in bounds since we also know $0 \leq i$
+from the loop invariant.
+
+Alternatively, and perhaps easier to read, we can move
+the test into the loop body.
+\clearpage
+%\lstinputlisting{\code/search1.c0}
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A,0,n);
+/*@ensures (-1 == \result && !is_in(x, A, 0, n))
+        || ((0 <= \result && \result < n) && A[\result] == x);
+  @*/
+{
+  for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= n;
+    {
+      if (A[i] == x) return i;
+      else if (A[i] > x) return -1;
+    }
+  return -1;
+}
+\end{lstlisting}
+
+This program is not yet satisfactory, because the loop
+invariant does not have enough information to prove the
+post-condition.  We \emph{do} know that if we return directly from
+inside the loop, then $A[i] = x$ and therefore \lstinline'A[\result] == x'
+holds.  But we cannot deduce that \lstinline'!is_in(x, A, 0, n)'
+if we return \lstinline'-1'.
+
+Before you read on, consider which loop invariant you might
+add to guarantee that.  Try to reason why the fact that
+the exit condition must be false and the loop invariant
+true is enough information to know that \lstinline'!is_in(x, A, 0, n)'
+holds.
+
+\clearpage
+Did you try to exploit that the array is sorted?  If not,
+then your invariant is most likely too weak, because the
+function is incorrect if the array is not sorted!
+
+What we want to say is that \emph{all elements in $A$ to the left of
+  index $i$ are smaller than $x$}.  Just saying \lstinline'A[i-1] < x'
+isn't quite right, because when the loop is entered the first time we
+have $i = 0$ and we would try to access $A[-1]$.  We again exploit
+short-circuiting evaluation, this time for disjunction.
+%\lstinputlisting{\code/search2.c0}
+\begin{lstlisting}[language={[C0]C}, numbers=left]
+int search(int x, int[] A, int n)
+//@requires 0 <= n && n <= \length(A);
+//@requires is_sorted(A,0,n);
+/*@ensures (-1 == \result && !is_in(x, A, 0, n))
+        || ((0 <= \result && \result < n) && A[\result] == x);
+  @*/
+{
+  for (int i = 0; i < n; i++)
+    //@loop_invariant 0 <= i && i <= n;
+    //@loop_invariant i == 0 || A[i-1] < x;
+    {
+      if (A[i] == x) return i;
+      else if (A[i] > x) return -1;
+      //@assert A[i] < x;
+    }
+  return -1;
+}
+\end{lstlisting}
+
+\noindent
+It is easy to see that this invariant is preserved.  Upon loop entry,
+$i = 0$.  Before we test the exit condition, we just incremented $i$.
+We did not return while inside the loop, so $A[i-1] \neq x$ and
+also $A[i-1] \leq x$.  From these two together we have $A[i-1] < x$.
+We have added a corresponding assertion to the program to highlight
+the importance of that fact.
+
+Why does the loop invariant imply the post-condition of the function?
+If we exit the loop normally, then the loop condition must be false.
+So $i \geq n$.  We know $A[n-1] = A[i-1] < x$.  Since the array is
+sorted, all elements from $0$ to $n-1$ are less or equal to $A[n-1]$
+and so also strictly less than $x$ and $x$ cannot be in the array.
+
+If we exit from the loop because $A[i] > x$, we also know that $A[i-1]
+< x$ so $x$ cannot be in the array since it is sorted.
+
+
+\section{Analyzing the Number of Operations}
+\label{sec:linsearch:complexity}
+\TAGS{complexity, search}
+
+In the worst case, linear search goes around the loop $n$ times, where
+$n$ is the given bound.  On each iteration except the last, we perform
+three comparisons: $i < n$, $A[i] = x$ and $A[i] > x$.  Therefore, the
+number of comparisons is almost exactly $3 \times n$ in the worst
+case.  We can express this by saying that the running time is
+\emph{linear} in the size of the input ($n$).  This allows us to
+predict the running time pretty accurately.  We run it for some
+reasonably large $n$ and measure its time.  Doubling the size of the
+input $n' = 2 \times n$ means that now we perform $3 \times n' = 3
+\times 2 \times n = 2 \times (3 \times n)$ operations, twice as many
+as for $n$ inputs.
+
+We will introduce more abstract measurements for the running times
+in the next lecture.
+
+% \clearpage
+% \section*{Exercises}
+
+% \clearpage
+% \bibliographystyle{alpha}
+% \bibliography{modal}

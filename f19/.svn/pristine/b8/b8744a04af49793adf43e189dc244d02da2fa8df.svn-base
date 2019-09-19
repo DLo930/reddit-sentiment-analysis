@@ -1,0 +1,144 @@
+%% Vary line breaks in code below
+
+\clearpage
+\Question[4\half]{Allocating and Freeing Memory in C}%
+\TAGS{c-memory}
+
+Here is a leaky C program that works with NULL-terminated linked
+lists. We've omitted the code for \lstinline'print_list' because it
+can't leak any memory. Contracts have been omitted for the sake of
+space.
+\begin{lstlisting}[numbers=left, name=sum]
+typedef struct list_node list;
+struct list_node {
+  int data;
+  list* next;
+};
+
+void free_list(list* L)
+{
+  list* current = L;
+
+  while (current != NULL)
+  {
+    list* next = current->next;
+    free(current);
+    current = next;
+  }
+  return;
+}
+
+void sum(list* L)
+{
+  list* sum = xmalloc(sizeof(list));
+  sum->data = 0;
+  sum->next = NULL;
+  list* current = L;
+
+  while (current != NULL)
+  {
+    sum->data += current->data;
+    current = current->next;
+  }[*\label{l:leak1-fix-start}*]
+
+  L->data = sum->data;[*\label{l:leak2-fix-start}*]
+  L->next = NULL;[*\label{l:leak1}*]
+
+  return;[*\label{l:leak2}*]
+}
+
+\end{lstlisting}
+\newpage
+\begin{lstlisting}[numbers=left, name=sum]
+int main()
+  {
+  list* current = NULL;
+  for (int i=0 ; i<10 ; i++)
+  {
+    ASSERT(0 <= i);
+    list* new = xmalloc(sizeof(list));
+    new->data = i;
+    new->next = current;
+    current = new;
+  }
+  printf("Initial list: ");
+  print_list(current);
+  sum(current);
+  printf("Summed list: ");
+  print_list(current);[*\label{l:leak3-fix-start}*]
+
+  return 0;[*\label{l:leak3}*]
+}
+\end{lstlisting}
+In the table below, give the line number of each line that leaks
+memory \emph{(you may not need all rows)}.  A line is considered to
+leak memory if, as a result of executing it, some allocated memory has
+not been freed, and no further references to that memory are possible.
+Returning from the \lstinline'main' function without deallocating
+everything that was allocated is considered a leak (even though the
+operating system will clean it up).
+
+Indicate how to fix the leak(s) by writing any extra code that needs
+to be added, with the line numbers between which it should be
+inserted.  Your changes should not alter the behavior of the program
+other than fixing the leaks.
+
+\medskip
+\bgroup
+\renewcommand{\arraystretch}{2.2}
+\newcommand{\sepA}{3.5em}
+\newcommand{\sepB}{26.5em}
+\newcommand{\sepC}{4.3em}
+\newcommand{\ansA}[1]{\uanswer{\sepA}{#1}}
+\newcommand{\ansB}[1]{\uanswer{\sepB}{#1\hfill}}
+\newcommand{\ansC}[1]{\uanswer{\sepC}{#1}}
+
+\enlargethispage{5ex}
+\begin{tabular}{|p{\sepA} | p{\sepB} | p{\sepC} |}
+\hline
+   Line number of leak
+ & \hfill \par Code that fixes it
+ & \hfill \par Where to insert it
+\\\hline&&\\[-4.5ex]
+   \ansA{\ref{l:leak1}} & \ansB{insert \lstinline'free_list(L->next)'} & \ansC{\ref{l:leak1-fix-start}--\ref{l:leak1}}
+\\ \ansA{\ref{l:leak2}} & \ansB{insert \lstinline'free_list(sum)' or \lstinline'free(sum)'} & \ansC{\ref{l:leak2-fix-start}--\ref{l:leak2}}
+\\ \ansA{\ref{l:leak3}} & \ansB{insert \lstinline'free_list(current)' or \lstinline'free(current)'} & \ansC{\ref{l:leak3-fix-start}--\ref{l:leak3}}
+\\ \ansA{} & \ansB{} & \ansC{}
+\\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+% \\ \ansA{} & \ansB{} & \ansC{}
+\\[1ex]\hline
+\end{tabular}
+\egroup
+
+\RUBRIC
+TAGS: c-memory
+
+Gradescope rubric:
++0.75pt Leak on Line LK1
++0.75pt Line LK1 Fix: insert free_list(L->next) somewhere between lines LK1-S and LK1
++0.75pt Leak on Line LK2
++0.75pt Line LK2 Fix: insert free_list(sum) or free(sum) somewhere between lines LK2-S and LK2
++0.75pt Leak on Line LK3
++0.75pt Line LK3 Fix: insert free_list(current) or free(current) between lines LK3-S and LK3
+
+Commentary:
+- Line numbers vary based on semester: REPLACE WITH ACTUAL LINE NUMBERS
+  . LK1: "L->next = NULL" in sum
+  . LK1-S: "}" closing the while loop in sum
+  . LK2: "return" in sum
+  . LK2-S: "L->data = sum->data"
+  . LK3: "return 0" in main
+  . LK3-S: last "print_list(current)" in main
+
+Line LK1; fix by inserting free_list(L->next) between line LK1-S and line LK1
+Line LK2; fix by inserting free_list(sum) or free(sum) between line LK2-S and line LK2
+Line LK3; fix by inserting free_list(current) or free(current) between line LK3-S and line LK3
+ENDRUBRIC

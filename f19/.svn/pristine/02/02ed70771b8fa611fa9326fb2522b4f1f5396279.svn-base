@@ -1,0 +1,14 @@
+\clearpage
+\Question{Basics of C0: the \lstinline'int' and \lstinline'bool' Data Types}
+
+\begin{parts}
+
+\input{bool-ops} % See file
+
+%\newpage
+%\input{safe-add} % F18 F17 F16 S16
+\input{safe-mult} % F19 S19 S18 S17
+
+%\newpage\input{valid} % F19 S19 S18 S17 S16
+\newpage\input{equiv} % F18 F17 F16
+\end{parts}

@@ -1,0 +1,184 @@
+\clearpage
+\bgroup
+\newcommand{\company}
+%{company} % up to S18
+%{ticker\_symbol} % S19 F18
+{firm} % F19
+\newcommand{\price}
+{price} % F19, Up to S18
+%{valuation} % F18
+
+\Question{Using Priority Queues}
+
+You are working an exciting desk job as a stock market analyst. You
+want to be able to determine the total price increase of the stocks
+that have seen the highest price increases over the last day (of
+course, on a bad day, these might simply be the least negative price
+changes). However, since the year is 1983, your Commodore 64 can only
+offer up about 30 KB of memory.
+
+Stock reports are delivered to you via a \lstinline'stream_t' data type
+with the following interface:
+
+\begin{lstlisting}
+// typedef _______ stream_t;
+typedef struct stock_report report;
+struct stock_report {
+  string [*\company*];
+  int current_[*\price*];         // stock price in cents
+  int old_[*\price*];             // previous day's price in cents
+};
+
+// Returns true if the data stream is empty
+bool stream_empty(stream_t S);
+// Retrieve the next stock report from the data stream
+report* get_report(stream_t S) /*@requires !stream_empty(S); @*/ ;
+\end{lstlisting}
+
+A stream of stock reports could be very, very large. Storing all of
+the reports in an array won't cut it --- you don't have enough memory
+(30 KB isn't even enough to store 2000 reports). You'll need a more
+clever solution.
+
+Luckily, your cubicle mate Grace just finished a stellar priority
+queue implementation with the interface below. You think you should be
+able to use Grace's priority queue to keep track of only the stock
+reports on the stocks that have increased the most, discarding the
+others as necessary.
+
+\begin{lstlisting}
+// Client Interface
+// f(x,y) returns true if x is STRICTLY higher priority than y
+typedef bool higher_priority_fn(void* x, void* y);
+
+// Library Interface
+// typedef ______* pq_t;
+pq_t pq_new(int capacity, higher_priority_fn* priority)
+  /*@requires capacity > 0 && priority != NULL; @*/
+  /*@ensures \result != NULL; @*/ ;
+bool pq_full(pq_t Q)          /*@requires Q != NULL; @*/ ;
+bool pq_empty(pq_t Q)         /*@requires Q != NULL; @*/ ;
+void pq_add(pq_t Q, void* x)  /*@requires Q != NULL && !pq_full(Q); @*/
+                              /*@requires x != NULL; @*/ ;
+void* pq_rem(pq_t Q)          /*@requires Q != NULL && !pq_empty(Q); @*/ ;
+void* pq_peek(pq_t Q)         /*@requires Q != NULL && !pq_empty(Q); @*/ ;
+\end{lstlisting}
+
+\clearpage
+\begin{parts}
+\part[2]\TAGS{application, pq}
+Complete the functions \lstinline'client_priority' and
+\lstinline'total_increase' below. The function
+\lstinline'total_increase' returns the sum of the \price{} increases of
+the \lstinline'n' stocks with the highest \price{} increases from the
+data stream \lstinline'S'.
+
+\enlargethispage{5ex}
+\begin{framed}
+\begin{lstlisting}[aboveskip=0ex, belowskip=0ex]
+#use <util>
+
+bool client_priority(void* x, void* y)
+//@requires x != NULL && \hastag(report*, x);
+//@requires y != NULL && \hastag(report*, y);
+{
+  return [*\uanswer{31.3em}{~\qquad\qquad((report*)x)->current\_\price~- ((report*))x->old\_\price}*]
+
+         [*\uanswer{31.3em}{< ((report*)y)->current\_\price~- ((report*)y)->old\_\price}*];
+}
+
+int total_increase(stream_t S, int n)
+//@requires 0 < n && n < int_max();
+{
+  pq_t Q  = pq_new([*\uanswer{25em}{n+1, \&client\_priority}*]);
+
+  while (!stream_empty(S)) {
+    // Put the next stock report into the priority queue
+
+    [*\uanswer{34em}{pq\_add(Q, (void*)get\_report(S))}*];
+    // If the priority queue is at capacity, delete the
+    // report with the smallest [*\price*] increase
+
+    if ([*\uanswer{32em}{pq\_full(Q)}*])
+
+      [*\uanswer{33.2em}{pq\_rem(Q)}*];
+  }
+
+  // Add up the [*\price*] increases of everything in the
+  // priority queue
+  int total = 0;
+
+  while ([*\uanswer{30.2em}{!pq\_empty(Q)}*]) {
+
+    report* r = [*\uanswer{27.3em}{((report*)pq\_rem(Q))}*];
+
+    total += [*\uanswer{29em}{r->current\_\price~- r->old\_\price}*];
+  }
+
+  return total;
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: application, pq
+
+Gradescope rubric:
++0.4pt client_priority: Proper casting/parentheses
++0.4pt client_priority: Correctly implements a min heap
++0.25pt Blanks 1 (pq_new) in total_increase is correct
++0.25pt Blanks 2 in total_increase is correct
++0.25pt Blanks 3 & 4 in total_increase are correct
++0.25pt Blank 5 in total_increase is correct
++0.25pt Blanks 6 and 7 in total_increase are correct
+
+Commentary:
+- field names vary from year to year -- see top of file
+
+
+  +1 point for the priority function; no penalty for missing parens,
+
+  (((report*)x)->current_price - ((report*))x->old_price) < (((report*)y)->current_price - ((report*)y)->old_price)
+
+   1/2 point is for dealing with casting/parentheses correctly
+   1/2 point is for making it a min-priority queue
+
+  +1/4 point: pq Q = pq_new(___n+1, &client_priority___);
+              pq_add(Q, (void*)get_report(S));
+  +1/4 point: if (___pq_full(Q)___)
+                ___pq_rem(Q)___;
+  +1/4 point: while (___!pq_empty(Q)___)
+  +1/4 point:
+  report* r = ___((report*)pq_rem(Q))___
+  total += ___r->current_price - r->old_price___
+     - Don't take off here for failure to cast/paren, already handled above
+     - No credit if pq_rem is called twice
+ENDRUBRIC
+
+
+\clearpage
+\part[0\half]\TAGS{complexity, pq}
+Assuming that Grace's priority queues are based on the heap data structure,
+what is the running time of \lstinline'total_increase(S, n)' if the stream
+\lstinline'S' ultimately contains $m$ elements? (Give an answer in big-O
+notation.)
+\begin{framed}
+\bigskip
+$O(\uanswer{32em}{$m \log n$ \quad OR\quad $m \log(\min(m,n)))$ \quad OR\quad $(m+n)\log n$})$
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: complexity, pq
+
+Gradescope rubric:
++0.5pt O(m log n) or O(m log(min(m,n))) or O((m+n)log n)
+
+Commentary:
+O(m log n) uses the implicit assumption that m >> n
+O(m log(min(m,n))) and O((m+n)log n) work in all cases.
+ENDRUBRIC
+
+\end{parts}
+\egroup

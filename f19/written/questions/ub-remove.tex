@@ -1,0 +1,188 @@
+\clearpage
+\Question{Remove Operation For Unbounded Arrays}
+
+\bgroup
+\newcommand{\exletter}
+%{y} % Up to F18
+%{w} % F18
+%{x} % S19
+{z} % F19
+\newcommand{\ex}{\textcolor{\stringColor}{"\exletter"}}
+
+The \lstinline'uba_add' operation adds an element to the end of an
+unbounded array. Conversely, the \lstinline'uba_rem' operation removes
+the element at the end. (Remember that the ``end'' of the array is
+from the client's perspective. There may be additional unused positions
+in the array from the implementation's perspective.)  When removing,
+we don't need to resize the array to a smaller size, but we
+could. However, we need to consider \emph{when} to shrink the array in
+order to guarantee $O(1)$ amortized runtime.
+
+\begin{parts}
+\part[0\half]\TAGS{array, amortized-cost, testing}
+If the array resizes to be twice as large as soon as it is full (as in
+lecture), and resizes to be half as large as soon as it is strictly
+less than half full, give a sequence of additions and removals,
+starting from a new array \lstinline'A' of size 3 (limit 6), that will
+cause the worst-case behavior.  End your solution with ``\ldots'' after you
+clearly establish the repeating behavior, and after each operation
+write the size, limit, and number of array writes for that
+operation. The first line of the answer is shown.
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+                       // size = 3, limit = 6
+uba_add(A, [*\ex*]);       // size = 4, limit = 6,  1 array write
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+uba_add(A, [*\ex*]);       // size = 4, limit = 6,  1 array write
+uba_add(A, [*\ex*]);       // size = 5, limit = 6,  1 array write
+uba_add(A, [*\ex*]);       // size = 6, limit = 12, 7 array writes
+uba_rem(A);            // size = 5, limit = 6,  5 array writes
+uba_add(A, [*\ex*]);       // size = 6, limit = 12, 7 array writes
+uba_rem(A);            // size = 5, limit = 6,  5 array writes
+...
+\end{lstlisting}
+\else~\vspace{1.8in}\fi
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: array, amortized-cost, testing
+
+Gradescope rubric:
++0.25pt Limit changes every one (or two) steps in a repeating fashion
++0.25pt Gets the resizing boundaries correct
+
+Commentary:
+  Expected answer:
+    uba_add(A, "y");   // size = 4, limit = 6, 1 array write
+    uba_add(A, "y");   // size = 5, limit = 6, 1 array write
+    uba_add(A, "y");   // size = 6, limit = 12, 7 array writes
+    uba_rem(A);        // size = 5, limit = 6, 5 array writes
+    uba_add(A, "y");   // size = 6, limit = 12, 7 array writes
+    uba_rem(A);        // size = 5, limit = 6, 5 array writes
+    ...
+
+  Alternate answer:
+    uba_add(A, "y");   // size = 4, limit = 6, 1 array write
+    uba_rem(A);        // size = 3, limit = 6, 0 array writes
+    uba_rem(A);        // size = 2, limit = 3, 2 array writes
+    uba_add(A, "y");   // size = 3, limit = 6, 4 array writes
+    uba_rem(A);        // size = 2, limit = 3, 2 array writes
+    uba_add(A, "y");   // size = 3, limit = 6, 4 array writes
+    ...
+
+  ** Has to show some repeating behavior for credit (the examples above
+     show one more line than I'd consider absolutely necessary)
+  ** No penalty for writing 6 instead of 7 (4 instead of 3) for uba_add
+  ** No penalty for writing 6 instead of 5 (3 instead of 2) for uba_rem
+  ** One half-point penalty for other array-write mistakes
+ENDRUBRIC
+
+
+\part[1]\TAGS{amortized-cost, complexity}
+Generalizing, with the strategy above, what is the worst case runtime
+complexity, using big-$O$ notation, of performing $k$ operations on an
+array of size $n$, where each operation is taken from the set
+\{\lstinline'uba_add', \lstinline'uba_rem'\} ?
+
+\begin{framed}
+\medskip
+\quad
+$O(\uanswer{8em}{$kn$})$
+\end{framed}
+
+Differently from lecture, this type of amortized analysis involves
+multiple operations, each costing a different number of tokens
+possibly. The amortized cost of each operation is found by dividing
+the total cost by the number of operations. (This is known as
+``aggregate'' analysis.)
+
+Using aggregate analysis, what is the amortized cost of each of the
+$k$ operations in the worst case?
+
+\begin{framed}
+\medskip
+\quad
+$O(\uanswer{12em}{$n$})$
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: amortized-cost, complexity
+
+Gradescope rubric:
++0.5pt 1st box: O(kn)
++0.5pt 2nd box: O(n)
+ENDRUBRIC
+
+\newpage
+\part[1]\TAGS{array, amortized-cost}
+Instead of resizing the array to be half as large as soon as it is
+strictly less than half full, we could resize the array to half of its
+current size when it is {\em exactly} a quarter full.  This will lead
+to $O(1)$ amortized cost per remove operation.  Using an array of size
+11 (limit 12), show the effect of an add operation followed by the
+sequence of remove operations that causes the array to resize. As
+before, show the size and limit of the array after each operation, and
+indicate how many array writes each step takes. The first two lines
+are given for you.
+
+\begin{framed}
+\begin{lstlisting}
+                     // size = 11, limit = 12
+uba_add(A, [*\ex*]);     // size = 12, limit = 24, 13 array writes
+uba_rem(A);          // size = 11, limit = 24,  0 array writes
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+uba_rem(A);          // size = 10, limit = 24,  0 array writes
+uba_rem(A);          // size =  9, limit = 24,  0 array writes
+uba_rem(A);          // size =  8, limit = 24,  0 array writes
+uba_rem(A);          // size =  7, limit = 24,  0 array writes
+uba_rem(A);          // size =  6, limit = 12,  6 array writes
+\end{lstlisting}
+\else~\vspace{3.5in}\fi
+\end{framed}
+
+In the answer above, the initial \lstinline'uba_add' operation doubled
+the size of the array, consuming any banked tokens.  Based on your
+answer above, what is the minimum number of tokens that should be
+charged for each \lstinline'uba_rem' operation so that enough tokens
+are banked for the resize of the array? In your analysis, the
+\emph{only} thing we have to pay for with tokens is array writes.
+
+\begin{framed}
+\bigskip
+\quad
+\uanswer{12em}{$1$} token(s).
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: array, amortized-cost
+
+Gradescope rubric:
++0.5pt Resize happens when array is exactly a quarter full and correct amount of array writes (6)
++0.5pt Amortized cost is 1 token (or follows from analysis in first part)
+
+Commentary:
+  +1/2 point for the resize happening when the array is exactly a
+   quarter full:
+                     // size = 11, limit = 12
+    uba_add(A, "y"); // size = 12, limit = 24, 13 array writes
+    uba_rem(A);      // size = 11, limit = 24, 0 array writes
+    uba_rem(A);      // size = 10, limit = 24, 0 array writes
+    uba_rem(A);      // size = 9, limit = 24, 0 array writes
+    uba_rem(A);      // size = 8, limit = 24, 0 array writes
+    uba_rem(A);      // size = 7, limit = 24, 0 array writes
+    uba_rem(A);      // size = 6, limit = 12, 6 array writes
+
+  +1/2 point - 1 token (where a token pays for a single array write)
+ENDRUBRIC
+
+\end{parts}
+
+\egroup

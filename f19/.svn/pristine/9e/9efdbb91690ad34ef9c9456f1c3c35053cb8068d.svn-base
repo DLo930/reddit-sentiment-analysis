@@ -1,0 +1,289 @@
+\clearpage
+\Question{Graph Representation}
+
+\begin{parts}
+\newcommand{\amgraph}
+ {graph1}  % F19 F18 F17
+% {graph2}  % S19 S18 S17
+
+\part[1]\TAGS{graph-representation}
+Show the adjacency matrix that represents the graph drawn
+below (use the format shown in the lecture notes):
+
+\begin{center}
+\includegraphics[width=.3\textwidth]{\img/\amgraph.png}
+\end{center}
+
+\bigskip
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+\newcommand{\X}{\hfill\textbf{\Large X}\hfill\rule{0em}{0ex}}
+\newcommand{\C}[1]{\multicolumn{1}{c}{#1}}
+\renewcommand{\arraystretch}{2.5}
+\begin{center}
+  \ifdefstring{\amgraph}{graph1}{%
+\begin{tabular}{r*{5}{|p{2em}}|}
+          \C{}  &\C{1}&\C{2}&\C{3}&\C{4}&\C{5}
+\\\cline{2-6} 1 &     & \X  &     & \X  & \X
+\\\cline{2-6} 2 & \X  &     &     & \X  &
+\\\cline{2-6} 3 &     &     &     &     &
+\\\cline{2-6} 4 & \X  & \X  &     &     & \X
+\\\cline{2-6} 5 & \X  &     &     & \X  &
+\\\cline{2-6}
+\end{tabular}%
+}{%
+\begin{tabular}{r*{5}{|p{2em}}|}
+          \C{}  &\C{1}&\C{2}&\C{3}&\C{4}&\C{5}
+\\\cline{2-6} 1 &     &     &     & \X  & \X
+\\\cline{2-6} 2 &     &     & \X  &     &
+\\\cline{2-6} 3 &     & \X  &     &     &
+\\\cline{2-6} 4 & \X  &     &     &     & \X
+\\\cline{2-6} 5 & \X  &     &     & \X  &
+\\\cline{2-6}
+\end{tabular}%
+}
+\end{center}
+}\else\vspace{4in}~\fi
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: graph-representation
+
+Gradescope rubric:
++1 pt  Correct answer
+-0.5pt If 1 error
+
+Commentary:
+  Half point if there is only one error, o.w. no credit
+
+Version 1:
+    1 2 3 4 5
+  1   X   X X
+  2 X     X
+  3
+  4 X X     X
+  5 X     X
+
+Version 2:
+    1 2 3 4 5
+  1       X X
+  2     X
+  3   X
+  4 X       X
+  5 X     X
+ENDRUBRIC
+
+
+\newpage
+\part[1\half]\TAGS{correctness, graph-representation, safety}
+Recall the \emph{adjacency list} representation of a graph from class:
+
+\begin{minipage}[t]{0.55\linewidth}
+\begin{lstlisting}[aboveskip=-1ex]
+typedef unsigned int vertex;
+typedef struct graph_header graph;
+typedef struct vlist_node vert_list;
+struct vlist_node {
+    vertex vert;
+    vert_list *next;
+};
+\end{lstlisting}
+\end{minipage}%
+\hfill\rule[-17ex]{0.01em}{18ex}\hfill
+\begin{minipage}[t]{0.40\linewidth}
+\begin{lstlisting}[aboveskip=-1ex]
+typedef vert_list adjlist;
+struct graph_header {
+    unsigned int size;
+    adjlist **adj;
+};
+\end{lstlisting}
+\end{minipage}
+
+Extend the graph interface with a \emph{library} function
+\lstinline'graph_countedges(G, v)' that returns the number of edges at
+vertex $v$ of graph $G$. Be sure to include appropriate
+\lstinline'REQUIRES' and \lstinline'ENSURES' contracts. You may call any
+functions given in the code in class posted on our website for the
+lecture on representing graphs. Your solution should be as efficient
+as possible, without making any changes to the definition of any data
+structure used in the graph representation.
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+unsigned int graph_countedges(graph* G, vertex v) {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+    REQUIRES(is_graph(G));
+    REQUIRES(is_vertex(G,v);
+
+    unsigned int count = 0;
+    // while loop also acceptable
+    for (adjlist *p = G->adj[v]; p != NULL; p = p->next) {
+      count++;
+    }
+    ASSERT(count < graph_size(G));
+    return count;
+\end{lstlisting}
+\else\vspace{3.5in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: correctness, graph-representation, safety
+
+Gradescope rubric:
++0.25pt Pre-conditions: is_graph(G) and is_vertex(G,v)
++0.25pt Post-condition: count < graph_size(G)
++0.5pt  Correct loop
++0.5pt  Correct count
+
+Commentary:
+  unsigned int graph_countedges(graph* G, vertex v) {
+    REQUIRES(is_graph(G));
+    REQUIRES(is_vertex(G,v);
+
+    unsigned int count = 0;
+    // while loop also acceptable
+    for (adjlist *p = G->adj[v]; p != NULL; p = p->next) {
+      count++;
+    }
+    ASSERT(count < graph_size(G));
+    return count;
+  }
+ENDRUBRIC
+
+
+\part[0\half]\TAGS{complexity, graph-representation}
+Give the worst-case asymptotic complexity of your function
+for a graph of $v$ vertices and $e$ edges, as a function of $v$ and $e$.
+
+\begin{framed}
+\medskip
+$O(\uanswer{16em}{$\min(v,e)$})$
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: complexity, graph-representation
+
+Gradescope rubric:
++0.5pt O(min(v,e))
+
+Commentary:
+  O(min(v,e)).  All or nothing.
+ENDRUBRIC
+
+
+\newpage
+\part[1\half]\TAGS{graph-representation, interface}
+Here is a \emph{subset} of the interface to the graph library in
+\lstinline'graph.h':
+
+\smalllistings
+\begin{lstlisting}
+typedef unsigned int vertex;
+typedef struct graph_header *graph_t;
+
+graph_t graph_new(unsigned int numvert); // New graph with numvert vertices
+void graph_free(graph_t G);
+unsigned int graph_size(graph_t G);  // Number of vertices in the graph
+
+bool graph_hasedge(graph_t G, vertex v, vertex w);
+  //@requires v < graph_size(G) && w < graph_size(G);
+
+void graph_addedge(graph_t G, vertex v, vertex w); // Edge can't be in graph!
+  //@requires v < graph_size(G) && w < graph_size(G);
+  //@requires v != w && !graph_hasedge(G, v, w);
+\end{lstlisting}
+\normallistings
+
+Write another function to count the edges at a vertex.  This must be a
+\emph{client} function, that is, it may \emph{only} use the types and
+functions listed above --- in particular the function
+\lstinline'graph_get_neighbors' is \textbf{not} available. You may use
+the fact that \lstinline'vertex' is an integer type, and that it is
+the same type returned by \lstinline'graph_size'.  Be sure to include
+appropriate \lstinline'REQUIRES' and \lstinline'ENSURES' contracts.
+
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt]
+unsigned int countedges(graph_t G, vertex v) {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+    REQUIRES(G != NULL);
+    REQUIRES(v < graph_size(G));
+
+    size_t count = 0;
+    // while loop also acceptable
+    for (vertex i = 0; i < graph_size(G); i++) {
+      if (graph_hasedge(G, v, i)) {
+        count++;
+      }
+    }
+    ASSERT(count < graph_size(G));
+    return count;
+\end{lstlisting}
+\else\vspace{3in}~\fi
+\begin{lstlisting}[aboveskip=0pt]
+ }
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (d)
+TAGS: graph-representation, interface
+
+Gradescope rubric:
++0.25pt Pre-conditions: G!=null and v < graph_size(G)
++0.25pt Post-conditions: return value is valid (< size)
++0.5pt  Correct loop
++0.5pt  Correct count
+
+Commentary:
+  unsigned int countedges(graph_t G, vertex v) {
+    REQUIRES(G != NULL);
+    REQUIRES(v < graph_size(G));
+    size_t count = 0;
+    // while loop also acceptable
+    for (unsigned int i = 0; i < graph_size(G); i++) {
+      if (graph_hasedge(G, v, i)) {
+        count++;
+      }
+    }
+    ASSERT(count < graph_size(G));
+    return count;
+  }
+ENDRUBRIC
+
+\enlargethispage{5ex}
+\part[0\half]\TAGS{complexity, graph-representation}
+Give the worst-case asymptotic complexity of your function
+for a graph of $v$ vertices and $e$ edges, as a function of $v$ and $e$.
+For this calculation, you may assume the adjacency list implementation.
+
+\begin{framed}
+\medskip
+$O(\uanswer{16em}{$v\times(\min(v,e)$})$
+\end{framed}
+
+\RUBRIC
+Part (e)
+TAGS: complexity, graph-representation
+
+Gradescope rubric:
++0.5pt EITHER: O(v * (min(v,e)) if previous task uses graph_hasedge(G,vi)
++0.5pt OR: O(v+e) if previous task uses graph_has(edge(G,i,v)
+
+Commentary:
+- with graph_hasedge(G,vi), the worst case is where all edges are on the adj.list of v, which we visit over and over, thereby getting O(v min(e,v)).
+- with graph_edge(G,i,v), the worst case is where every i has v as its neighbor and v appears at the very end of the adj.list, meaning that we touch every node once.  Then we get O(e+v) AKA O(max(e,v)).
+ENDRUBRIC
+
+\end{parts}

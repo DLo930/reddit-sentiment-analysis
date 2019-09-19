@@ -1,0 +1,30 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (e > 0)
+//@loop_invariant e > 0 || accum == POW(x,y);
+{
+  accum = accum * x;
+  e = e - 1;
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  NOT ALWAYS PRESERVED.
+
+  Counterexample: 3=1, accum=0, x=10, y=10.
+}\else~\vspace{2.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<n7>)
+
+Gradescope rubric:
++0.5pt Valid counterexample (ex: e = 1, accum = 0, x = 10, y = 10)
+
+Commentary:
+  NOT always preserved
+  - Almost any case where e = 1 produces a counterexample.
+
+   - If they figure that out but don't give values for accum and x and
+     y, only give half a point.
+ENDRUBRIC

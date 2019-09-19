@@ -1,0 +1,3 @@
+   images/carnegie-rotate.png      - result of rotate()
+   images/cmu-gaussian.png         - result of maskblur with blur-slightly-mask.txt
+   images/cmu-edge.png             - result of maskblur with mask blur-mask.txt

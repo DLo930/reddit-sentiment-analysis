@@ -1,0 +1,60 @@
+bool even(void* x)
+//@requires \hastag(int*, x);
+{
+  if (x == NULL) return false;
+  int i = *(int*)x;
+  return i >= 0 && i % 2 == 0;
+}
+
+bool odd(void* x)
+//@requires \hastag(int*, x);
+{
+  if (x == NULL) return true;
+  int i = *(int*)x;
+  return i >= 0 && i % 2 == 1;
+}
+
+bool incr(void* x)
+//@requires \hastag(int*, x);
+{
+  if (x != NULL) {
+    int* p = (int*)x;
+    *p += 1;
+  }
+  return true;
+}
+
+void* find_negative(void* accum, void* x)
+//@requires \hastag(int*, accum);
+//@requires \hastag(int*, x);
+//@ensures \hastag(int*, \result);
+{
+  if (accum == NULL && x != NULL && *(int*)x < 0) return x;
+  return accum;
+}
+
+void* copy(void* accum, void* x)
+//@requires \hastag(queue_t, accum) && accum != NULL;
+//@requires \hastag(int*, x);
+//@ensures \hastag(queue_t, \result) && \result != NULL;
+{
+  enq((queue_t)accum, x);
+  return accum;
+}
+
+void* insert(void* accum, void* x)
+//@requires \hastag(int*, accum) && accum != NULL;
+//@requires \hastag(int*, x) && x != NULL;
+//@ensures \hastag(int*, \result) && \result != NULL;
+{
+  int* i = (int*)accum;
+  int* j = (int*)x;
+
+  if (*i < *j) {
+    int k = *i;
+    *i = *j;
+    *j = k;
+  }
+
+  return accum;
+}

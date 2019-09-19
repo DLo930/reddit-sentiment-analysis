@@ -1,0 +1,84 @@
+#use <string>
+#use <parse>
+
+//solution: 1031
+int password1() {
+  return 20*50 + 31;
+}
+
+//solution: 35
+int password2() {
+  int a = 5;
+  int b = a;
+  int c = b + 5;
+  return a * b + c;
+}
+
+
+//solution: 46 + 367k
+bool password3(int input) {
+  if ((input + 2310586) % 367 == 0) {
+    return true;
+  }
+  return false;
+}
+
+//solution: 122
+bool password4(int input) {
+  int x = input;
+  for(int i = 0; i < 3; i++) {
+      x = x << 1;
+  }
+  return x == 976;
+}
+
+bool func5(string s1, string s2) {
+  return string_equal(s1, s2);
+}
+
+// Move this function below password5 in the bytecode. Possible to
+// cause memory errors with weird inputs (which would be caught by the
+// given contracts if we compiled with -d)
+int[] readsixnumbers(string input) {
+  char[] input_array = string_to_chararray(input);
+  //@assert \length(input_array) == 14;
+
+  int[] results = alloc_array(int, 6);
+  if (string_equal("Respect", string_sub(input, 0, 7))) {
+    for(int i = 0; i < 6; i++) {
+      string individual = string_fromchar(input_array[i+7]);
+      int* x = parse_int(individual, 10);
+      //@assert x != NULL;
+      results[i] = *x;
+    }
+  }
+
+  return results;
+}
+
+//solution:"the interface"
+bool password5(string input) {
+  if(func5(input, "the interface")) {
+    return true;
+  }
+  return false;
+}
+
+//solution: "Respect" followed by any permutation of 0 through 5, followed
+// by anything (including the empty string)
+bool password6(string input) {
+  int[] sixnumbers = readsixnumbers(input);
+  for(int i = 0; i < 6; i++) {
+    if(!(0 <= sixnumbers[i] && sixnumbers[i] < 6)) {
+      return false;
+    }
+    for(int j = i+1; j < 6; j++) {
+      if(sixnumbers[i] == sixnumbers[j]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+

@@ -1,0 +1,224 @@
+
+
+// Standard-constructed buffers
+bool test_okbuf(tbuf* B, int row, int col) {
+  return is_tbuf(B);
+}
+
+
+// Buffers where unspecified values take values that were likely
+// unexpected by the student
+bool test_oddbuf(tbuf* B, int row, int col) {
+  B->start->prev = alloc(dll);
+  if (!is_tbuf(B)) return false;
+  B->start->prev = NULL;
+  
+  B->start->data = '\n';
+  if (!is_tbuf(B)) return false;
+  B->start->data = 'q';
+  if (!is_tbuf(B)) return false;
+  B->start->data = '\0';
+  
+  B->end->data = '\n';
+  if (!is_tbuf(B)) return false;
+  B->end->data = 'q';
+  if (!is_tbuf(B)) return false;
+  B->end->data = '\0';
+  
+  B->end->next = alloc(dll);
+  if (!is_tbuf(B)) return false;
+  B->end->next = NULL;
+  
+  B->cursor->data = '\0';
+  if (!is_tbuf(B)) return false;
+
+  return true;
+}
+
+// Buffers with lurking nulls: systematically replace every
+// pointer in a tbuf with NULL
+bool test_nullbuf(tbuf* B, int row, int col) {
+  dll* p;
+
+  p = B->start;
+  B->start = NULL;
+  if (is_tbuf(B)) return false;
+  B->start = p;
+
+  p = B->cursor;
+  B->cursor = NULL;
+  if (is_tbuf(B)) return false;
+  B->cursor = p;
+
+  p = B->end;
+  B->end = NULL;
+  if (is_tbuf(B)) return false;
+  B->end = p;
+
+  for (p = B->start; p != B->end; p = p->next) {
+    dll* q;
+    
+    q = p->next;
+    p->next = NULL;
+    if (is_tbuf(B)) return false;
+    p->next = q;
+    
+    q = p->next->prev;
+    p->next->prev = NULL;
+    if (is_tbuf(B)) return false;
+    p->next->prev = q;
+  }
+
+  if (!___sekret__is_tbuf(B)) error("Not restored");
+  return true;
+}
+
+bool test_badalloc(tbuf* B, int row, int col) {
+  println(stringify(B));
+  dll* node = alloc(dll);
+  node->prev = B->start;
+  node->data = 'x';
+  node->next = B->end;
+
+  dll* p;
+
+  p = B->start;
+  B->start = node;
+  if (is_tbuf(B)) { println("A"); return false; }
+  B->start = p;
+
+  p = B->cursor;
+  B->cursor = node;
+  if (is_tbuf(B)) { println("B"); return false; }
+  B->cursor = p;
+
+  p = B->end;
+  B->end = node;
+  if (is_tbuf(B)) { println("C"); return false; }
+  B->end = p;
+  
+  for (p = B->start; p != B->end; p = p->next) {
+    dll* q;
+    
+    q = p->next;
+    p->next = node;
+    if (is_tbuf(B)) { printchar(p->data); println("D"); return false; }
+    p->next = q;
+
+    q = p->next->prev;
+    q->next->prev = node;
+    if (is_tbuf(B)) { printchar(p->data); println("E"); return false; }
+    p->next->prev = q;
+  }
+  
+  return true;
+}
+
+bool test_order(tbuf* B, int row, int col) {
+  dll* p;
+
+  // end -- cursor -- start
+  p = B->start;
+  B->start = B->end;
+  B->end = p;
+  if (is_tbuf(B)) { println("A"); return false; }
+
+  // end -- start -- cursor
+  p = B->cursor;
+  B->cursor = B->end;
+  B->end = p;
+  if (is_tbuf(B)) { println("B"); return false; }
+
+  // start -- end -- cursor, MAY BE VALID
+  p = B->start;
+  B->start = B->cursor;
+  B->cursor = p;
+  if (B->cursor != B->end && is_tbuf(B)) { println("C"); return false; }
+
+  // cursor -- end -- start
+  p = B->start;
+  B->start = B->end;
+  B->end = p;
+  if (is_tbuf(B)) { println("D"); return false; }
+
+  // cursor -- start -- end
+  p = B->cursor;
+  B->cursor = B->end;
+  B->end = p;
+  if (is_tbuf(B)) { println("E"); return false; }
+  
+  // cursor -- cursor -- end, then set start = cursor.
+  B->cursor = B->start;
+  if (is_tbuf(B)) { println("F"); return false; }
+
+  return true;
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  tbuf* B2 = construct(2, 0, 0);
+  tbuf* B3 = construct(3, 0, 0);
+  dll* node2 = alloc(dll);
+  dll* node3 = alloc(dll);
+  node2->prev = B2->start;
+  node2->data = 'b';
+  node2->next = B2->end;
+  node3->prev = B3->start;
+  node3->data = 'b';
+  node3->next = B3->end;
+
+  if (string_equal(arg, "okbuf")) {
+    if (!exhaustively_test(0, 10, &test_okbuf)) return 1;
+
+  } else if (string_equal(arg, "oddbuf")) {
+    if (!exhaustively_test(0, 8, &test_oddbuf)) return 1;
+
+  } else if (string_equal(arg, "NULLbuf")) {
+    if (is_tbuf(NULL)) return 1;
+    if (is_tbuf(alloc(tbuf))) return 1;
+    if (!exhaustively_test(0, 8, &test_nullbuf)) return 1;
+    
+  } else if (string_equal(arg, "order")) {
+    if (!exhaustively_test(0, 8, &test_order)) return 1;
+
+  } else if (string_equal(arg, "one-node")) {
+    B2->cursor = B2->start;
+    B2->end = B2->start;
+    if (is_tbuf(B2)) return 1;
+  
+  } else if (string_equal(arg, "handout-figure-A")) {
+    B2->cursor = node2;
+    if (is_tbuf(B2)) return 1;
+
+  } else if (string_equal(arg, "handout-figure-B")) {
+    node2->prev = B2->cursor;
+    B2->end->prev = node2;
+    if (is_tbuf(B2)) return 1;
+
+  } else if (string_equal(arg, "discovered-1")) {
+    tbuf* B = construct(0, 0, 0);
+    dll* p = alloc(dll);
+    p->prev = B->start;
+    p->next = B->end;
+    B->end->prev = p;
+    if (is_tbuf(B)) return 1;
+    
+  } else if (string_equal(arg, "bypasspoint")) {
+    node3->prev = B3->start;
+    node3->next = B3->end;
+    
+  } else if (string_equal(arg, "badalloc")) {
+    if (!exhaustively_test(0, 8, &test_badalloc)) return 1;
+
+  } else {
+    error("Bad arg");
+
+  }
+
+  // XXX TODO: Could add a lot more tests here!
+
+  return 0;
+}

@@ -1,0 +1,192 @@
+LAST-2: genericity I -- client types
+LAST-1: genericity II -- void*
+LAST: client/library interface, implementing hash tables
+TODAY:
+- generic data structures -- part III
+- C0 memory model, revisited
+- function pointers
+NEXT: binary search trees -- the revenge of O(log n)
+
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] refined memory model
+[5] function pointers
+[5] function types
+[5] using void* and function pointers to get generic hash dictionaries
+
+
+Review
+======
+- hash dictionary implementation: non-resizing, semi-generic
+- interface split into
+  . client interface -- what types/operations the library needs from client
+  . library interface -- what types/operations the library provides to client
+- introduces unnatural dependency
+  . client code has to be split into two files
+  . compile and test last time's code [now with .c1 extension]
+      # cc0 -x -d lib/* words-template.c1 hdict-template.c1 main-template.c1
+- this lecture: make hash dictionaries fully generic (and get rid of dependency)
+- semi-generic DS:
+      typedef string elem;  // in client file
+  . can have at most 1 stack type per program
+- fully generic DS:
+      typedef void* elem;   // in library file
+
+Making keys and entries generic [this part is mainly a review exercise]
+===============================
+- just make their type void* -- like stacks
+[have a code printout with highlighted differences; updates in *void*.c1]
+- hdict-template.c1:
+  . typedef key and entry to void*
+  . add NULL-checks on keys
+- hdict-words-template.c1: [do just entry_key, copy the rest]
+  . comment out typedefs
+  . add NULL-check contracts on keys
+  . add \hastag's
+  . allocate key in entry_key
+  . add casts
+- main-template.c1:
+  . add cast when calling hdict_insert
+- test modified code
+  . word count example [works]
+      # cc0 -x -d lib/*.c0 hdict-void.c1 words-void.c1 words-main-void.c1
+  . client file words-void.c1 does not need to come before library!
+    . solved unnatural dependency
+    . this is because library interface contains prototypes of client functions
+    . can even combine words-void.c1 and words-main-void.c1
+  . produce example [works]
+      # cc0 -x -d hdict-void.c1 produce-void.c1 produce-main-void.c1
+  . combination example [DOESN'T WORK]
+      # cc0 -x -d lib/*.c0 hdict-void.c1 words-void.c1 produce-void.c1 words-main-void.c1
+      produce-void.c1:37.1-42.2:error:function 'entry_key' defined more than once
+      previous definition at words-void.c1:38.1-45.2
+      key entry_key (entry x) ... }
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      Compilation failed
+    . Why?
+    . superficial reason: 2 definitions of entry_key, etc
+    . deeper reason: hdict won't know which version to use -> we need a way to tell it
+- C1 provides a way to do so: 2 steps
+  . understand where functions live
+  . learn the C1 syntax that allows us to do so
+
+C0/1 memory model -- revisited
+==============================
+- so far, local memory (program variables) and allocated memory (arrays and pointer data)
+  [picture]
+- but computer has ONE thing called memory
+- memory in a computer can be thought as a large array of bytes indexed by addresses
+  . from 0 to 2^64 - 1 (C0/C1 addresses are 64 bits)
+- local and allocated memory are 2 segments in this array [see picture]
+  . local memory is called THE STACK -- function calls make it grow and shrink like a stack
+  . allocated memory is called the HEAP
+- what about the rest?
+  . CODE segment is where functions of program live (in binary)
+    . each function has an address in memory
+  . TEXT segment is where we have strings defined in program (CODE is often considered part of TEXT)
+    . secret way strings are implemented in C0
+  . top and bottom of memory are reserved to the OS
+    . accessing it is forbidden
+    . NULL is just address 0 (~ situation room in the White House)
+- This model will be significantly refined in future classes
+
+      ------------------------------- 2^64 - 1
+      |              OS             | (restricted)
+      -------------------------------
+      | H: *                  [main]|
+      | j: 7                        |    Local
+      | H: *          [hdict_lookup]|    memory
+ THE  | k: "rose"                   |
+stack | i: 4                        |
+      | k1: "rose"       [key_equiv]|
+      | k2: "Hamlet"                |
+      |~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~|
+      |              |              |
+      |              v              |
+      |                             |
+      |              ^              |
+      |              |              |
+      |~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~|
+      |    ...  [draw]              |    allocated
+Heap  |         ...  [draw]         |    memory
+      |              ...  [draw]    |
+      -------------------------------
+TEXT  | "Hamlet"                    | (read only)
+      | "rose"                      |
+      -------------------------------
+CODE  | main ...                    | (read only)
+      | hdict_new ...               |
+      |    ...                      |
+      | entry_key ...               |
+      | key_hash ...                |
+      | key_equiv ...               |
+      | hash_string ...             |
+      -------------------------------
+      |              OS             | (restricted)
+      ------------------------------- 0x0 = NULL
+
+
+Function pointers
+=================
+- & (ADDRESS_OF operator) gets the address of a function in the CODE segment, e.g., &hash_string
+  . in C1, & can be applied ONLY to function names
+    [in C, to anything that has a memory address]
+- how to use them?
+  . we want to do something like F = &hash_string
+  . but F is a variable, what's its type?
+- FUNCTION TYPE DECLARATIONS look just like prototypes with "typedef" in front of them
+- by convention, function type ends with "_fn"
+      typedef int string_hashes_fn(string s)
+  . type of any function that take a string as input and return an int -- even string_length
+- F = &hash_string is the address of the function, not the function itself
+  . a POINTER to a value of type string_hashes_fn
+      string_hashes_fn* F = &hash_string;
+  . new way to create pointers: grab an existing address
+    . previous ways were using alloc and setting to NULL
+- how to use F?
+  . dereference it and apply to argument
+    . (*F)("hello")
+    . not *F("hello") -- parsed as *(F("hello"))
+    . unfortunate clunky syntax -- other languages do much better!
+  . F is a pointer -- could be NULL
+    . dereferencing allowed only if non-NULL
+
+Making client functions generic
+===============================
+- change the 3 client interface prototypes to function type declarations
+  . e.g.,
+      typedef int key_hash_fn(key k)
+              /*@requires k != NULL; @*/ ;
+  . any function that takes in a key and returns an int and satisfies contract
+    can be used as a hash function!
+- how to tell the hash table which functions to use?
+  a) pass them as additional arguments to hdict_lookup and hdict_insert
+     . we will make mistakes!
+  b) record them in hdict_header
+     . pass them as argument to just hdict_new
+     . fundamental concept of object-oriented programming
+       . struct = object
+       . functions therein = methods
+[to show the changes to students:
+ . either compare voidstar/file.c1 and generic/file.c1 using emac's ediff
+ . or edit voidstar/*.c1 files into generic/*.c1 files
+]
+- file hdict-void.c1:
+  . change client prototypes to function types
+  . add function fields to hdict_header
+  . add NULL-checks to is_hdict
+  . update hdict_new
+    . 3 function arguments
+    . set fields
+  . modify remaining functions to use functional fields
+    . key_hash -> (*H->hash)
+    . turn key_entry and key_equiv into helper functions that access the new hdict fields
+  . library interface
+    . lose possibility of using entry_key and key_equiv in contracts!
+- file words-void.c1:
+  . rename functions (e.g., entry_key_wcount, key_hash_wcount, key_equiv_wcount)
+- file main-void.c1:
+  . add function arguments to hdict_new
+- test it on final files [do it on reference files to avoid errors]
+    # cc0 -x -d lib/*.c0 hdict.c1 words.c1 produce.c1 main.c1

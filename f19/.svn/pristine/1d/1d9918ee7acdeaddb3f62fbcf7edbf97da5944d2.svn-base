@@ -1,0 +1,43 @@
+\section*{Programming with C strings}
+
+\begin{part}\TAGS{c-memory, string}
+  Write a C function in a new file \lstinline'ex4.c' that reverses a
+  string and returns a pointer a new string with the result. The
+  function should have the following prototype:
+
+\lstinline[language={[coin]C}]'char *reverse(char *s);'
+
+
+\begin{solution}
+\begin{lstlisting}[language={[coin]C}]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char *reverse(char *s) {
+    int n = strlen(s);
+    char *result = calloc(n+1, sizeof(char));
+    for (int i = 0; i < n; i++) {
+        result[i] = s[n-i-1];
+    }
+    result[n] = '\0';
+    return result;
+}
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c-memory, string, testing}
+  Write a main function to test your function on a number of
+  strings.  Include only those header files that are necessary to
+  compile your code.  If you allocate memory, use \lstinline'calloc'
+  and be sure to free what you allocate.
+
+Compile and run your code with these commands:
+\begin{lstlisting}[language={[coin]C}, belowskip=0pt]
+% gcc -Wall -Wextra -Werror -Wshadow -std=c99 -pedantic -g lib/*.c ex4.c
+% ./a.out
+\end{lstlisting}
+
+\threePT
+\end{part}

@@ -1,0 +1,27 @@
+\section*{\lstinline'structs' on the stack%
+\TAGS{c-memory, struct}}
+
+In C0 and C1, if we ever wanted to create a \lstinline'struct', we had
+to explicitly allocate memory for it using
+\lstinline'alloc'. C doesn't have this restriction ---
+you can declare \lstinline'struct' variables on the stack, just like
+\lstinline'int''s.  We set a field of a \lstinline'struct' with
+dot-notation, below. Recall that when we had a \emph{pointer} \lstinline'p' to a
+\lstinline'struct', we accessed its fields with
+\lstinline'p->data'. This is just syntactic sugar for
+\lstinline'(*p).data'.
+\checkpoint*{\TAGS{c-memory, struct}}
+\bgroup
+\smalllistings
+\lstinputlisting{\code/structs.c}
+\egroup
+
+\begin{solution}
+This prints out:\\
+\lstinline'a.x, a.y: 3, c'\\
+\lstinline'b.x, b.y: 4, c'
+
+In C, struct assignment does a shallow copy of the entire struct. Of course,
+we're more concerned that the students understand how to use the dot notation of
+structs in this problem.
+\end{solution}

@@ -1,0 +1,238 @@
+\documentclass[12pt]{exam}
+\usepackage{amsmath}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\usepackage[all]{xy}
+
+\newcommand\Cnought{C$_0$}
+\newcommand\modulo{\ \texttt{\%}\ }
+\newcommand\lshift{\ \texttt{<<}\ }
+\newcommand\rshift{\ \texttt{>>}\ }
+\newcommand\cgeq{\ \texttt{>=}\ }
+
+\newcommand{\answerbox}[1]{
+\begin{framed}
+\hspace{5.65in}
+\vspace{#1}
+\end{framed}}
+
+
+\pagestyle{head}
+
+\headrule \header{\textbf{15-122 Assignment 5}}{}{\textbf{Page
+\thepage\ of \numpages}}
+
+\pointsinmargin \printanswers
+
+\setlength\answerlinelength{2in} \setlength\answerskip{0.3in}
+
+\begin{document}
+\addpoints
+\begin{center}
+\textbf{\large{15-122 : Principles of Imperative Computation
+ \\ \vspace{0.2in} Spring 2013
+\\  \vspace{0.2in} Assignment 5 - Selected solutions
+}}
+
+ \vspace{0.2in}
+ (\large{Theory Part})
+\end{center}
+
+\vspace{0.2in}
+
+The following solutions are provided to you to help you study this
+semester. They are not to be distributed to others outside of the
+class nor are they intended to be used by students in future semesters
+as a substitute for completing one's own homework assignments.
+
+\vspace{1.5in}
+
+\begin{questions}
+
+\question{\textbf{BSTs.}}
+
+In this question, we will think about the implementation of binary
+search trees. The \verb|is_bst| and \verb|is_ordered| functions are
+implemented as follows:
+
+\begin{verbatim}
+bool is_ordered(tree* T, elem lower, elem upper) {
+  if (T == NULL) return true;
+  if (T->data == NULL) return false;
+  key k = elem_key(T->data);
+  if (!(lower == NULL || key_compare(elem_key(lower),k) < 0))
+    return false;
+  if (!(upper == NULL || key_compare(k,elem_key(upper)) < 0))
+    return false;
+  return is_ordered(T->left, lower, T->data)
+    && is_ordered(T->right, T->data, upper);
+}
+
+bool is_bst(bst B) {
+  if (B == NULL) return false;
+  return is_ordered(B->root, NULL, NULL);
+}
+\end{verbatim}
+Remember that we cannot compare elements or keys directly with the C0
+comparison operations; we have to use the client function
+\verb'elem_key' to extract a key from an element and use the client
+function \verb'key_compare' to compare keys.
+
+\newpage
+\begin{parts}
+  \part[2]\label{part:search} It is possible to implement \verb|bst_search| 
+  as an iterative function rather than a recursive one. Fill in the
+  blanks so that the below function correctly implements
+  \verb|bst_search|.  
+
+  The lines involving the variables \verb|lower| and \verb|upper| are
+  used only to prove that the loop invariant is preserved. You should
+  not use \verb|lower| or \verb|upper| when filling in the blanks.
+ 
+\begin{solution}~
+\begin{verbatim}
+/*  1 */ elem bst_search(bst B, key k)
+/*  2 */ //@requires is_bst(B);
+/*  3 */ /*@ensures \result == NULL
+/*  4 */         || key_compare(k, elem_key(\result)) == 0; @*/
+/*  5 */ {
+/*  6 */   tree* T = B->root;
+/*  7 */   elem lower = NULL;
+/*  8 */   elem upper = NULL;
+/*  9 */ 
+/* 10 */   while (T != NULL && key_compare(k, elem_key(T->data)) != 0)
+/* 11 */   //@loop_invariant is_ordered(T, lower, upper);
+/* 12 */   {
+/* 13 */     if (key_compare(k, elem_key(T->data)) < 0) {
+/* 14 */       upper = T->data;
+/* 15 */       T = T->left;
+/* 16 */     } 
+/* 17 */     else {
+/* 18 */       lower = T->data;
+/* 19 */       T = T->right;
+/* 20 */     }
+/* 21 */   }
+/* 22 */  
+/* 23 */   if (T == NULL) return NULL;
+/* 24 */   return T->data;
+/* 25 */ }
+\end{verbatim}
+\vspace{0.15in}
+There are two natural stopping points for the loop: either \verb|T == NULL|, in which case
+\verb|k| is not in the tree, or \verb|key_compare(k, elem_key(T->data)) == 0|, in which case
+\verb|T->data| is what you're looking for.  The loop guard continues the loop until one of these
+stopping points has been reached.
+
+Lines~\verb|14| and~\verb|15| move our search to the left subtree of \verb|T|, where all of the
+elements are smaller than \verb|T->data|.  Thus, if \verb|k| is to be found in the left subtree,
+it must be the case that \verb|k| is smaller than \verb|T->data|.  This is what the \verb|if()| statement
+on line~\verb|13| checks.
+\end{solution}
+
+\newpage
+\part[4]\label{part:correctness}
+Prove that the code you wrote on lines \verb'10' and \verb'13' is safe
+-- that pointer dereferences are safe and that the preconditions of
+any function you call are satisfied.
+\begin{solution}
+
+Lines~\verb|10| and~\verb|13| both include the piece of code
+\verb|elem_key(T->data)|.
+There are two possible safety issues with this piece of code:
+first, \verb|T| could be \verb|NULL|, in which case the
+dereference \verb|T->data| would be unsafe.  Second, \verb|T->data|
+could be \verb|NULL|, in which case the function call \verb|elem_key(T->data)|
+would be unsafe (\verb|elem_key|'s precondition is that its
+input is non-\verb|NULL|).  Thus, to prove safety, we must show
+that \verb|T != NULL| and \verb|T->data != NULL| whenever the
+code \verb|elem_key(T->data)| is run on lines~\verb|10| and~\verb|13|.
+We'll prove these two parts separately.
+
+\paragraph{Part one:} 
+
+On line \verb|10|, the pointer dereference \verb|T->data| is safe because
+this code is only run if \verb|T != NULL| by short circuiting.  On line
+\verb|13|, this dereference is safe because if we're in the loop, the loop
+guard must be true, and the loop guard asserts that \verb|T != NULL|.
+
+\paragraph{Part two:}
+
+The proofs that \verb|T->data != NULL| when \verb|elem_key(T->data)| is called
+are identical for both lines~\verb|10| and~\verb|13|.  By the loop invariant on line~\verb|11|
+(which, remember, is checked before the loop guard and therefore can be assumed to be true
+in line~\verb|10|), we know that
+\verb|is_ordered(T, lower, upper)| is true.  Furthermore, from part one above,
+we know that \verb|T != NULL| whenever \verb|elem_key(T->data)| is run.
+However, if \verb|T != NULL|, then \verb|is_ordered| will return false
+if \verb|T->data| is \verb|NULL|.  Thus, \verb|T->data| is not \verb|NULL|,
+so the precondition is satisfied.
+
+\paragraph{Common mistakes:}
+
+Two common mistakes involved using the precondition \verb|is_bst(B)| from
+line~\verb|2| instead of the loop invariant \verb|is_ordered(T, lower, upper)|.
+Some people argued that line~\verb|6| tells us that \verb|T = B->root| and thus
+the code of \verb|is_bst| gives us \verb|is_ordered(T, NULL, NULL)| (from which we
+could prove \verb|T->data != NULL|).  However, \verb|T| is modified inside the \verb|while()|
+loop, and so this line of reasoning doesn't work.
+
+Another form of this mistake was for people to argue that from the code of
+\verb|is_bst(B)|, we can see that every non-\verb|NULL| subtree of \verb|B|
+must have non-\verb|NULL| \verb|data|.  As a result, any any time \verb|T->data|
+is called when \verb|T != NULL|, we can be assured that \verb|T->data != NULL|
+as well.  While this is good intuition, it is informal and what we consider to be
+``operational reasoning.''  Formalizing this argument logically would involve 
+using the loop invariant on line~\verb|11|.
+\end{solution}
+
+\newpage
+Prove that the loop invariant is true initially.
+\begin{solution}
+Initially, \verb|T == B->root| and \verb|lower == upper == NULL| by lines
+\verb|6|, \verb|7|, and \verb|8|.  Thus we need to show that
+\verb|is_ordered(B->root, NULL, NULL)| is true initially. 
+By the precondition on line \verb|2|, \verb|is_bst(B)| is true.
+As \verb|is_bst(B)| is true only if \verb|is_ordered(B->root, NULL, NULL)|
+is true, the loop invariant is satisfied.
+
+\paragraph{Common mistakes:}
+
+Some people argued that because \verb|lower|, \verb|upper == NULL|, then \verb|lower|
+and \verb|upper| provide no bounds on the values in \verb|T|.  As a result,
+\verb|is_ordered(T, lower, upper)| is true no matter what \verb|T| is.  However, this
+statement is incorrect: there are many trees \verb|T| for which this would return false.
+For example, if \verb|T| violates the BST Ordering Invariant then
+\verb|is_ordered| will always be false.  In addition, if \verb|T != NULL| but
+\verb|T->data == NULL| then \verb|is_ordered| will always be false.
+\end{solution}
+Prove that the loop invariant is preserved by any iteration of the
+loop.  There are two cases that to show; just show the case where
+the conditional on line \verb'13' evaluates to \verb'true'.
+\begin{solution}
+When the conditional on line \verb|13| evaluates to true,
+by lines \verb|14| and \verb|15|, \verb|upper' == T->data| and \verb|T' == T->left|.
+To show that the loop invariant is preserved we need to show that 
+\verb|is_ordered(T->left, lower, T->data)| is
+true at the end of the loop.  
+By the loop guard, \verb|T != NULL|.
+By the loop invariant, \verb|is_ordered(T, lower, upper)|.
+
+When \verb|T != NULL|, \verb|is_ordered(T, lower, upper)|
+will only return true if
+\begin{equation*}
+\verb|is_ordered(T->left, lower, T->data)|
+\end{equation*}
+and
+\begin{equation*}
+\verb|is_ordered(T->right, T->data, upper)|
+\end{equation*}
+are both true.  In particular, the first of these is true, which is what we wanted to show.
+(We'd need the other one in the case where the conditional on line \verb|13| evaluates to false.)
+\end{solution}
+
+\end{parts}
+\end{questions}
+
+\end{document}

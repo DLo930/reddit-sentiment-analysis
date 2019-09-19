@@ -1,0 +1,79 @@
+15-122 Clac manual style grading instructions and rubric
+
+We are grading style for clac.
+
+################################################################################
+
+*How To Grade Style*
+
+1) Go the 15-122 shared documents (on Google Docs) and click on the entry entitled "Manual Grading". There, go to the 'Clac' tab. This will tell you which submissions you are responsible for.
+2) Go to autolab.andrew.cmu.edu
+3) Navigate to the Images Assignment
+4) Click "Grade all submissions" under Admin Options
+5) It should be sorted already, but you can also click on "Email & Name" at the top to make it
+   properly sorted a-z by Andrew ID
+6) Click on the arrow next to a student's email, this will open a new tab
+   a) on that tab, click on the magnifying glass next to file 'dict.c0' see below.
+   b) If you are deducting points, make sure to leave a comment in their code. This can be done by
+      mousing over the line numbers and clicking the green "+". For contracts, use the form below.
+      For style points, make sure the comment starts with "FIXSTYLE:"
+   c) enter an overall assessment (see below) on line 1
+   d) If you deducted points, MAKE SURE YOU LEFT A COMMENT in their code.
+   e) Go back to the Autolab page with all the submissions, and update the postconditions grade by
+      clicking the "-" in the row of the person you were just grading (Do not release the grade when
+      completed)
+7) When you finish all your students, update the spreadsheet to reflect that
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Here’s the next batch of style grading. Please get it done by **Sunday afternoon**.
+
+**Procedure**:
+1) Go to autolab.andrew.cmu.edu
+2) Go to the Clac and Exp Assignment in 15-122 S17.
+3) Click "Grade all submissions".
+4) Click on the arrow next to a student's email to see their code files.
+5) Click the magnifying glass for dict.c0 to see the code.
+6) Grade the output, and insert comments (with the prefix FIXSTYLE) for each issue that the student will need to resolve to regain points. Put the score in by clicking on the "-" in the Style column. If they did not lose any style points, put a 0. Do not release the grade when completed.
+7) When finished grading, change your field in the Google Doc to reflect that.
+
+The grading doc is at https://docs.google.com/spreadsheets/d/1LQc2gAQEEyyjcUj4EgpeQL_VJVE7Jp-s3jVVUEN3ToM/edit#gid=1494885409.
+
+
+====
+
+**Scoring**: Either all (0 points) or nothing (-20 points). We're only really checking for the use of data structure invariants. Loop invariants making sure that segments are valid and that indices are given lower bounds are good things, but we aren't going to fail style grading for them, this time.
+
+You're looking for two sorts of things:
+
+Category A (General):
+- Does is_dict or some data structure invariant checking function exist (which does more than check that D != NULL)?
+- Does dict_new //@ensures their is_dict function?
+- Does dict_lookup //@requires their is_dict function?
+
+Category B (Implementation-specific):
+What the is_dict function specifically does is dependent on the implementation. Only checks that are necessary to ensure SAFETY are required.
+- If there are arrays, the data structure will inevitably have to store the array length. The data structure invariant should check that the stored length is the actual length of the array.
+- If there are linked lists, there should be something like an is_segment function.
+
+
+A lot of people may lose points, but that's okay.
+Remember to get this done by **Sunday afternoon**.

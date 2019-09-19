@@ -1,0 +1,23 @@
+#use <conio>
+
+bool test_one(int[] A, int a, int[] B, int b, int[] solution, int s)
+//@requires 0 <= a && a <= \length(A);
+//@requires 0 <= b && b <= \length(B);
+//@requires 0 <= s && s <= \length(solution);
+{
+    int size = 0; //How big should this be?
+    int[] intersection = alloc_array(int, size);
+    int len = intersect(A, a, B, b, intersection);
+
+    //Check to make sure the result is correct
+
+
+    //No Checks failed so it is correct!
+    return true;
+}
+
+bool run_tests() {
+    //Remember - this function should return whether
+    //ALL tests pass!
+    return false; //No tests, so they all fail right?
+}

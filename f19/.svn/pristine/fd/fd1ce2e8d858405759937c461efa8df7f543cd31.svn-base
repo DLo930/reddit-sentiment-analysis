@@ -1,0 +1,49 @@
+BONUS POINTS - We promised bonus "points" for cool clac programs. Here's 
+how to communicate them to the students and to me
+
+To the students: when annotating bonus.clac "for style", write "yes"
+for people who produced anything that works and is documented, "great"
+for people who wrote an interesting bonus.clac, and "prize" is for
+people that you think are in the top handful (subjectively).
+
+For maximum coolness, the clac should include, for each definition, a line like:
+
+: comment rot4 S, w, x, y, z => S, x, y, z, w ;
+
+There should also be unit tests so we can see whether it works and
+just how cool it is, like this:
+
+4 1 2 3 rot4 4 - if quit else 3 - if quit else 2 - if quit else 1 - if quit else noop
+
+1 2 6 3 4 5 rot4 6 - if quit else 5 - if quit else 4 - if quit else 3 - if quit else 2 - if quit else 1 - if quit else noop
+
+As you annotate, keep a running list on the side and send to me when
+done, like this:
+
+annpenny, yes
+pwei, prize
+etc.
+
+No list entry needed if no bonus.clac submitted.
+
+
+DICTIONARIES - 2 points for invariants
+
+ +1 - dict_lookup and dict_insert need to @require is_dict 
+
+ +1 - dict_new and dict_insert need to @ensure is_dict (this is not
+      necessary for dict_lookup, but it's fine if it's there.)
+
+DEMO/CLAC - 3 points
+If there's a working clac.c0 file, you don't need to check demo.c0.
+ +1 - Figured out to factor the "check if stack is empty otherwise die
+      horribly" code into a function of some sort. 
+ +1 - Had their factored function *also* perform the actual pop
+      operation (safe_pop) OR wrote what is effectively a check_queue
+      or safe_deq function. (If they have check_queue and check_stack,
+      they only get this point if it also //@ensures !queue_empty(Q); 
+      and //@ensures !stack_empty(Q);, since that's the whole point.)
+ +1 - Some comments. At minimum, comments explaining what their
+      create-a-definition code is doing. 
+ +0 - Comment, but do not deduct, if they used a constant instead of
+      int_min() int_max().

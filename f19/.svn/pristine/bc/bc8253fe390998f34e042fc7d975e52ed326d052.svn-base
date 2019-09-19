@@ -1,0 +1,37 @@
+Midterm 1
+=========
+Contracts/Loop invariant proofs
+Integers (binary, hex, decimal)
+Bitwise operations
+Searching and sorting
+Big-O
+Stacks and queues
+Structs and pointers
+Interface vs. implementation
+
+Midterm 2
+=========
+Linked lists
+Amortized analysis
+UBAs
+Hash tables
+BSTs
+AVL trees
+Priority queues
+C1 (void*, function pointers)
+
+Final
+=====
+Review topics:
+  Loop invariant proofs / Searching / Sorting
+  Stacks / Queues / Linked lists / Hash tables
+  Amortized Analysis / UBAs
+  Binary trees / Priority queues
+  Void pointers / Function pointers
+New topics:
+  The C memory model
+  Integer types / Casting
+  Graph representations
+  Graph search
+  MST / Union find
+  C0VM

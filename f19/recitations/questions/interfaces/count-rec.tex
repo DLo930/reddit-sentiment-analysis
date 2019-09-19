@@ -1,0 +1,18 @@
+\checkpoint*{\TAGS{interface, queue, stack}}
+
+Write a \emph{recursive} function to count the size of a stack. You
+may not destroy the stack in the process --- the stack's elements (and
+order) must be the same before and after calling this function. Assume
+the stack contains elements of type \lstinline{string}.
+
+\begin{lstlisting}[lineskip=2ex]
+int size(stack_t S)
+//@requires [*\answerline{S != NULL}*];
+{
+  [*\answerline{if (stack\_empty(S)) return 0;}*]
+  [*\answerline{string x = pop(S);}*]
+  [*\answerline{int i = size(S);}*]
+  [*\answerline{push(S, x);}*]
+  [*\answerline{return i+1;}*]
+}
+\end{lstlisting}

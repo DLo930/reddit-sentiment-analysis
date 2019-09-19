@@ -1,0 +1,128 @@
+\section*{Compiling and running your program}
+
+Before you can run your program, you need to compile it to have it
+translated into a lower level (machine) version of the code that can
+be executed by your computer.  The \emph{compiler} first checks for
+syntax errors and will abort with an error message in case it finds a
+syntax error.  Before you do this for the first time, you need to make
+sure that you can access the compiler
+\lstinline[language={[coin]C}]'cc0' or interpreter
+\lstinline[language={[coin]C}]'coin' from the command line.
+
+\begin{part}
+  Find out what command shell you're using, since set up is different
+  for each shell.
+
+  \lstinline[language={[coin]C},mathescape=false]'% echo $SHELL'
+
+  What you do next depends on what you see when you ran that command.
+
+  If you see \lstinline[language={[coin]C}]'csh', then enter the
+  following command, exactly as shown except for the
+  \lstinline[language={[coin]C}]'%':
+
+  \lstinline[language={[coin]C},mathescape=false]'% setenv PATH ${PATH}:/afs/andrew/course/15/122/bin'
+
+  If you see \lstinline[language={[coin]C}]'bash', then enter the
+  following command, exactly as shown except for the
+  \lstinline[language={[coin]C}]'%':
+
+  \lstinline[language={[coin]C},mathescape=false]'% export PATH=$PATH:/afs/andrew/course/15/122/bin'
+
+  If you see another shell designation, ask your teaching assistant
+  for help.
+\end{part}
+
+
+\begin{part}
+  Compile your code using the \lstinline[language={[coin]C}]'cc0'
+  compiler:
+
+  \lstinline[language={[coin]C}]'% cc0 -d factorial.c0'
+
+  This runs the compiler with debug mode on
+  (\lstinline[language={[coin]C}]'-d').
+\end{part}
+
+Debug mode checks all the code annotations starting with \lstinline'//@'
+for testing.  You will learn how these work in class.
+
+If there are no syntax errors, the \lstinline[language={[coin]C}]'cc0'
+compiler returns to the command prompt without saying anything
+else. Running \lstinline[language={[coin]C}]'ls' will show you a new
+file in your directory named \lstinline[language={[coin]C}]'a.out',
+which is the executable version of your program. If you have syntax
+errors during compilation, go back into the file with an editor and
+correct them.
+
+\begin{part}
+  Run the program:
+
+  \lstinline[language={[coin]C}]'% ./a.out'
+
+  The first dot says to look in the current directory (recall this
+  shortcut from the \lstinline'cp' command) and run the
+  \lstinline[language={[coin]C}]'a.out' executable file. This will
+  cause the \lstinline'main()' function in your program to launch,
+  which prints the values of 0! through 9! in the terminal window, one
+  per line.
+\end{part}
+
+That shows us how to \emph{compile} \textbf{(3.b)} and \emph{run}
+\textbf{(3.c)} our programs.  Alternatively, you can use the C0
+interpreter to execute our program.  An \emph{interpreter} checks a
+program for syntax errors, translates it into machine code, and runs
+the resulting code step by step.  This is a good way to interact with
+your program in real time to test it. The name of the C0 interpreter
+is \lstinline[language={[coin]C}]'coin'.
+
+\begin{part}
+  Run your program in the \lstinline[language={[coin]C}]'coin'
+  interpreter, starting it with %
+  \lstinline[language={[coin]C}]'coin -d  factorial.c0' %
+  and entering in the five C0 statements as shown below.
+
+  \lstinline[language={[coin]C}]'% coin -d factorial.c0'\\
+  \lstinline[language={[coin]C}]'C0 interpreter (coin)'\\
+  \lstinline[language={[coin]C}]"Type `#help' for help or `#quit' to exit."\\
+  \lstinline[language={[coin]C}]'--> factorial(2);'\\
+  \lstinline[language={[coin]C}]'--> factorial(3);'\\
+  \lstinline[language={[coin]C}]'--> factorial(4);'\\
+  \lstinline[language={[coin]C}]'--> factorial(10);'\\
+  \lstinline[language={[coin]C}]'--> factorial(17);'
+\end{part}
+
+Some of the outputs \lstinline[language={[coin]C}]'coin' gives should
+strike you as odd. We'll learn about what's going on there a week from
+tomorrow. Be patient for now \Smiley.
+
+\begin{part}
+  Factorial $n!$ is only defined on non-negative numbers. Try to
+  compute a non-existent factorial:
+
+  \lstinline[language={[coin]C}]'--> factorial(-1);'
+\end{part}
+
+In this case, you should see an annotation failure. This is because in
+our code, our factorial function starts with the requirement:
+\lstinline'//@requires n >= 0;'
+
+Since we called this function with a value for $n$ that does not
+satisfy this requirement, we get an annotation failure since it
+doesn't make sense to run this function with $n = -1$.
+
+\begin{part}
+  Exit the interpreter:
+
+  \lstinline[language={[coin]C}]'--> #quit'
+\end{part}
+
+\begin{part}
+  Start the interpreter again, this time without the
+  \lstinline[language={[coin]C}]'-d' flag:
+
+  \lstinline[language={[coin]C}]'% coin factorial.c0'\\
+  \lstinline[language={[coin]C}]'C0 interpreter (coin)'\\
+  \lstinline[language={[coin]C}]"Type `#help' for help or `#quit' to exit."\\
+  \lstinline[language={[coin]C}]'--> factorial(-1);'
+\end{part}

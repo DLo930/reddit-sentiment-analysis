@@ -1,0 +1,50 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 01             # int pool count
+# int pool
+80 00 00 00
+
+00 11             # string pool total size
+# string pool
+44 69 76 69 73 69 6F 6E 20 62 79 20 7A 65 72 6F 00  # "Division by zero"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 02             # number of local variables = 2
+00 34             # code length = 52 bytes
+10 2A    # bipush 42       # 42
+36 00    # vstore 0        # x = 42;
+10 00    # bipush 0        # 0
+36 01    # vstore 1        # y = 0;
+15 01    # vload 1         # y
+10 00    # bipush 0        # 0
+9F 00 1B # if_cmpeq +27    # if (y == 0) goto <00:then>
+A7 00 03 # goto +3         # goto <03:or>
+# <03:or>
+15 00    # vload 0         # x
+13 00 00 # ildc 0          # c[0] = -2147483648
+9F 00 06 # if_cmpeq +6     # if (x == -(-2147483648)) goto <04:and>
+A7 00 14 # goto +20        # goto <01:else>
+# <04:and>
+15 01    # vload 1         # y
+10 FF    # bipush -1       # -1
+9F 00 06 # if_cmpeq +6     # if (y == -(1)) goto <00:then>
+A7 00 0A # goto +10        # goto <01:else>
+# <00:then>
+14 00 00 # aldc 0          # s[0] = "Division by zero"
+BF       # athrow          # error "Division by zero"
+A7 00 03 # goto +3         # goto <02:endif>
+# <01:else>
+# <02:endif>
+15 00    # vload 0         # x
+15 01    # vload 1         # y
+6C       # idiv            # (x / y)
+B0       # return          # 
+
+00 00             # native count
+# native pool
+

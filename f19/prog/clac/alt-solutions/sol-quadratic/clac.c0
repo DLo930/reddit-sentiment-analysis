@@ -1,0 +1,175 @@
+/*
+ * Clac, stack-based calculator language
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use <string>
+#use <parse>
+#use <conio>
+#use <args>
+#use <util>
+
+typedef dict clacstate;
+clacstate init_state() {
+  return dict_new();
+}
+
+int stack_size(stack S) {
+  int x = 0;
+  stack R = stack_new();
+  while(!stack_empty(S)) {
+    x++;
+    push(R, pop(S));
+  }
+
+  while(!stack_empty(R)) {
+    push(S, pop(R));
+  }
+
+  return x;
+}
+/* auxiliary arithmetic functions that check for overflow */
+int div(int x, int y) {
+  if (y == 0) error("Error: division by zero");
+  if (x == int_min() && y == -1) error("Error: division overflow");
+  return x / y;
+}
+
+int mod(int x, int y) {
+  if (y == 0) error("Error: modulo zero");
+  if (x == int_min() && y == -1) error("Error: modulus overflow");
+  return x % y;
+}
+
+/* auxiliary deq and pop functions that check for emptiness */
+string DEQ(queue Q) {
+  if (queue_empty(Q)) error("Error: unexpected end of input");
+  return deq(Q);
+}
+
+int PICK(stack S, int n)
+//@requires n > 0;
+{
+  int i = pop(S);
+  if (n == 1) {
+    push(S, i);
+    return i;
+  } else {
+    int j = PICK(S, n-1);
+    push(S, i);
+    return j;
+  }
+}
+
+/* return false to exit interpreter */
+bool eval(queue Q, stack S, dict D) {
+  qstack R = qstack_new();      /* empty initial return stack */
+  while (!queue_empty(Q) || !qstack_empty(R)) {
+    if (queue_empty(Q)) {
+      Q = qpop(R);
+    } else {
+      string tok = DEQ(Q);
+      // print("Read: "); print(tok); print("\n");
+      if (string_equal(tok, "+")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, x+y);
+      } else if (string_equal(tok, "-")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, x-y);
+      } else if (string_equal(tok, "*")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, x*y);
+      } else if (string_equal(tok, "/")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, div(x,y));
+      } else if (string_equal(tok, "%")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, mod(x,y));
+      } else if (string_equal(tok, "<")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, (x < y) ? 1 : 0);
+      } else if (string_equal(tok, "drop")) {
+        if (stack_size(S) < 1) error("Not enough elements on stck");
+        pop(S);
+      } else if (string_equal(tok, "swap")) {
+        if (stack_size(S) < 2) error("Not enough elements on stck");
+        int y = pop(S);
+        int x = pop(S);
+        push(S, y); push(S, x);
+      } else if (string_equal(tok, "dup")) {
+        if (stack_size(S) < 1) error("Not enough elements on stck");
+        int x = pop(S);
+        push(S, x); push(S, x);
+      } else if (string_equal(tok, "rot")) {
+        if (stack_size(S) < 3) error("Not enough elements on stck");
+        int z = pop(S);
+        int y = pop(S);
+        int x = pop(S);
+        push(S, y); push(S, z); push(S, x);
+      } else if (string_equal(tok, "print")) {
+        if (stack_size(S) < 1) error("Not enough elements on stck");
+        int x = pop(S);
+        printint(x); print("\n");
+      } else if (string_equal(tok, "quit")) {
+        return false;           /* do not continue */
+      } else if (string_equal(tok, "pick")) {
+        if (stack_size(S) < 1) error("Not enough elements on stck");
+        int n = pop(S);
+        if (n <= 0) error("pick must be positive");
+        push(S,PICK(S, n));
+      } else if (string_equal(tok, ":")) {
+        queue def = queue_new();
+        string name = DEQ(Q);
+        tok = DEQ(Q);
+        while (!string_equal(tok, ";")) {
+          enq(def, tok);
+          tok = DEQ(Q);
+        }
+        /* do not copy ';' */
+        dict_insert(D, name, def);
+        print("(defined "); print(name); print(")\n");
+      } else if (string_equal(tok, "if")) {
+        /* if false, skip two tokens; otherwise just continue */
+        if (stack_size(S) < 1) error("Not enough elements on stck");
+        if (pop(S) == 0) {
+          DEQ(Q);
+          DEQ(Q);
+        } /* if true (!= 0), just continue */
+      } else if (string_equal(tok, "else")) {
+        /* skip next token */
+        DEQ(Q);
+      } else {
+        int* p = parse_int(tok, 10);
+        if (p != NULL) {
+          /* input token was number, stored in p */
+          push(S, *p);
+        } else {
+          queue* Qdef = dict_lookup(D, tok);
+          if (Qdef == NULL) {
+            /* undefined token */
+            error(string_join("Error: undefined token ", tok));
+          } else {
+            /* defined */
+            qpush(R, Q);        /* save remainder of current queue on R */
+            Q = queue_read_only_copy(*Qdef); /* continue with body of def */
+          }
+        }
+      }
+    }
+  }
+
+  return true;                  /* continue */
+}
+

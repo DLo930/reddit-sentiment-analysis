@@ -1,0 +1,14 @@
+int result_width(int width, int height)
+{
+
+}
+
+int result_height(int width, int height)
+{
+
+}
+
+pixel_t[] manipulate(pixel_t[] pixels, int width, int height)
+{
+
+}

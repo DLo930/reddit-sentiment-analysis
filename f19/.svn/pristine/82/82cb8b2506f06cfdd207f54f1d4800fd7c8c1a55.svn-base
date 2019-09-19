@@ -1,0 +1,69 @@
+\newpage
+\part[1]\TAGS{pq, safety}
+Here is the \lstinline'pq_add' function discussed in class:
+\begin{lstlisting}
+void pq_add(heap* H, elem e)
+//@requires is_heap(H) && !pq_full(H);
+//@ensures is_heap(H);
+{
+  int i = H->next;
+  H->data[H->next] = e;
+  (H->next)++;
+  /**** LOCATION 1 ****/
+  while(i > 1)
+  //@loop_invariant 1 <= i && i < H->next;
+  //@loop_invariant is_heap_except_up(H, i);
+  //@loop_invariant grandparent_check(H, i);
+  {
+    if (ok_above(H, i/2, i)) return;
+    swap_up(H, i);
+    i = i/2;
+  }
+}
+\end{lstlisting}
+
+Write ``OK'' to the right of each assertion below, if it provably
+always holds at \lstinline'LOCATION 1'; write ``NO'' otherwise.
+
+\begin{framed}
+\newcommand{\ans}[1]{\uanswer{3.5em}{#1}}
+\begin{lstlisting}
+//@assert is_heap_safe(H);                   // Answer: [*\ans{OK}*]
+
+//@assert is_heap(H);                        // Answer: [*\ans{NO}*]
+
+//@assert grandparent_check(H, i);           // Answer: [*\ans{OK}*]
+
+//@assert is_heap_except_up(H, i/2);         // Answer: [*\ans{NO}*]
+
+//@assert is_heap_except_down(H, i);         // Answer: [*\ans{NO}*]
+
+//@assert ok_above(H, i, i);                 // Answer: [*\ans{OK}*]
+
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: pq, safety
+
+Gradescope rubric:
+- 0 pts WARNING: NEGATIVE GRADING! Incorrect answers are selected.
+- 0.25 pts OK -- is_heap_safe(H)
+- 0.25 pts NO -- is_heap(H)
+- 0.25 pts OK -- grandparent_check(H, i)
+- 0.25 pts NO -- is_heap_except_up(H, i/2);
+- 0.25 pts NO -- is_heap_except_down(H, i);
+- 0.25 pts OK -- ok_above(H, i, i);
+
+Commentary:
+1/4 off for each wrong answer until we're out. (there
+are 2 points to give)
+
+  - is_heap_safe(H);             OK
+  - is_heap(H);                  NO
+  - grandparent_check(H, i);     OK
+  - is_heap_except_up(H, i/2);   NO (what if i is 1?)
+  - is_heap_except_down(H, i);   NO
+  - ok_above(H, i, i);           OK
+ENDRUBRIC

@@ -1,0 +1,33 @@
+// Only works in slow mode (assertion failure)
+
+int count_vocab(string[] vocab, int[] freq, int v,
+                string tweetfile,
+                bool fast)
+//@requires v == \length(vocab) && v == \length(freq);
+//@requires is_sorted(vocab, 0, v);
+{
+  assert(!fast);
+
+  bundle_t bund = read_words(tweetfile);
+  int len = string_bundle_length(bund);
+  string[] tweets = string_bundle_array(bund);
+  //@assert \length(tweets) == len;
+
+  // Keep track of out-of-vocabulary words
+  int oov = 0;
+
+  for(int i = 0; i < len; i++)
+    //@loop_invariant 0 <= i;
+    {
+      // Get index in vocabulary
+      int j;
+      if(fast) j = binsearch(tweets[i], vocab, v);
+      else j = linsearch(tweets[i], vocab, v);
+      
+      // Update the appropriate frequency count
+      if (j == -1) oov += 1;
+      else freq[j] += 1;
+    }
+  
+  return oov;
+}

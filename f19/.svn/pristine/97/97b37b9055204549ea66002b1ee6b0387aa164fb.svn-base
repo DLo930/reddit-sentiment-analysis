@@ -1,0 +1,11 @@
+/*
+ * Peg solitaire solver
+ *
+ * 15-122 Principles of Imperative Computation */
+
+#use <conio>
+#use <util>
+
+
+int solve(board B, stack_t Sol)
+  ;

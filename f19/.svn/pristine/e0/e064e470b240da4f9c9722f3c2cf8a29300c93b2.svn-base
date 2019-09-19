@@ -1,0 +1,5 @@
+int main() {
+  int** p = alloc(int*);
+  *p = NULL;
+  return *p == NULL ? 0 : 1;
+}

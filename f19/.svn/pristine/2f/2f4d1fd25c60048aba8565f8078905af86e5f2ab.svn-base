@@ -1,0 +1,7 @@
+: comment log S, 0 quits ;
+: comment log S, n => S, log_2 n ;
+: noop ;
+: dup 1 pick ;
+: log 0 swap dup 1 < if quit noop noop log_ret? ;
+: log_ret? dup 1 - if log_body 1 skip drop ;
+: log_body swap 1 + swap 2 / log_ret? ;

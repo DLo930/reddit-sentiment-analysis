@@ -1,0 +1,80 @@
+#use <args>
+#use <string>
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  rope_t r = alloc(struct rope_node);
+  r->len = 8;
+  r->data = "whatever";
+    
+  if (string_equal(arg, "charat")) {
+    if ('w' != rope_charat(r, 0)) return 1;
+    if ('h' != rope_charat(r, 1)) return 1;
+    if ('a' != rope_charat(r, 2)) return 1;
+    if ('t' != rope_charat(r, 3)) return 1;
+    if ('e' != rope_charat(r, 4)) return 1;
+    if ('v' != rope_charat(r, 5)) return 1;
+    if ('e' != rope_charat(r, 6)) return 1;
+    if ('r' != rope_charat(r, 7)) return 1;
+
+    r->len = 1;
+    r->data = "?";
+    if ('?' != rope_charat(r, 0)) return 1;
+
+    r = hbd();
+    if ('h' != rope_charat(r, 0)) return 1;
+    if ('a' != rope_charat(r, 1)) return 1;
+    if ('p' != rope_charat(r, 2)) return 1;
+    if ('p' != rope_charat(r, 3)) return 1;
+    if ('y' != rope_charat(r, 4)) return 1;
+    if (' ' != rope_charat(r, 5)) return 1;
+    if ('b' != rope_charat(r, 6)) return 1;
+    if ('i' != rope_charat(r, 7)) return 1;
+    if ('r' != rope_charat(r, 8)) return 1;
+    if ('t' != rope_charat(r, 9)) return 1;
+    if ('h' != rope_charat(r, 10)) return 1;
+    if ('d' != rope_charat(r, 11)) return 1;
+    if ('a' != rope_charat(r, 12)) return 1;
+    if ('y' != rope_charat(r, 13)) return 1;
+    if ('!' != rope_charat(r, 14)) return 1;
+
+    for (int lower = 40; lower < 42; lower++) {
+      for (int upper = lower + 2; upper < 75; upper++) {
+        rope_t rb = balist(lower, upper);
+        rope_t rr = rightist(lower, upper);
+        rope_t rl = leftist(lower, upper);
+        for (int i = lower; i < upper; i++) {
+          if (char_chr(i) != rope_charat(rb, i-lower)) return 1;
+          if (char_chr(i) != rope_charat(rr, i-lower)) return 1;
+          if (char_chr(i) != rope_charat(rl, i-lower)) return 1;
+        }
+      }
+    }
+
+  } else if (string_equal(arg, "tostring")) {
+    if (!string_equal("", rope_tostring(NULL))) return 1;
+    if (!string_equal("whatever", rope_tostring(r))) return 1;
+    if (!string_equal("happy birthday!", rope_tostring(hbd()))) return 1;
+    if (!string_equal("totally", rope_tostring(totally()))) return 1;
+    if (!string_equal("efficient", rope_tostring(efficient()))) return 1;
+    if (!string_equal("?", rope_tostring(balist(63, 64)))) return 1;
+    if (!string_equal("abcdefghi", rope_tostring(balist(97, 106)))) return 1;
+    if (!string_equal("abcdefghi", rope_tostring(leftist(97, 106)))) return 1;
+    if (!string_equal("abcdefghi", rope_tostring(rightist(97, 106)))) return 1;
+
+  } else if (string_equal(arg, "charat-huge")) {
+    r = biggie();
+    if ('0' != rope_charat(r, 0)) return 1;
+    if ('e' != rope_charat(r, 1006632959)) return 1;
+    if ('c' != rope_charat(r, 42)) return 1;
+
+  } else {
+    error("Bad arg");
+  }
+
+  
+  return 0;
+}

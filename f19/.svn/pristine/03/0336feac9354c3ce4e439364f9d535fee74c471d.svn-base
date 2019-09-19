@@ -1,0 +1,29 @@
+#use <conio>
+
+
+bool is_in(entry[] A, entry s, int l){
+  for(int i =0; i<l; i++){
+    if(s==A[i]) return true;
+  }
+  return false;
+}
+
+
+int main(){
+  hdict_t D = hdict_new(5);
+  entry[] entered_students = alloc_array(entry,100);
+  for(int i=0; i<100; i++){
+    entry s = alloc(struct student_record);
+    s->student_id = i*100;
+    s->grades = alloc_array(char, 20);
+    entered_students[i]=s;
+    hdict_insert(D,s);
+  }
+  entry[] tabulated_studs = hdict_tabulate(D);
+  for(int i=0; i<100; i++){
+    assert(is_in(tabulated_studs,entered_students[i],100));
+  }
+
+  println("all tests passed");
+  return 0;
+}

@@ -1,0 +1,73 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+CC0=cc0
+
+.PHONY: default extract compile grade
+
+default:
+	@$(MAKE) extract -s
+	@$(MAKE) compile -is
+	@$(MAKE) grade -s
+
+extract:
+	date
+	echo "[15-122] Extraction..."
+	echo "=================================================="
+	tar -mkxf autograde.tar
+	tar -mkxzvf handin.tgz
+	echo ""
+
+TASKS_GRADE=tasks-unused.c0 tasks-grade.c0
+# Runs cc0 (creates binaries from source code) -- executables are not run
+compile:
+	date
+	echo "[15-122] Compilation..."
+	echo "=================================================="
+	$(CC0) -d -o pixel-grade pixel.c0 pixel-grade.c0
+
+	$(CC0) -o pixel-exploit pixel-bad.c0 pixel-test-exploit.c0
+	$(CC0) -d -o pixel-failure pixel-bad.c0 pixel-test-failure.c0
+
+	$(CC0) -d -o pixeltest-self pixel.c0      pixel-test.c0
+	$(CC0) -d -o pixeltest-ours pixel-int.c0  pixel-test.c0
+	$(CC0) -d -o pixeltest-sbad pixel-bad.c0  pixel-test.c0
+	$(CC0) -d -o pixeltest-bad1 pixel-bad1.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad2 pixel-bad2.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad3 pixel-bad3.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad4 pixel-bad4.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad5 pixel-bad5.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad6 pixel-bad6.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad7 pixel-bad7.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad8 pixel-bad8.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-bad9 pixel-bad9.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-badA pixel-badA.c0 pixel-test.c0
+	$(CC0) -d -o pixeltest-badB pixel-badB.c0 pixel-test.c0
+
+	$(CC0) -d -o tasks-grade pixel-int.c0 tasks.c0 $(TASKS_GRADE)
+
+	sed -r 's/pixel_t[ \t]+quantize[ \t]*[(]/pixel_t stu_quantize(/' tasks.c0 > tasks-stu.c0
+	$(CC0) -d -o tq-self pixel.c0 tasks.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-ours pixel-int.c0 tasks.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-good pixel-int.c0 quant-good.c0 tasks-stu.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-bad1 pixel-int.c0 quant-bad1.c0 tasks-stu.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-bad2 pixel-int.c0 quant-bad2.c0 tasks-stu.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-bad3 pixel-int.c0 quant-bad3.c0 tasks-stu.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-bad4 pixel-int.c0 quant-bad4.c0 tasks-stu.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tq-bad5 pixel-int.c0 quant-bad5.c0 tasks-stu.c0 $(TASKS_GRADE)
+
+	date
+	echo "[15-122] Compiling tasks.c0 with different pixel"
+	echo "         implementations. If you didn't respect"
+	echo "         the pixel.c0 interface, there will be"
+	echo "         error messages here and they won't make"
+	echo "         much sense..."
+	echo "=================================================="
+	$(CC0) -d -o tasks-int    pixel-alt-int.c0    tasks.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tasks-struct pixel-alt-struct.c0 tasks.c0 $(TASKS_GRADE)
+	$(CC0) -d -o tasks-string pixel-alt-string.c0 tasks.c0 $(TASKS_GRADE)
+
+# Calls grader.py, which runs the executables
+grade:
+	date
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

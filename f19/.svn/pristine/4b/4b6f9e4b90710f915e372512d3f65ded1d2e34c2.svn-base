@@ -1,0 +1,25 @@
+#use <string>
+#use <conio>
+
+typedef struct prof prof_t;
+struct prof {
+	string name;
+	string title;
+	string office;
+	string email;
+	int area_code; // 0 if no phone number
+	int phone;
+};
+
+int hash_string(string s) {
+  int ret = 0;
+  for(int i=0; i<string_length(s); i++) {
+    ret = ret * 31 + char_ord(string_charat(s, i));
+  }
+  
+  return ret;
+}
+
+int hash_prof(prof_t *prof) {
+  return 31*hash_string(prof->name) + hash_string(prof->title);
+}

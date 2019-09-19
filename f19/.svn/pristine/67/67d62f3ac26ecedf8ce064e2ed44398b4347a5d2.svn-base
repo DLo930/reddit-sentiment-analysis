@@ -1,0 +1,2 @@
+: || if drop1put1 1 skip istrue ;
+: && if istrue 1 skip drop1put0 ;

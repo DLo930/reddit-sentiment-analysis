@@ -1,0 +1,16 @@
+---
+general:
+  name: lab03
+  description: ''
+  display_name: 'Lab 3: Loopty-loopy Loop'
+  handin_filename: handin.c
+  handin_directory: handin
+  max_grace_days: 0
+  handout: handout-03.tgz
+  writeup: lab03.pdf
+  max_submissions: -1
+  disable_handins: true
+  max_size: 2
+  has_svn: false
+  category_name: Labs
+problems: []

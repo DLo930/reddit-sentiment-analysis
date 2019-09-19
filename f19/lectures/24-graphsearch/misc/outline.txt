@@ -1,0 +1,249 @@
+LAST: Graph definitions/representation
+TODAY:
+- Connectivity
+  . DFS
+  . BFS
+NEXT: Trees over graphs
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[3] review
+[5] connectivity
+[4] implementation of naive DFS
+[5] implementation of DFS with mark array
+[5] cost analysis of DFS
+[5] implementation of BFS
+[4] correctness of BFS
+[4] search strategies from using other work lists
+
+[example graphs for today]     G1         G2
+                             0   3      0   1---2
+                             |\  |      |   |
+                             | 4 |      |   |
+                             |/ \|      3---4   5
+                             1---2
+Review
+======
+- graphs and lots of definitions
+- graph library interface with basic operations
+- 2 implementations
+- complexity bounds              AM            AL
+      space                    O(v^2)        O(max(v,e))
+      graph_hasedge:           O(1)          O(min(v,e))
+      graph_addedge:           O(1)          O(1)
+      graph_get_neighbors:     O(v)          O(1)
+      graph_free_neighbors:    O(min(v,e))   O(1)
+   => graph_print              O(v^2)        O(max(v,e))
+- today: more interesting graph problem
+
+Graph connectivity
+==================
+- is there a PATH between two vertices v1 and v2?
+  . (graph_hasedge only tells us whether there is an EDGE between v1 and v2)
+  . if so, v1 and v2 are CONNECTED
+    . or v2 is REACHABLE from v1
+  . v1 and v2 are then part of the same CONNECTED COMPONENT of the graph
+    . G1 has 1 connected component, G2 has 2
+    . more on that next lecture
+- optionally, report a path that connects v1 and v2
+  . we will not bother with the path, but algos we will see can be instrumented to do so
+  . a path is a WITNESS that two nodes are connected
+    . provides an easy way to check if they are really connected
+    . while finding the path is (kind of) hard
+    . this idea is the foundation of cryptography -- one-way functions
+- INDUCTIVE DEFINITION of "there is a path" [audience participation]
+    there is a path from start to target   if
+    . start == target, or
+    . there is an edge from start to v
+           and  a path from v to target
+
+Naive DFS [file connected-template.c]
+=========
+- let's give a direct implementation of this definition as a recursive function
+  . this algorithm is called DEPTH-FIRST SEARCH (DFS)
+  [fill in code in function naive_dfs in template file]
+      bool naive_dfs(graph_t G, vertex start, vertex target) {
+        REQUIRES(G != NULL);
+        REQUIRES(start < graph_size(G) && target < graph_size(G));
+        printf("    Visiting %u\n", start);
+
+        // there is a path from start to target if
+        // target == start, or
+        if (target == start) return true;                                     // ADD
+        // there is an edge from start to v ...
+        vert_list *nbors = graph_get_neighbors(G, start);                     // ADD
+        for (vert_list *p = nbors; p != NULL; p = p->next) {                  // ADD
+          vertex v = p->vert;             // v is one of start's neighbors    // ADD
+          if (naive_dfs(G, v, target)) {  // ... and a path from v to target  // ADD
+            graph_free_neighbors(nbors);                                      // ADD
+            return true;                                                      // ADD
+          }
+        }
+        graph_free_neighbors(nbors);                                          // ADD
+        return false;
+      }
+  . don't forget to free nbors!
+- does this code work as expected?
+  . trace it on G1 with start = 3 and end = 0
+    [assume neighbors are reported in numerical order]
+         start   target    [nbors]
+         3       0         2
+         2       0         1 3 4
+         1       0         0 2 4
+         0       0    Success!
+    . compile and run it to confirm
+      # make
+      # search naive_dfs con5 3 0
+  . trace it on G1 with start = 0 and end = 3
+    . alternates infinitely between 0 and 1
+         start   target    [nbors]
+         0       3         1 4
+         1       3         0 2 4
+         0       3         1 4
+         1       3         0 2 4
+         ...
+    . run to verify there is indeed an infinite loop
+      # search naive_dfs con5 0 3
+[note: run "search" by itself to display usage/options]
+- does this mean our definition is wrong?
+  . no: definition magically picks the right v if there is one
+  . code must check all neighbors in some order -- no way to guess the right one
+- how to fix it? [audience participation]
+
+Fixed DFS
+=========
+- we go back to a vertex if we haven't found a path the first time around
+  . outcome will be the same 2nd, 3rd, ... time!  -- infinite loop
+- solution: MARK vertices we have visited before and don't visit them again
+  . "visited": the function has been called with start = that vertex
+- how do we do that?
+  . carry around a bool array (mark) that records which vertices have been visited
+- [copy code from naive_dfs to dfs_helper and make following changes]
+  . promise we will never call the function on a marked vertex
+    . precondition REQUIRES(!mark[start]);
+  . mark[start] = true;    as first instruction in dfs_helper
+  . change naive_dfs to dfs_helper and add mark argument in recursive call
+  . guard recursive call with  !mark[v]
+- mark array should not be visible to client:
+  . have main function create it and call dfs_helper
+- trace G1 with start = 0 and end = 3
+         start   target    [nbors]       [marked vertices]
+         0       3         1 4           0
+         1       3         0 2 4         0 1
+         2       3         1 3 4         0 1 2
+         3       3    Success!
+- confirm empirically
+      # make
+      # search dfs con5 0 3
+- cost of dfs using AL
+    OS can allocate and zero out array in O(1)
+  + cost of dfs_helper
+- cost of dfs_helper using AL
+  . within dfs_helper
+    . call to graph_get neighbors -- O(1)
+    . for loop is ran O(e) times ALTOGETHER -- like graph_print
+    . call to graph_free_neighbors -- O(1)
+  . observe that it will be called
+    . at most 2e times -- because loop runs 2e times at most
+    . at most once per vertex
+      . we call it only on unmarked vertices
+      . once we enter it, we mark the vertex
+    . thus dfs_helper is called min(2e,v) times
+  . overall cost is O(e) with AL
+
+- cost of dfs using AM = cost of dfs_helper
+- cost of dfs_helper
+  . within dfs_helper
+    . call to graph_get neighbors -- O(v)
+    . for loop is ran O(e) times ALTOGETHER -- like graph_print
+    . call to graph_free_neighbors -- O(e) ALTOGETHER
+  .  dfs_helper is called min(2e,v) times
+  . overall cost is O(min(v^2,ev)) with AM
+    . but in realitic graphs, e is at least O(v), so O(v^2)
+- cost of dfs is O(e) with AL and O(v^2) with AM
+  . same for dense graphs
+  . AL is better for sparse graphs
+
+BFS
+===
+- let's run dfs on G1 with start = 0 and end = 4
+      # search dfs con5 0 4
+  . visits node 0 1 2 3 4, and path would be 0-1-2-4
+  . but there is an edge from 0 to 4 -- a much simpler path
+  . dfs charges ahead till it finds target or dead-ends
+    . when returning false, dfs_helper BACKTRACKS to last choice point
+- the algo that will find 0 - 4 right away is BREADTH-FIRST SEARCH (BFS)
+  . the algo we suggested you use in lightsout!
+  . we will now solve lightsout in the next 5 minutes
+- [bfs in template file contains essentially the pseudocode given to them for lightsout]
+  . code starts with a mark array
+    . what did we have instead in lightsout?
+      . hash table where we recorded boards we had seen before
+      . makes sense because that was a lot of boards for 6x6 instance for example
+  . mark start
+  . fill in pseudocode with actual code
+  . don't forget to free data structures before returning
+- [run it]
+- to see how BFS works, let's trace it on G1 with start = 0 and target = 3
+  [state shown right before next iteration and after picking v]
+          v    [queue]        [marked vertices]
+  (init)        0              0
+          0
+                1 4            0 1     4
+          1
+                4 2            0 1 2   4
+          4
+                2              0 1 2   4
+          2  >>>>>> 3 is a neighbor of 2: success!
+  . BFS proceeds in waves, or by level
+    . visits 0
+    . visits all vertices 1 step  away from 0: 1 4
+    . visits all vertices 2 steps away from 0: 2
+    . visits all vertices 2 steps away from 0: 3
+  . if a path exists, BFS will find it even without a mark array
+    . but without a mark array it will loop for ever if there is no path
+- cost of BFS: O(e) with AL and O(min(v^2,ev)) -- often O(v^2) -- with AM
+    . left as exercise
+  . same analysis as graph_print
+
+Correctness of BFS
+==================
+- BFS is correct if it returns
+  . true  when there is  a path from start to target
+  . false when there is no path from start to target
+- let's prove correctness
+- returns true at the beginning if start == target
+  . this is the trivial path -- we're good
+- also returns true inside loop when w == target
+  . we need some loop invariants to prove correctness in this case
+  . what can we say about marked vertices?
+      LI 1: every marked vertex is connected to start
+  . what can we say about vertices in the queue?
+      LI 2: every vertex in Q is marked
+  . how do we prove them?
+    . INIT: start is the only marked vertex and it is in the queue
+    . PRES: v is pulled from queue, so it's marked
+            we mark all its unmarked neighbors w and add them to the queue
+  . correctness: w is a neighbor of a marked vertex, so it is connected to start
+- we return false after we get out of the loop
+  . L1 and L2 are insufficient
+  . what do the elements in the queue represent? the FRONTIER of the search
+    . all marked vertices (behind it) have been explored
+    . all unmarked vertices (ahead of it) have not (yet) been explored -- including target
+    . if a path to target exists, it has to pass through the frontier
+      LI 3: All paths from start to target go through a vertex in the frontier
+  . we exit the loop when Q is empty
+    . LI 3 holds only if there is no path from start to target:
+      . all (0) paths from start to target go through the (empty) queue
+  . so there is no path from start to target
+
+Other strategies
+================
+- the fact that we kept track of vertices to explore next in a QUEUE specifically didn't matter
+  . ANY work list will do
+- we obtain an iterative version of DFS if we replace the queue with a STACK
+  . correctness proof remains the same
+  . even complexity analysis doesn't change since queue and stack operations cost the same
+- what if we use another type of work list, e.g., priority queue?
+  . we get algorithms used in AI
+  . correctness proof holds, but complexity goes up

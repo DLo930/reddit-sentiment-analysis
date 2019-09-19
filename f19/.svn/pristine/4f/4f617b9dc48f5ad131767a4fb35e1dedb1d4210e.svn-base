@@ -1,0 +1,51 @@
+\section*{Arrays of strings}
+
+Load the file \lstinline'ex2.c' into a text editor. Read through the
+file and write down what you think the output will be \emph{before}
+you run the program.
+
+\par\answerline{}
+\par\answerline{}
+\par\answerline{}
+
+Once you have done this, compile and run the program:
+\begin{lstlisting}[language={[coin]C}]
+% gcc -Wall -Wextra -Werror -Wshadow -std=c99 -pedantic -g ex2.c
+% ./a.out
+% valgrind ./a.out
+\end{lstlisting}
+
+\begin{part}\TAGS{c-array, c-memory}
+  We never free any memory in this program, yet valgrind reports no
+  memory leaks.  Why? Where are the strings stored? Where is the memory
+  for the array stored?
+
+\begin{solution}
+Strings are stored in the .data section.\\
+The memory for the array is stored on the system stack.
+\end{solution}
+\end{part}
+
+\begin{part}\TAGS{c-array, c-memory, testing}
+  What do you think will happen if we change \lstinline'num_states' to
+  7 without changing any other part of the program? Make this change,
+  and explain the output you see in Valgrind.
+
+\begin{solution}
+\begin{lstlisting}[language={[coin]C}]
+state #0: Pennsylvania
+state #1: West Virginia
+state #2: Ohio
+state #3: Maryland
+state #4: California
+state #5: Virginia
+state #6: Oklahoma
+\end{lstlisting}
+\end{solution}
+\end{part}
+
+Discuss the answer to (2.a) with a TA, and explain whether you would
+be able to use the output from \lstinline'valgrind' to identify the
+bug you introduced in (2.b), to get checked in for this lab.
+
+\twoPT

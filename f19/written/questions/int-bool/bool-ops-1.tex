@@ -1,0 +1,69 @@
+\subpart%
+Set \lstinline'u' equal to \lstinline'p' with its highest 16 bits set
+to 0 and the remaining bits left unchanged (so that, for
+example, \lstinline'0xAB12CE34' becomes \lstinline'0x0000CE34').
+\begin{framed}
+\begin{lstlisting}[aboveskip=-5pt, belowskip=-5pt]
+
+int u = [*\uanswer{30em}{p \& 0x0000FFFF}*];
+\end{lstlisting}
+\end{framed}
+
+\subpart %
+Set \lstinline'v' equal to \lstinline'p' with its middle 16 bits
+flipped ($0 \Longrightarrow 1$ and $1 \Longrightarrow 0$) (so that, for
+example, \lstinline'0xAB0F1812' becomes \lstinline'0xABF0E712').
+\begin{framed}
+\begin{lstlisting}[aboveskip=-5pt, belowskip=-5pt]
+
+int v = [*\uanswer{30em}{p \^{}  0x00FFFF00}*];
+\end{lstlisting}
+\end{framed}
+
+\subpart %
+Set \lstinline'w' equal to \lstinline'p' with its highest 8 bits set
+to 1 and with its lowest 8 bits set to 0 (so that, for
+example, \lstinline'0xAB12CE34'
+becomes \lstinline'0xFF12CE00').
+\begin{framed}
+\begin{lstlisting}[aboveskip=-5pt, belowskip=-5pt]
+
+int w = [*\uanswer{30em}{(p | 0xFF000000) \& 0xFFFFFF00}*];
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (a)
+
+Gradescope rubric:
++ 0.5 pts Box 1 correct [Ex: p & 0x0000FFFF]
++ 0.5 pts Box 2 correct [Ex: p ^ 0x00FFFF00]
++ 0.5 pts Box 3 is correct [Ex: (p | 0xFF000000) & 0xFFFFFF00]
+
+Commentary:
+1/2 point for each box. Read instructions below... if something significant wrong, it's wrong.
+
+Lots of correct answers, so grading this requires a little thought and/or
+use of coin.
+
+No partial credit. If they use 1s in place of Fs (either binary:
+0b00000000111111111111111100000000 or pseudo-hex-binary 0x00111100
+where they meant 0x00FFFF00) then one point penalty (that is, max
+score of .5, don't give negative points).
+
+Don't be picky about most syntax errors (stuff like && instead of & is
+bad but, for now, it gets caught by the compiler). Be picky about
+actually-incorrect omission of parens and use of illegal operators,
+though. Shift binds MORE tightly than bitwise ops, bitwise ops all
+associate to the left, & binds more tightly than ^, which binds more
+tightly than |.
+
+No addition! ONLY &, |, ^, ~, <<, >>, per the problem spec.
+
+i)   u = p & 0x00FF00FF
+
+ii)  v = p ^ 0x00FFFF00
+
+iii) w = (p | 0xFF000000) & 0xFFFFFF00
+     w = ((p | 0xFF000000) >> 8) << 8
+ENDRUBRIC

@@ -1,0 +1,5 @@
+int main() {
+  string* p = alloc(string);
+  *p = "hello world";
+  error(*p);
+}

@@ -1,0 +1,38 @@
+\documentclass[lab]{inc/122handout}
+\mfcsnumber{12: Once you C1 you C them All}
+\mfcsdate{\formatdate{11}{11}{\YEAR}} % day-month-year
+
+\begin{document}
+\labcollab
+
+\textbf{Setup:} Copy the lab code from our public directory to your private
+directory:
+
+\begin{lstlisting}[language={[coin]C}]
+% cd private/15122
+% cp -R /afs/andrew/course/15/122/misc/lab12 .
+% cd lab12
+\end{lstlisting}
+% formerly, lab-string
+
+\textbf{Grading:} Finish through (2.b) for 2 points.  Finish through
+(4.b) for 3 points.
+
+\inputQuestion[questions/C-string/]{storing}
+\inputQuestion[questions/C-string/]{arrays}
+\inputQuestion[questions/C-string/]{library}
+\inputQuestion[questions/C-string/]{reverse}
+
+%%%%%% OLD
+%\begin{lstlisting}[language={[coin]C}]
+%% cd private/15122
+%% cp -R /afs/andrew/course/15/122/misc/lab-cbst .
+%% cd lab-cbst
+%\end{lstlisting}
+%
+%\textbf{Grading:} Finish (2.a--d) for 2 points. Finish through (3.a) for 3
+%points.
+%
+%\inputQuestion[questions/C-bst/]{translation}
+%\inputQuestion[questions/C-bst/]{free}
+\end{document}

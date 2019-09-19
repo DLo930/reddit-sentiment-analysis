@@ -1,0 +1,265 @@
+\clearpage
+\Question{Proving the correctness of functions with one loop}
+
+The Pell sequence is shown below:
+$$
+0, 1, 2, 5, 12, 29, 70, 169, 408, 985, \ldots
+$$
+Each integer $i_n$ in the sequence for $n \geq 3$ is the sum of
+$2i_{n-1}$ and $i_{n-2}$. By definition, $i_1 = 0$ and $i_2 = 1$.
+Consider the following implementation for \lstinline'fastpell' that
+returns the $n$\textsuperscript{th} Pell number, $n \geq 1$. The body
+of the loop is not shown.
+\begin{lstlisting}[numbers=left, belowskip=0pt]
+int PELL(int n)
+//@requires n >= 1;
+{
+  if (n <= 1) return 0;
+  else if (n == 2) return 1;
+  else return 2 * PELL(n-1) + PELL(n-2);
+}
+
+int fastpell(int n)
+//@requires n >= 1;
+//@ensures \result == PELL(n);[*\label{l:fastpell-post}*]
+{
+  if (n <= 1) return 0;[*\label{l:fastpell-if1}*]
+  if (n == 2) return 1;[*\label{l:fastpell-if2}*]
+  int i = 0;[*\label{l:fastpell-ini1}*]
+  int j = 1;[*\label{l:fastpell-ini2}*]
+  int k = 2;[*\label{l:fastpell-ini3}*]
+  int x = 3;[*\label{l:fastpell-ini4}*]
+  while (x < n)[*\label{l:fastpell-lg}*]
+    //@loop_invariant 3 <= x && x <= n;[*\label{l:fastpell-LI1}*]
+    //@loop_invariant i == PELL(x-2);[*\label{l:fastpell-LI2}*]
+    //@loop_invariant j == PELL(x-1);[*\label{l:fastpell-LI3}*]
+    //@loop_invariant k == i + 2*j;[*\label{l:fastpell-LI4}*]
+    {
+\end{lstlisting}
+\begin{lstlisting}[numbers=none,aboveskip=-0pt]
+      // LOOP BODY NOT SHOWN: modifies i, j, k, and x
+    }
+  return k;
+}
+\end{lstlisting}
+
+In this problem, we will reason about the correctness of the
+\lstinline'fastpell' function when the argument \lstinline'n' is
+greater than or equal to \lstinline'3', and we will complete the
+implementation based on this reasoning.
+
+(NOTE: To completely reason about the correctness of
+\lstinline'fastpell', we also need to point out that
+\lstinline'fastpell(1) == PELL(1)' and that %
+\lstinline'fastpell(2) == PELL(2)'. This is straightforward, because
+no loops are involved.)
+
+\newpage
+\emph{Note: The completed solution below shows you a general format for showing
+  that a postcondition holds given a valid loop invariant. The English
+  explanation is kept to a minimum and point-to reasoning
+  plays a large role.  In the future, you may be asked to write an
+  entire solution in a clear, concise manner, and the solution below gives
+  you an example of how you might write such a solution.}
+
+
+\begin{parts}
+\newcommand{\ans}[2]{\fbox{\rule[-0.5ex]{0em}{3ex}\answer{#1}{#2}}}
+
+\part[1]\TAGS{correctness, loop-invariant}
+{\bf Loop invariant and negation of the loop guard imply postcondition}
+
+Complete the argument that the postcondition is satisfied assuming
+valid loop invariant(s) by giving appropriate line numbers. Use
+point-to reasoning.
+
+\begin{framed}
+  We know \lstinline'x <= n' by line \ans{1.5em}{\ref{l:fastpell-LI1}}
+  and we know \lstinline'x >= n' by line
+  \ans{1.5em}{\ref{l:fastpell-lg}} , which implies that %
+  \lstinline'x == n' by logic.
+
+  \bigskip%
+  The returned value \result{} is the value of \lstinline'k' after the
+  loop, so to show that the postcondition on
+  line~\ref{l:fastpell-post} holds when \lstinline'n >= 3', it
+  suffices to show \lstinline'k == PELL(n)' after the loop.
+
+\begin{tabular}{ll}
+     \lstinline'k == i + 2*j'
+   & by line \ans{1.5em}{\ref{l:fastpell-LI4}}
+\\\\ \lstinline'  == i + 2*PELL(x-1)'
+   & by line \ans{1.5em}{\ref{l:fastpell-LI3}}
+\\\\ \lstinline'  == PELL(x-2) + 2*PELL(x-1)'
+   & by line \ans{1.5em}{\ref{l:fastpell-LI2}}
+\\\\ \lstinline'  == PELL(x)'
+   & by \lstinline'PELL' definition, the commutativity
+\\ & \phantom{by }of \lstinline'+', and \lstinline'x >= 1' by line
+     \ans{1.5em}{\ref{l:fastpell-LI1}}
+\end{tabular}
+\end{framed}
+
+\RUBRIC
+Make sure to make it clear what the answer(s) were and
+which ones they got right or wrong. It's wrong if there are missing lines and
+it's wrong if there are extra lines given (except where indicated).
+
+Part (a)
+TAGS: correctness, loop-invariant
+
+Gradescope rubric (negative grading):
+-0.2pt  Box 1: 20
+-0.2pt  Box 2: 19
+-0.2pt  Box 3: 23
+-0.2pt  Box 4: 22
+-0.2pt  Box 5: 21
+-0.2pt  Box 6: 20
+
+Commentary:
+  - x <= n                                    by line _20_
+  - x >= n                                    by line _19_
+  - k = i + 2*j                               by line _23_
+  - i + 2*j == i + 2*PELL(x-1)                by line _22_
+  - i + 2*PELL(x-1) = PELL(x-2) + 2*PELL(x-1) by line _21_
+  - x >= 1                                    by line _20_
+
+- 0.2pt off for each mistake up to a maximum of 4 mistakes (1 pt)
+ENDRUBRIC
+
+\part[1]\TAGS{correctness, loop-invariant}
+{\bf Loop invariant holds initially}
+
+Complete the argument for the loop invariants holding initially by
+giving appropriate line numbers.
+
+\begin{framed}
+The loop invariant \lstinline'3 <= x' on line~\ref{l:fastpell-LI1}
+holds initially by line(s) \ans{6em}{ \ref{l:fastpell-ini4}}.
+
+\bigskip
+The loop invariant \lstinline'x <= n' on line~\ref{l:fastpell-LI1}
+holds initially by line(s) \ans{6em}{\ref{l:fastpell-if1}, \ref{l:fastpell-if2}, \ref{l:fastpell-ini4}}.
+
+\bigskip
+The loop invariant on line~\ref{l:fastpell-LI2} holds initially by
+line(s) \ans{6em}{\ref{l:fastpell-ini1}, \ref{l:fastpell-ini4}}.
+
+\bigskip
+The loop invariant on line~\ref{l:fastpell-LI3} holds initially by
+line(s) \ans{6em}{\ref{l:fastpell-ini2}, \ref{l:fastpell-ini4}}.
+
+\bigskip
+The loop invariant on line~\ref{l:fastpell-LI4} holds initially by
+lines \ref{l:fastpell-ini3}, \ref{l:fastpell-ini1} and
+\ref{l:fastpell-ini2}.
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: correctness, loop-invariant
+
+Gradescope rubric:
++0.25pt  Box 1: line 18
++0.25pt  Box 2: lines 13, 14 and 18
++0.25pt  Box 3: lines 15 and 18 (any mention of lines 1-6 is fine)
++0.25pt  Box 4: lines 16 and 18 (any mention of lines 1-6 is fine)
+
+Commentary:
+- 3 <= x: line 18
+- x <= n: lines 13, 14, and 18
+- i == PELL(x-2): lines 15 and 18 (any mention of lines 1-6 is fine)
+- j == PELL(x-1): lines 16 and 18 (and 1-6 is fine)
+- k == i + 2*j: lines 15, 16, and 17
+
+- 1/4 point off for each mistake
+ENDRUBRIC
+
+\newpage
+\part[0\half]\TAGS{correctness, loop-invariant}
+{\bf The loop invariant is preserved through any single iteration of the loop}
+
+Based on the given loop invariants, write the body of the loop.
+{\bf  DO NOT use the specification function \lstinline'PELL()'. The
+specification function is meant to be used in contracts only.
+Also, do not call \lstinline'fastpell' recursively, since this isn't fast!}
+
+(NOTE: To check your answer, you would prove that the loop invariants
+are preserved by an arbitrary iteration of the loop, but you don't
+have to do that for us here --- we'll cover that process in the next
+question.)
+
+\begin{lstlisting}[frame=single, numbers=left, firstnumber=18, numberblanklines=false]
+while (x < n)
+//@loop_invariant 3 <= x && x <= n;
+//@loop_invariant i == PELL(x-2);
+//@loop_invariant j == PELL(x-1);
+//@loop_invariant k == i + 2*j;
+{
+    i = [*\uanswer{25em}{j}*];
+
+    j = [*\uanswer{25em}{k}*];
+
+    k = [*\uanswer{25em}{2*i + j}*];
+
+    x = [*\uanswer{25em}{x + 1}*];
+}
+
+return k;
+\end{lstlisting}
+
+\RUBRIC
+Part (c)
+TAGS: correctness, loop-invariant
+
+Gradescope rubric:
++0.25pt  At least 3 of {i, j, k, x} correct
++0.25pt  All four correct
+
+Commentary:
+  - i = j;
+  - j = k;
+  - k = 2*i + j; // OR 2*k + j
+  - x = x + 1;
+
+  - .25 points if they make one mistake (check it's a mistake if you
+    haven't seen it before!)
+  - 0 points for recursion, calling PELL, anything else
+ENDRUBRIC
+
+\part[0\half]\TAGS{correctness}
+{\bf The loop terminates}
+
+The postcondition is satisfied only if the loop terminates.
+Explain concisely why the function must terminate with the loop body you
+gave in part c.
+\begin{framed}
+The integer quantity \ans{6em}{\texttt{n - x}} is strictly decreasing because
+
+\medskip
+\ifprintanswers{\color{\answerColor}
+  \texttt{n} remains constant and \texttt{x} gets strictly bigger.
+}\else~\vspace{8ex}\fi
+
+\smallskip
+Since the loop terminates if this quantity
+reaches 0 or less and this quantity is strictly decreasing, the loop must terminate.
+\end{framed}
+
+\RUBRIC
+Part (d)
+TAGS: correctness
+
+Gradescope rubric:
++0.5pt  -- EITHER -- correct quantity that can't go below zero (probably n-x) and reasonable justification (justification does not need to include line 19, the loop guard, even though technically it should)
++0.25pt -- OR -- correctly increasing quantity (like x) and reasonable justification for why it increases
++0.25pt -- OR -- correctly quantity that decreases (like -x) and justification for why it decreases
+
+Commentary:
+First blank:  n - x
+Second blank: n remains constant and x gets strictly bigger (or always increases by 1).
+- Note: i, j, and k get strictly larger is NOT justified due to modular arithmetic
+
+1/4 point for each blank
+ENDRUBRIC
+
+\end{parts}

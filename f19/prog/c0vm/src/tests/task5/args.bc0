@@ -1,0 +1,74 @@
+C0 C0 FF EE       # magic number
+00 13             # version 9, arch = 1 (64 bits)
+
+00 00             # int pool count
+# int pool
+
+00 0C             # string pool total size
+# string pool
+68 65 6C 6C 6F 00  # "hello"
+77 6F 72 6C 64 00  # "world"
+
+00 01             # function count
+# function_pool
+
+#<main>
+00 00             # number of arguments = 0
+00 01             # number of local variables = 1
+00 55             # code length = 85 bytes
+B7 00 00 # invokenative 0  # args_parse()
+36 00    # vstore 0        # A = args_parse();
+15 00    # vload 0         # A
+62 00    # aaddf 0         # &A->argc
+2E       # imload          # A->argc
+10 02    # bipush 2        # 2
+A0 00 06 # if_cmpne +6     # if (A->argc != 2) goto <00:then>
+A7 00 09 # goto +9         # goto <01:else>
+# <00:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <02:endif>
+# <01:else>
+# <02:endif>
+15 00    # vload 0         # A
+62 08    # aaddf 8         # &A->argv
+2F       # amload          # A->argv
+10 00    # bipush 0        # 0
+63       # aadds           # &A->argv[0]
+2F       # amload          # A->argv[0]
+14 00 00 # aldc 0          # s[0] = "hello"
+B7 00 01 # invokenative 1  # string_equal(A->argv[0], "hello")
+10 01    # bipush 1        # true
+9F 00 0C # if_cmpeq +12    # if (string_equal(A->argv[0], "hello") == true) goto <04:else>
+A7 00 03 # goto +3         # goto <03:then>
+# <03:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <05:endif>
+# <04:else>
+# <05:endif>
+15 00    # vload 0         # A
+62 08    # aaddf 8         # &A->argv
+2F       # amload          # A->argv
+10 01    # bipush 1        # 1
+63       # aadds           # &A->argv[1]
+2F       # amload          # A->argv[1]
+14 00 06 # aldc 6          # s[6] = "world"
+B7 00 01 # invokenative 1  # string_equal(A->argv[1], "world")
+10 01    # bipush 1        # true
+9F 00 0C # if_cmpeq +12    # if (string_equal(A->argv[1], "world") == true) goto <07:else>
+A7 00 03 # goto +3         # goto <06:then>
+# <06:then>
+10 01    # bipush 1        # 1
+B0       # return          # 
+A7 00 03 # goto +3         # goto <08:endif>
+# <07:else>
+# <08:endif>
+10 00    # bipush 0        # 0
+B0       # return          # 
+
+00 02             # native count
+# native pool
+00 00 00 02       # args_parse
+00 02 00 5F       # string_equal
+

@@ -1,0 +1,302 @@
+#use <args>
+#use <string>
+
+string sekret__(rope_t R) {
+  if (R == NULL) return "";
+  if (R->left == NULL) return R->data;
+  return string_join(sekret__(R->left), 
+                     sekret__(R->right));
+}
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  rope_t r = alloc(struct rope_node);
+  r->len = 16;
+  r->left = totally();
+  r->right = efficient();
+  rope_t a = r->left->left;
+  rope_t b = r->left;
+  rope_t c = r->left->right;
+  rope_t d = r->right->left;
+  rope_t e = r->right;
+  rope_t f = r->right->right;
+ 
+  rope_t[] A;
+
+  if (string_equal(arg, "correctness")) {
+    A = alloc_array(rope_t, 1);
+    A[0] = hbd(); rope_reduce(A, 1); 
+    if (!string_equal("happy birthday!", sekret__(A[0]))) return 1;
+
+    A[0] = totally(); rope_reduce(A, 1); 
+    if (!string_equal("totally", sekret__(A[0]))) return 1;    
+
+    A[0] = efficient(); rope_reduce(A, 1); 
+    if (!string_equal("efficient", sekret__(A[0]))) return 1;    
+
+    A[0] = abra1(); rope_reduce(A, 1); 
+    if (!string_equal("abracadabra", sekret__(A[0]))) return 1;    
+
+    A[0] = r; rope_reduce(A, 1); 
+    if (!string_equal("totallyefficient", sekret__(A[0]))) return 1;
+    
+    for (int n = 10; n > 0; n--) {
+      string s = string_sub("ABCDEFGHIJKLMNOP", 0, n);
+      A[0] = leftist(65, n+65); rope_reduce(A, 1);
+      if (!string_equal(s, sekret__(A[0]))) return 1;
+      A[0] = rightist(65, n+65); rope_reduce(A, 1);
+      if (!string_equal(s, sekret__(A[0]))) return 1;
+      A[0] = balist(65, n+65); rope_reduce(A, 1);
+      if (!string_equal(s, sekret__(A[0]))) return 1;
+    }
+
+    rope_t[] Ar = alloc_array(rope_t, 10);
+    rope_t[] Al = alloc_array(rope_t, 10);
+    rope_t[] Ab = alloc_array(rope_t, 10);
+    for (int i = 1; i < 10; i++) {
+      Ar[i] = rightist(65, 65+i);
+      Al[i] = leftist(65, 65+i);
+      Ab[i] = balist(65, 65+i);
+    }
+    rope_reduce(Ar, 10);
+    rope_reduce(Al, 10);
+    rope_reduce(Ab, 10);
+    for (int i = 0; i < 10; i++)  {
+      string s = string_sub("ABCDEFGHIJKLMNOP", 0, i);
+      if (!string_equal(sekret__(Ar[i]), s)) return 1;
+      if (!string_equal(sekret__(Al[i]), s)) return 1;
+      if (!string_equal(sekret__(Ab[i]), s)) return 1;
+    }
+
+    for (int i = 0; i < 9; i++) {
+      Ar[i] = rightist(65, 65+(9 - i));
+      Al[i] = leftist(65, 65+(9 - i));
+      Ab[i] = balist(65, 65+(9 - i));
+    }
+    Ar[9] = NULL; Al[9] = NULL; Ab[9] = NULL;
+    rope_reduce(Ar, 10);
+    rope_reduce(Al, 10);
+    rope_reduce(Ab, 10);
+    for (int i = 0; i < 10; i++)  {
+      string s = string_sub("ABCDEFGHIJKLMNOP", 0, 9 - i);
+      if (!string_equal(sekret__(Ar[i]), s)) return 1;
+      if (!string_equal(sekret__(Al[i]), s)) return 1;
+      if (!string_equal(sekret__(Ab[i]), s)) return 1;
+    }
+
+  } else if (string_equal(arg, "edge")) {
+    rope_reduce(alloc_array(rope_t, 0), 0);
+   
+    A = alloc_array(rope_t, 1);
+    A[0] = NULL; rope_reduce(A, 1); if (A[0] != NULL) return 1;
+
+    A = alloc_array(rope_t, 20);
+    rope_reduce(A, 20);
+    for (int i = 0; i < 20; i++) if (A[i] != NULL) return 1;
+
+    A = alloc_array(rope_t, 20);
+    for (int i = 0; i < 20; i++) { 
+      A[i] = alloc(struct rope_node);
+      A[i]->len = 1;
+      A[i]->data = "x";
+    }
+    struct rope_node* first = A[0];
+    rope_reduce(A, 20);
+    for (int i = 0; i < 20; i++) if (A[i] == NULL || A[i] != first) return 1;
+
+    A = alloc_array(rope_t, 1);
+    A[0] = alloc(struct rope_node);
+    A[0]->len = 2;
+    A[0]->left = alloc(struct rope_node);
+    A[0]->left->len = 1;
+    A[0]->left->data = "x";
+    A[0]->right = alloc(struct rope_node);
+    A[0]->right->len = 1;
+    A[0]->right->data = "x";
+    rope_reduce(A, 1);
+    if (A[0] == NULL || A[0]->left == NULL || A[0]->left != A[0]->right) 
+      return 1;
+
+  } else if (string_equal(arg, "examples")) {
+    A = alloc_array(rope_t, 1);
+    
+    r = abra1();
+    a = r->left->left;
+    b = r->left;
+    c = r->left->right;
+    d = r->right;
+    e = r->right->left;
+    f = r->right->left->left;
+
+    A[0] = r; rope_reduce(A, 1);
+    if (A[0] != r || A[0]->left != b || A[0]->left->left != a
+        || A[0]->left->right != c || A[0]->right != d
+        || A[0]->right->left != e || A[0]->right->left->left != f
+        || A[0]->right->left->right != a
+        || A[0]->right->right != c) return 1;
+    if (!string_equal("ab", a->data)) return 1;
+    if (!string_equal("ra", c->data)) return 1;
+    if (!string_equal("cad", f->data)) return 1;
+
+    rope_reduce(A, 1);
+    if (A[0] != r || A[0]->left != b || A[0]->left->left != a
+        || A[0]->left->right != c || A[0]->right != d
+        || A[0]->right->left != e || A[0]->right->left->left != f
+        || A[0]->right->left->right != a
+        || A[0]->right->right != c) return 1;
+    if (!string_equal("ab", a->data)) return 1;
+    if (!string_equal("ra", c->data)) return 1;
+    if (!string_equal("cad", f->data)) return 1;
+
+    r = abra2();
+    a = r->left->left;
+    b = r->left;
+    c = r->left->right;
+    d = r->right->left;
+    e = r->right;
+
+    A[0] = r; rope_reduce(A, 1);
+    if (A[0] != r || A[0]->left != b || A[0]->left->left != a) return 1;
+    if (A[0]->left->right != c || A[0]->right != e) return 1;
+    if (A[0]->right->left != d || A[0]->right->right != b) return 1;
+    if (!string_equal("abr", a->data)) return 1;
+    if (!string_equal("a", c->data)) return 1;
+    if (!string_equal("cad", d->data)) return 1;
+
+
+    rope_reduce(A, 1);
+    if (A[0] != r || A[0]->left != b || A[0]->left->left != a) return 1;
+    if (A[0]->left->right != c || A[0]->right != e) return 1;
+    if (A[0]->right->left != d || A[0]->right->right != b) return 1;
+    if (!string_equal("abr", a->data)) return 1;
+    if (!string_equal("a", c->data)) return 1;
+    if (!string_equal("cad", d->data)) return 1;
+
+    A = alloc_array(rope_t, 2);
+    A[0] = abra1();
+    A[1] = abra2();
+    r = A[0];
+    rope_reduce(A, 2);
+    if (A[0] != r || A[1] != r) return 1;
+
+    A[0] = abra2();
+    A[1] = abra1();
+    r = A[0];
+    rope_reduce(A, 2);
+    if (A[0] != r || A[1] != r) return 1;
+
+
+    A = alloc_array(rope_t, 2);
+    A[0] = abra1()->left;
+    A[1] = abra1();
+    r = A[0];
+    rope_reduce(A, 2);
+    if (A[0] != r || A[1] == NULL || A[1]->left != r) return 1;
+
+    A[0] = abra1()->left;
+    A[1] = abra2();
+    r = A[0];
+    rope_reduce(A, 2);
+    if (A[1] == NULL || A[1]->left != r) return 1;
+    if (A[1]->right == NULL || A[1]->right->right != r) return 1;
+
+    A = alloc_array(rope_t, 100);
+    for (int i = 0; i < 100; i++) {
+      if (i % 2 == 0) A[i] = abra1();
+      else A[i] = abra2();
+    }
+
+    r = A[0];
+    rope_reduce(A, 100);
+    for (int i = 0; i < 100; i++) if (A[i] != r) return 1;
+
+  } else if (string_equal(arg, "more")) {
+
+    A = alloc_array(rope_t, 31);
+
+    /*
+
+    /* 
+a  b  c  d ...
+  a  b  c
+    a  b 
+      a
+    */       
+    for (int i = 0; i < 31; i++) {
+      A[i] = leftist(40, 41+i);
+    }
+    rope_reduce(A, 31);
+    for (int i = 0; i < 30; i++) {
+      if (A[i+1] == NULL || A[i] != A[i+1]->left) return 1;
+    }
+
+    /*
+z  z  z  z ...
+  y  y  y
+    x  x 
+      w
+     */
+    for (int i = 0; i < 31; i++) {
+      A[i] = leftist(100-i-1, 100);
+    }
+    rope_reduce(A, 31);
+    for (int i = 0; i < 30; i++) {
+      a = A[i];
+      b = A[i+1];
+      while (a != NULL && a->left != NULL) {
+        if (b == NULL || b->right != a->right) return 2;
+        a = a->left;
+        b = b->left;
+      }
+      if (a == NULL || b == NULL || b->right != a) return 3;
+    }
+
+    /*
+z  y  x  w ...
+    z  y  x
+        z  y
+            z
+    */
+    for (int i = 0; i < 31; i++) {
+      A[i] = rightist(100-i-1, 100);
+    }
+    rope_reduce(A, 31);
+    for (int i = 0; i < 30; i++) {
+      if (A[i+1] == NULL || A[i] != A[i+1]->right) return 4;
+    }
+*/
+    /*
+a  a  a  a ...
+    b  b  b
+        c  c
+            d
+    */
+    for (int i = 0; i < 31; i++) {
+      A[i] = rightist(40, 41+i);
+    }
+    rope_reduce(A, 31);
+    for (int i = 0; i < 30; i++) {
+      a = A[i];
+      b = A[i+1];
+      while (a != NULL && a->right != NULL) {
+        //print(a->left->data);
+        //println(b->left->data);
+        if (b == NULL) return 5;
+        if (b->left != a->left) return 8;
+        a = a->right;
+        b = b->right;
+      }
+      if (a == NULL || b == NULL) return 6;
+      if (b->left != a) return 7;
+    }
+
+  } else {
+    error("Bad arg");
+  }
+
+  
+  return 0;
+}

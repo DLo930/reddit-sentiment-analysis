@@ -1,0 +1,75 @@
+/* Doubly-linked list mimic code
+ * 
+ * Resolves *both* of the nondeterminstic possibilities; tbuf_eq_ will
+ * fix things up to match the student's implementation.
+ *
+ * These mimic functions will never raise an assertion violation: if
+ * they are called in a situation where they *should* raise an
+ * assertion violation, they will segfault or call error().
+ *
+ * Therefore, the autograder should never call mimic code on a sequence
+ * of operations that might raise an assertion violation. */
+
+typedef struct dll_sol_buffer * tbuf_; 
+struct dll_sol_buffer
+{
+  dll start;
+  dll point;
+  dll altpoint; // NULL except right after a delete, when it may be point->next
+  dll end;
+};
+
+void tbuf_forward_(tbuf_ B)
+{
+  if (B->point->next == B->end) { error(""); }
+  B->point = B->point->next;
+  return;
+}
+
+void tbuf_backward_(tbuf_ B)
+{
+  if (B->point->prev == B->start) { error(); }
+  B->point = B->point->prev;
+  return;
+}
+
+void tbuf_delete_point_(tbuf_ B)
+{
+  dll pl = B->point->prev;
+  dll pr = B->point->next;
+  pl->next = pr;
+  pr->prev = pl;
+  if (pl == B->start) { B->point = pr; B->altpoint = NULL; }
+  else if (pr == B->end) { B->point = pl; B->altpoint = NULL; }
+  else { B->point = pl; B->altpoint = pr; }
+  return;
+}
+
+bool tbuf_eq_ (tbuf B, tbuf_ C) 
+{
+  dll bnode = B->start->next;
+  for(dll cnode = C->start->next; cnode != C->end; cnode = cnode->next) {
+    if(bnode->data != cnode->data) { 
+      printchar(bnode->data); 
+      printchar(cnode->data); 
+      print (" -- ouch\n"); 
+      return false; 
+    }
+
+    // The cnode is at the point!
+    if(cnode == C->point) {
+      if (bnode == B->point) {
+	// If the cnode's point is also the bnode's point, we're fine
+	C->altpoint = NULL;
+      } else if (C->altpoint != NULL) {
+	// Otherwise, try to advance the point to the altpoint
+        C->point = C->altpoint;
+	C->altpoint = NULL;
+      } else {
+	return false;
+      }
+    }
+    bnode = bnode->next;
+  }
+  return bnode == B->end;
+}

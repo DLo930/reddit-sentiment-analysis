@@ -1,0 +1,50 @@
+// Contract exploit: just don't calculate anything if mask doesn't
+// overlay properly
+
+bool is_valid_mask(int[] mask, int maskwidth) 
+//@requires is_valid_imagesize(maskwidth, maskwidth);
+//@requires \length(mask) == maskwidth * maskwidth;
+{ 
+  if (!(maskwidth % 2 == 1)) return false; 
+  return true;
+}
+
+int[] apply_mask(pixel[] pixels, int width, int height, int[] mask, 
+                 int maskwidth)
+//@requires is_valid_imagesize(width, height);
+//@requires \length(pixels) == width*height;
+//@requires is_valid_imagesize(maskwidth, maskwidth);
+//@requires \length(mask) == maskwidth * maskwidth;
+//@requires is_valid_mask(mask, maskwidth);
+{
+  pixel[] res = alloc_array(pixel, width*height);
+  for (int r = 0; r < height; r++)
+  //@loop_invariant 0 <= r && r <= height;
+  {
+    for (int c = 0; c < width; c++)
+    //@loop_invariant 0 <= c && c <= width;
+    {
+      int accum = 0;
+      if (maskwidth/2 <= r && r < height - maskwidth/2 
+          && maskwidth/2 <= c && c < width - maskwidth/2) {
+        for (int mr = 0; mr < maskwidth; mr++)
+          //@loop_invariant 0 <= mr && mr <= maskwidth;
+          {
+            for (int mc = 0; mc < maskwidth; mc++)
+              //@loop_invariant 0 <= mc && mc <= maskwidth;
+              {
+                int gr = r + (mr - maskwidth/2);
+                //@assert r - (maskwidth/2) <= gr && gr <= r + maskwidth/2;
+                int gc = c + (mc - maskwidth/2);
+                //@assert c - (maskwidth/2) <= gc && gc <= c + maskwidth/2;
+                pixel p = pixels[get_index(gr,gc,width,height)];
+                int avg = (get_red(p)+get_green(p)+get_blue(p)) / 3;
+                accum +=  avg * mask[get_index(mr,mc,maskwidth,maskwidth)];
+              }
+          }
+        res[get_index(r,c,width,height)] = accum;
+      }
+    }
+  }
+  return res;
+}

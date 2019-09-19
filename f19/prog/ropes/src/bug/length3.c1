@@ -1,0 +1,196 @@
+/*
+ * Bug in length, returns wrong length for concatenation nodes
+ * 
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <conio>
+#use <string>
+#use <util>
+
+/************************************/
+/* Interface (leave this in place!) */
+/************************************/
+
+// typedef _______ rope_t;
+typedef struct rope_node* rope_t;
+
+int    rope_length(rope_t R);
+rope_t rope_new(string s);
+rope_t rope_join(rope_t R, rope_t S)
+  /*@requires rope_length(R) <= int_max() - rope_length(S); @*/ ;
+string rope_tostring(rope_t R);
+char   rope_charat(rope_t R, int i) 
+  /*@requires 0 <= i && i < rope_length(R); @*/ ;
+rope_t rope_sub(rope_t R, int lo, int hi)
+  /*@requires 0 <= lo && lo <= hi && hi <= rope_length(R); @*/ ;
+void   rope_reduce(rope_t[] A, int n)
+  /*@requires n == \length(A); @*/ ;
+
+/***********************************/
+/* Implementation (edit this part) */
+/***********************************/
+
+typedef struct rope_node rope;
+struct rope_node {
+  int len;
+  rope* left;
+  rope* right;
+  string data;
+};
+
+/*** Task 1: Specification function, 2 points ***/
+bool is_rope(rope* R) {
+  if (R == NULL) return true;
+  if (R->len <= 0) return false;
+  return (R->left == NULL && R->right == NULL 
+          && string_length(R->data) == R->len)
+    || (R->left != NULL && R->right != NULL
+        && R->left->len < R->len && is_rope(R->left)
+        && R->right->len < R->len && is_rope(R->right)
+        && R->len == R->left->len + R->right->len);
+}
+
+/*** Task 2: Simple functions, 5 points ***/
+int rope_length(rope* R) 
+//@requires is_rope(R);
+{
+  if (R == NULL) return 0;
+  if (R->left == NULL) return R->len;
+  return R->len - 1;
+}
+
+rope* rope_new(string s) 
+//@ensures is_rope(\result);
+{
+  if (string_equal(s, "")) return NULL;
+  rope* R = alloc(rope);
+  R->len = string_length(s);
+  R->data = s;
+  return R;
+}
+
+rope* rope_join(rope* R1, rope* R2) 
+//@requires is_rope(R1) && is_rope(R2);
+//@ensures is_rope(\result);
+{
+  if (R1 == NULL) return R2;
+  if (R2 == NULL) return R1;
+  
+  rope* R = alloc(rope);
+  R->len = R1->len + R2->len;
+  R->left = R1;
+  R->right = R2;
+  return R;
+}
+
+char rope_charat(rope* R, int i) 
+//@requires is_rope(R);
+//@requires 0 <= i && i < rope_length(R);
+{
+  if (R->left == NULL) return string_charat(R->data, i);
+  if (i < R->left->len) return rope_charat(R->left, i);
+  return rope_charat(R->right, i - R->left->len);
+}
+
+string rope_tostring(rope* R) {
+  if (R == NULL) return "";
+  if (R->left == NULL) return R->data;
+  return string_join(rope_tostring(R->left), rope_tostring(R->right));
+}
+
+/*** Task 3: Substring, 5 points ***/
+rope* rope_sub(rope* R, int lo, int hi) 
+//@requires is_rope(R);
+//@requires 0 <= lo && lo <= hi && hi <= rope_length(R);
+//@ensures is_rope(\result);
+//@ensures rope_length(\result) == hi - lo;
+{
+  if (lo == hi) return NULL;
+  if (lo == 0 && hi == R->len) return R;
+
+  if (R->left == NULL) {
+    rope* S = alloc(rope);
+    S->len = hi - lo;
+    S->data = string_sub(R->data, lo, hi);
+    return S;
+  } 
+
+  int left_len = R->left->len;
+  if (hi <= left_len) return rope_sub(R->left, lo, hi);
+  if (left_len <= lo) return rope_sub(R->right, lo - left_len, hi - left_len);
+
+  rope* S1 = rope_sub(R->left, lo, left_len);
+  rope* S2 = rope_sub(R->right, 0, hi - left_len);
+  rope* S = alloc(rope);
+  S->len = hi-lo;
+  S->left = S1;
+  S->right = S2;
+  return S;
+}
+
+/*** Task 4: Reduction, 3 points ***/
+bool rope_sekret_equiv(void* x, void* y) 
+//@requires x != NULL && \hastag(rope*, x);
+//@requires y != NULL && \hastag(rope*, y);
+{
+  rope* R1 = (rope*)x;
+  rope* R2 = (rope*)y;
+  if (R1 == R2) { return true; }
+  
+  if (R1->len != R2->len) return false;
+
+  int len = R1->len;
+  for (int i = 0; i < len; i++) {
+    int c1 = char_ord(rope_charat(R1, i));
+    int c2 = char_ord(rope_charat(R2, i));
+    if (c1 != c2) return false;
+  }
+  
+  return true;
+}
+
+int rope_sekret_hash(void* x) 
+//@requires x != NULL && \hastag(rope*, x);
+{
+  rope* R = (rope*)x;
+  int h = 0;
+
+  for (int i = 0; i < rope_length(R); i++) 
+  //@loop_invariant 0 <= i;
+  {
+    h = h * 1664525 + 1013904223;
+    h = h + char_ord(rope_charat(R, i));
+  }
+
+  return h;
+}
+
+rope* rope_sekret_reduce_helper(rope* R, hdict_t H) 
+//@requires R != NULL;
+{
+  rope* S = (rope*)hdict_lookup(H, (void*)R);
+  if (S != NULL) return S;
+
+  if (R->left != NULL) {
+    rope* S1 = rope_sekret_reduce_helper(R->left, H);
+    rope* S2 = rope_sekret_reduce_helper(R->right, H);
+    R->left = S1;
+    R->right = S2;
+  } 
+
+  hdict_insert(H, (void*)R, (void*)R);
+  return R;
+}
+
+void rope_reduce(rope*[] R, int n) {
+  hdict_t H = hdict_new(n + 100, &rope_sekret_equiv, &rope_sekret_hash);
+
+  for (int i = 0; i < n; i++) 
+  //@loop_invariant 0 <= i;
+  {
+    if (R[i] != NULL) {
+      R[i] = rope_sekret_reduce_helper(R[i], H);
+    }
+  }
+}

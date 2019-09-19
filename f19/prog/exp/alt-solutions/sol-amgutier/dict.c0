@@ -1,0 +1,126 @@
+/*
+ * Interface for dictionaries
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <conio>
+
+/* Interface to dictionaries (leave this alone) */
+
+// typedef ______* dict_t;
+typedef struct dict_header* dict_t;
+
+// Returns NULL if the input array has the same operator twice
+dict_t dict_new(string[] A, int n)
+  /*@requires \length(A) == n; @*/
+  /*@requires is_infix_array(A, n); @*/ ;
+
+// Returns NULL if no definition is found
+int dict_lookup(dict_t D, string oper)
+  /*@requires D != NULL; @*/
+  /*@ensures \result >= -1; @*/ ;
+
+/* Implementation to dictionaries should go here (implement this) */
+
+struct list_node {
+  string key;
+  int val;
+  struct list_node* next;
+};
+
+struct dict_header {
+  struct list_node* start;
+  struct list_node* end;
+};
+
+bool is_dict(dict_t D) {
+  if (D == NULL) return false;
+  if (D->end == NULL) return false;
+
+  struct list_node* cur = D->start;
+  while (cur != D->end) {
+    // I was too lazy to write a circularity check
+    if (cur == NULL) return false;
+
+    cur = cur->next;
+  }
+
+  return true;
+}
+
+dict_t dict_new(string[] A, int n)
+/*@requires \length(A) == n; @*/
+/*@requires is_infix_array(A, n); @*/
+//@ensures \result == NULL || is_dict(\result);
+{
+  string[][] A_tok = alloc_array(string[], n);
+  for (int i=0; i<n; i++)
+  //@loop_invariant i >= 0;
+  {
+    A_tok[i] = parse_tokens(A[i]);
+  }
+
+  for (int i=0; i<n; i++)
+  //@loop_invariant i >= 0;
+  {
+    for (int j=0; j<num_tokens(A[i]); j++)
+    //@loop_invariant j >= 0;
+    {
+      for (int x=0; x<n; x++)
+      //@loop_invariant x >= 0;
+      {
+        for (int y=0; y<num_tokens(A[x]); y++)
+        //@loop_invariant y >= 0;
+        {
+          if ((i != x || j != y)
+             && string_equal(A_tok[i][j], A_tok[x][y]))
+            return NULL;
+        }
+      }
+    }
+  }
+
+  dict_t dict = alloc(struct dict_header);
+  struct list_node* dummy = alloc(struct list_node);
+
+  dict->start = dummy;
+  dict->end = dummy;
+
+  for (int i=0; i<n; i++)
+  //@loop_invariant i >= 0;
+  {
+    for (int j=0; j<num_tokens(A[i]); j++)
+    //@loop_invariant j >= 0;
+    {
+      struct list_node* elem = alloc(struct list_node);
+      elem->key = A_tok[i][j];
+      elem->val = i;
+      elem->next = dict->start;
+
+      dict->start = elem;
+    }
+  }
+
+  return dict;
+}
+
+int dict_lookup(dict_t D, string oper)
+/*@requires D != NULL; @*/
+//@requires is_dict(D);
+/*@ensures \result >= -1; @*/
+{
+  struct list_node* cur = D->start;
+
+  while (cur != D->end)
+  //@loop_invariant cur != NULL;
+  {
+    if (string_equal(cur->key, oper))
+      return cur->val;
+
+    cur = cur->next;
+  }
+
+  return -1;
+}

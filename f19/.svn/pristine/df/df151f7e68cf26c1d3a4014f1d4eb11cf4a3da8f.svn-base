@@ -1,0 +1,94 @@
+/*
+ * Dictionaries, implemented as assocation lists
+ *
+ * 15-122 Principles of Imperative Computation, Fall 2012
+ * Frank Pfenning
+ */
+
+#use <string>
+#use "lib/queues_string.c0"
+
+/* Interface to dictionaries */
+
+typedef struct dict_header* dictionary;
+
+dictionary dict_new();
+void dict_insert(dictionary D, string name, queue def);
+queue dict_lookup(dictionary D, string name);
+/* returns NULL if name is not defined */
+
+/* Implementation of dictionaries as association lists */
+
+/* Association lists */
+struct alist_node {
+  string name;
+  queue def;
+  struct alist_node* next;
+};
+typedef struct alist_node alist;
+
+/* Association lists should be non-circular, but we
+ * do not check this explicitly.  NULL is a valid
+ * (empty) association list.
+ */
+
+/* Dictionaries */
+struct dict_header {
+  alist* assoclist;
+};
+
+bool is_dict (dictionary D) {
+  return D != NULL;
+}
+
+/* Allocating a new dictionary */
+dictionary dict_new()
+//@ensures is_dict(\result);
+{
+  dictionary D = alloc(struct dict_header);
+  D->assoclist = NULL;
+  return D;
+}
+
+alist* alist_find(alist* p, string name)
+//@ensures \result == NULL || string_equal(\result->name, name);
+{
+  while (p != NULL) {
+    if (string_equal(p->name, name))
+      return p;
+    p = p->next;
+  }
+  return NULL;
+}
+
+queue dict_lookup(dictionary D, string name)
+//@requires is_dict(D);
+{
+  alist* p = alist_find(D->assoclist, name);
+  if (p == NULL)
+    return NULL;
+  else
+    return p->def;
+}
+
+void dict_insert(dictionary D, string name, queue def)
+//@requires is_dict(D);
+//@ensures is_dict(D);
+//@ensures dict_lookup(D, name) == def;
+{
+  alist* p = D->assoclist;
+  alist* q = alist_find(p, name); /* NULL if undefined */
+  //@assert q == NULL || string_equal(q->name, name);
+  if (q == NULL) {
+    /* insert at beginning of association list */
+    q = alloc(struct alist_node);
+    q->name = name;
+    q->def = def;
+    q->next = p;
+    D->assoclist = q;
+  } else {
+    /* update existing definition */
+    q->def = def;
+  }
+  return;
+}

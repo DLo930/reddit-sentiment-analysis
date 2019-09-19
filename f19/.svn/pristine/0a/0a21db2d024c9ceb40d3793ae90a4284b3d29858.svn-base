@@ -1,0 +1,14 @@
+TITLE: Challenge Problem: Storing Values in Clac
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+Clac has a built-in command called <tt>pick</tt> that retrieves the value stored at an arbitrary location in the stack. However, there's no built-in command to <em>store</em> a value at an arbitrary location in the stack. You could imagine that this would be a useful feature, since you could treat stack locations like variables, storing and retrieving whatever values you need for a computation.
+
+It turns out that it's possible to write such a command using a Clac definition, without modifying your C0 program. So the challenge is to write a definition for the following command:
+
+$$S$$, $$x_n$$, $$x_{n-1}$$, ..., $$x_1$$, $$y$$, $$n$$  ||  <tt>put</tt>, $$Q$$    =&gt;   $$S$$, $$y$$, $$x_{n-1}$$, ..., $$x_1$$  ||  $$Q$$
+
+You'll probably need to write a few recursive helper definitions to complete this definition.
+
+There's no bonus points for solving this challenge, but here's an interesting fact: if you know any theoretical computer science, you'll see that writing this definition is equivalent to proving that Clac is <a href="https://en.wikipedia.org/wiki/Turing_completeness" target="_blank">Turing-complete</a>!

@@ -1,0 +1,249 @@
+\clearpage
+\Question{Hash Tables: Data Structure Invariants}
+
+The C0 code below for \lstinline'is_hdict' checks that a given hash
+dictionary is valid.
+\begin{lstlisting}
+// typedef _________ *entry;
+typedef struct chain_node chain;
+struct chain_node {
+  entry entry;
+  chain* next;
+};
+
+struct hdict_header {
+  int size          // number of entries stored in hash table
+  int capacity;     // maximum number of chains table can hold
+  chain*[] table;
+};
+typedef struct hdict_header hdict;
+
+bool is_array_expected_length(chain*[] table, int length) {
+  //@assert \length(table) == length;
+  return true;  }
+
+bool is_hdict(hdict* H) {
+  return H != NULL && H->capacity > 0 && H->size >= 0
+      && is_array_expected_length(H->table, H->capacity);
+}
+\end{lstlisting}
+
+An obvious data structure invariant of our hash table is that every
+entry in a chain hashes to the index of that chain.  Then, the above
+specification function is incomplete: we never test that the contents
+of the hash table satisfies this data structure invariant.  That is, we
+test only on the struct \lstinline'hdict_header', and not the properties
+of the array within.
+
+On the next page, extend \lstinline'is_hdict' from above, adding a helper
+function to check that every entry in the hash table belongs in the
+chain it is located in, and that each chain is acyclic.  You should
+assume we will use the following three functions for extracting the
+key (type \lstinline'key') of an \lstinline'entry', hashing a key and
+for comparing two keys for equivalence:
+
+\begin{lstlisting}[belowskip=0pt]
+key entry_key(entry e)             /*@requires e != NULL;@*/ ;
+int key_hash(key k);
+bool key_equiv(key k1, key k2);
+\end{lstlisting}
+Additionally, the function
+\begin{lstlisting}[belowskip=0pt]
+int index_of_key(hdict* H, key k)
+/*@requires H-> capacity > 0; @*/
+/*@ensures 0 <= \result && \result < H->capacity; @*/ ;
+\end{lstlisting}
+maps a hash to a valid index.  It is provided for your convenience.
+
+\newpage
+\enlargethispage{5ex}
+\begin{parts}
+\part[2]\TAGS{dictionary, ds-invariant, hashing}
+Note: your answer needs only to work for hash tables containing a few
+hundred million entries --- do not worry about the number of entries
+exceeding \lstinline'int_max()'.
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+bool has_valid_chains(hdict* H)
+// Preconditions (H != NULL, H->size >= 0...) omitted for space
+{
+    int nodecount = 0;
+
+    for (int i = 0; i < [*\uanswer{18.5em}{H->capacity}*]; i++) {
+        // set p to the first node of chain i in table, if any
+
+        chain* p = [*\uanswer{26em}{H->table[i]}*];
+
+        while ([*\uanswer{27em}{p != NULL}*]) {
+            entry e = p->entry;
+
+            if (e == NULL || [*\uanswer{17em}{(index\_of\_key(H,entry\_key(e))}*] != i)
+
+                return false;
+
+            nodecount++;
+
+            if (nodecount > [*\uanswer{20.5em}{H->size}*])
+
+                return false;
+
+            p = [*\uanswer{27.8em}{p->next}*];
+      }
+    }
+
+    if ([*\uanswer{32.5em}{nodecount != H->size}*])
+
+        return false;
+
+    return true;
+}
+
+bool is_hdict(hdict* H) {
+    return H != NULL && H->capacity > 0 && H->size >= 0
+        && is_array_expected_length(H->table, H->capacity)
+        && has_valid_chains(H);
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (a)
+TAGS: dictionary, ds-invariant, hashing
+
+Gradescope rubric:
++0.75 Lines involving p correct
++0.75 Lines involving i correct
++0.5 Lines involving H->size correct
+
+Commentary:
+3 groups of blanks, A, B, and C:
+  B:    for (int i = 0; i < __H->capacity__; i++)
+  A:    chain* p = __H->table[i]__;
+  A:    while (__p != NULL__);
+  B:    if ((e == NULL) || __(index_of_key(H,entry_key(e))__ != i))
+     OR if ((e == NULL) || (abs(key_hash(x) % H->capacity) != i)
+  C:    if (nodecount > __H->size__)
+  A:    p = __p->next__
+  C:    if (__nodecount != H->size__)
+     OR if (nodecount < H->size)
+
+
+  A: 3/4 point for the lines involving p
+     1/4 pt for each error up to 3/4 point max
+
+  B: 3/4 point for line involving i
+     1/4 point if they just use key_hash
+     1/4 point if they say index_of_key but get the arguments wrong (index_of_key(e))
+     Larger errors 0 points
+
+     (In the past we've been soft on the little syntax errors here,
+     but because the index_of_key helper function makes this easier to
+     get right, they shouldn't have had problems.)
+
+  C: 1/4 pt if they use capacity instead of size but otherwise are correct
+     1/4 pt if they get inside loop correct but outside loop wrong
+     0 pts otherwise
+
+     Note: Some students thought there was an issue with nodecount
+     exceeding int_max(). I guess this could be a problem from what I
+     could see. So let this go if it looks like that's what they're
+     checking.
+ENDRUBRIC
+
+\newpage
+\part[0\half]\TAGS{complexity}
+Consider the function \lstinline'hdict_lookup' given below:
+
+\begin{lstlisting}
+entry hdict_lookup(hdict* H, key k)
+//@requires is_hdict(H);
+{
+  int i = index_of_key(H, k);
+  chain* p = H->table[i];
+  while (p != NULL) {
+    //@assert p->entry != NULL;
+    if (key_equiv(entry_key(p->entry), k))
+      return p->entry;
+    p = p->next;
+  }
+  return NULL;    // not in chain
+}
+\end{lstlisting}
+
+Give a simple postcondition for this function.
+
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+/*@ensures \result == [*\uanswer{22em}{NULL}*]
+
+        || key_equiv(k, [*\uanswer{20.6em}{entry\_key(\result)}*]);@*/
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: complexity
+
+Gradescope rubric:
++0.25 First blank: NULL
++0.25 Second blank: entry_key(\result)
+
+Commentary:
+
+ENDRUBRIC
+
+
+\enlargethispage{5ex}
+\part[1\half]\TAGS{complexity, divide-and-conquer, ds-invariant, hashing, ordering}
+The function \lstinline'hdict_remove(H,k)' below removes entries with
+key \lstinline'k' from hash table \lstinline'H'.  Complete the helper
+function \lstinline'remove_from_chain(p,k)' that returns the chain
+obtained by removing entries with key \lstinline'k' from chain
+\lstinline'p' while supporting the post-conditions of
+\lstinline'hdict_remove'.  Recall that chains in our hash table
+implementation do not have duplicates.  \emph{[Hint: a recursive
+  solution may be worth considering.]}
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt, lineskip=-0.2ex]
+chain* remove_from_chain(chain* p, key k) {
+  if (p == NULL) return NULL;
+
+  if ([*\uanswer{20.6em}{key\_equiv(entry\_key(p->entry), k)}*]) return [*\uanswer{7.3em}{p->next}*];
+
+  [*\uanswer{35.8em}{p->next = remove\_from\_chain(p->next, k)\hfill}*];
+
+  return [*\uanswer{31.6em}{p}*];
+}
+
+void hdict_remove(hdict* H, key k)
+//@requires is_hdict(H);
+//@ensures  is_hdict(H) && hdict_lookup(H, k) == NULL;
+{
+  if (hdict_lookup(H, k) != NULL) (H->size)--;
+  int i = index_of_key(H, k);
+  H->table[i] = remove_from_chain(H->table[i], k);
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (c)
+TAGS: complexity, divide-and-conquer, ds-invariant, hashing, ordering
+
+Gradescope rubric:
++0.5 Returns p->next if k is found
++0.5 Recurses on p->next otherwise ...
++0.5 ... and returns p
+-1 Returns an invalid valid chain
+
+Commentary
+chain* remove_from_chain(chain* p, key k) {
+  if (p == NULL) return NULL;
+
+  if (__key_equiv(entry_key(p->entry), k)__)
+    return __p->next__;
+  __p->next = remove_from_chain(p->next, k)__;
+  return __p__;
+}
+ENDRUBRIC
+\end{parts}

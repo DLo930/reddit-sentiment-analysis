@@ -1,0 +1,123 @@
+#use <args>
+#use <string>
+#use <conio>
+
+typedef struct words_header words;
+struct words_header {
+  string[] w;  // words
+  int      l;  // lengh
+  string[] m;  // mispelled array,  if needed
+};
+
+// Reads a dictionary from file
+words* read_dict(string fname) {
+  bundle_t bundle = read_words(fname);
+  words* dict = alloc(words);
+  dict->w = string_bundle_array(bundle);
+  dict->l = string_bundle_length(bundle);
+  return dict;
+}
+
+// Reads a text from file
+words* read_text(string fname) {
+  bundle_t bundle = read_words(fname);
+  words* text = alloc(words);
+  text->w = string_bundle_array(bundle);
+  text->l = string_bundle_length(bundle);
+  text->m = alloc_array(string, text->l);
+  return text;
+}
+
+int count_misspelled_of_length(string[] miss, int m, int len)
+//@requires 0 <= m && m <= \length(miss);
+//@requires 0 < len;
+//@ensures 0 <= \result && \result <= m;
+{
+  int n = 0;
+  for (int i = 0; i < m; i++)
+    if (string_length(miss[i]) == len) n++;
+  return n;
+}
+
+void print_misspelled_of_length_upto(string[] miss, int m, int len, int max)
+//@requires 0 <= m && m <= \length(miss);
+//@requires 0 < len;
+//@requires 0 <= max;
+{
+  int n=0;
+  for (int i = 0; i < m && n < max; i++)
+    if (string_length(miss[i]) == len) {
+      n++;
+      printint(n);
+      print(". ");
+      println(miss[i]);
+    }
+}
+
+void print_misspelled_of_length(string[] miss, int m, int len)
+//@requires 0 <= m && m <= \length(miss);
+//@requires 0 < len;
+{
+  int n=0;
+  for (int i = 0; i < m; i++)
+    if (string_length(miss[i]) == len) {
+      n++;
+      printint(n);
+      print(". ");
+      println(miss[i]);
+    }
+}
+
+int count_word(string text, string w)
+{
+  words* T = read_text(text);  // Text
+  int n = 0;
+  for (int i = 0; i < T->l; i++)
+    if (string_equal(T->w[i], w)) n++;
+  return n;
+}
+
+int main () {
+  args_t args = args_parse();
+  if (args->argc != 2) error("Wrong number of args");
+
+  words* D = read_dict(args->argv[0]);  // Dictionary
+  words* T = read_text(args->argv[1]);  // Text
+
+  int m = check_text_better(D->w, D->l, T->w, T->l, T->m);
+
+  // Question 1:
+  print("\nThere are "); printint(m); println(" misspelled words in the text.");
+
+  // Question 2:
+  int l1 = 8;
+  print("\nThere are ");
+  printint(count_misspelled_of_length(T->m, m, l1));
+  print(" misspelled words of length ");
+  printint(l1);
+  println(" in the text.");
+
+  // Question 3:
+  int l2 = 15;
+  int n2 = 4;
+  print("\nHere are the first ");
+  printint(n2);
+  print(" misspelled words of length ");
+//  print("\nHere are the misspelled words of length ");
+  printint(l2);
+  println(" in the text:");
+  print_misspelled_of_length_upto(T->m, m, l2, n2);
+//  print_misspelled_of_length(T->m, m, l2);
+
+  // Question 4:
+  if (m > 0) {
+    print("\nThe alphabetically-last misspelled word in the text is '");
+    print(T->m[m-1]);
+    print("' and appears ");
+    printint(count_word(args->argv[1], T->m[m-1]));
+    print(" times.\n");
+  } else
+    print("\nThere are no misspelled words in the text.");
+
+  return 0;
+}

@@ -1,0 +1,33 @@
+#use <conio>
+
+struct list {
+  int* data;
+  struct list* next;
+};
+typedef struct list* list;
+
+int main()
+{
+  list node1 = alloc(struct list);
+  list node2 = alloc(struct list);
+  list node3 = alloc(struct list);
+
+  node1->data = alloc(int);
+  *(node1->data) = 1;
+  node2->data = alloc(int);
+  *(node2->data) = 2;
+  node3->data = alloc(int);
+  *(node3->data) = 3;
+  node1->next = node2;
+  node2->next = node3;
+  node3->next = NULL;
+  //  println("list initialized");
+
+  list p = node1;
+  int sum = 0;
+  while (p->data != NULL) {
+    sum += *(p->data);
+    p = p->next;
+  }
+  return sum;
+}

@@ -1,0 +1,111 @@
+export PATH := /usr/local/depot/cc0/bin:$(PATH)
+CC0=cc0
+ROTATE=$(CC0) -d labtests/pixel.c0 labtests/imageutil.c0 labtests/rotate-good.c0
+MASK=$(CC0) -d labtests/pixel.c0 labtests/imageutil.c0 labtests/mask-good.c0
+REFLECT=$(CC0) -d labtests/pixel.c0 labtests/imageutil.c0 labtests/reflect-good.c0
+BLUR=$(CC0) -d labtests/pixel.c0 labtests/imageutil.c0 labtests/blur-good.c0
+CC0D_PIX=$(CC0) -d pixel-int.c0
+#VERSION=rotatemask
+VERSION=reflectblur
+
+all:
+	$(MAKE) extract -s
+	$(MAKE) compile_$(VERSION) -is
+	$(MAKE) grade -s
+
+extract:
+	echo "[15-122] Extraction..."
+	echo "============================================="
+	tar -mkxf autograde.tar
+	tar -mkxzvf handin.tgz
+	echo ""
+
+compile_reflectblur:
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(CC0D_PIX) imageutil.c0 imageutil-test.c0 -o imageutil-test
+	$(CC0D_PIX) imageutil-sol.c0 reflect.c0 reflect-test.c0 -o reflect-test
+	$(CC0D_PIX) imageutil-sol.c0 reflect.c0 reflect-comp.c0 -o reflect-comp
+	$(CC0D_PIX) imageutil-sol.c0 blur.c0 blur-comp.c0 -o blur-comp
+	$(CC0D_PIX) imageutil-sol.c0 blur.c0 blur-test.c0 -o blur-test
+	$(CC0D_PIX) imageutil-sol.c0 reflect.c0 blur.c0 manipulate.c0 manipulate-test.c0 -o manipulate-test
+
+	if [ -f images-test.c0 ]; then \
+	$(MAKE) compile_reflectblur_tests -is; \
+	fi
+
+compile_reflectblur_tests:
+	$(REFLECT) labtests/blur-good.c0 images-test.c0 -o correct_impls
+
+	if [ -f correct_impls ]; then \
+	$(BLUR) labtests/reflect-bad0.c0 images-test.c0 -o bad_tform_impl_0; \
+	$(BLUR) labtests/reflect-bad1.c0 images-test.c0 -o bad_tform_impl_1; \
+	$(BLUR) labtests/reflect-bad2.c0 images-test.c0 -o bad_tform_impl_2; \
+	$(BLUR) labtests/reflect-bad3.c0 images-test.c0 -o bad_tform_impl_3; \
+	$(BLUR) labtests/reflect-bad4.c0 images-test.c0 -o bad_tform_impl_4; \
+	$(BLUR) labtests/reflect-bad5.c0 images-test.c0 -o bad_tform_impl_5; \
+	$(BLUR) labtests/reflect-bad6.c0 images-test.c0 -o bad_tform_impl_6; \
+	$(BLUR) labtests/reflect-bad7.c0 images-test.c0 -o bad_tform_impl_7; \
+	$(BLUR) labtests/reflect-bad8.c0 images-test.c0 -o bad_tform_impl_8; \
+	$(BLUR) labtests/reflect-bad9.c0 images-test.c0 -o bad_tform_impl_9; \
+	$(BLUR) labtests/reflect-badA.c0 images-test.c0 -o bad_tform_impl_A; \
+	$(REFLECT) labtests/blur-bad0.c0 images-test.c0 -o bad_masking_impl_0; \
+	$(REFLECT) labtests/blur-bad1.c0 images-test.c0 -o bad_masking_impl_1; \
+	$(REFLECT) labtests/blur-bad2.c0 images-test.c0 -o bad_masking_impl_2; \
+	$(REFLECT) labtests/blur-bad3.c0 images-test.c0 -o bad_masking_impl_3; \
+	$(REFLECT) labtests/blur-bad4.c0 images-test.c0 -o bad_masking_impl_4; \
+	$(REFLECT) labtests/blur-bad5.c0 images-test.c0 -o bad_masking_impl_5; \
+	$(REFLECT) labtests/blur-bad6.c0 images-test.c0 -o bad_masking_impl_6; \
+	$(REFLECT) labtests/blur-bad7.c0 images-test.c0 -o bad_masking_impl_7; \
+	$(REFLECT) labtests/blur-bad8.c0 images-test.c0 -o bad_masking_impl_8; \
+	$(REFLECT) labtests/blur-bad9.c0 images-test.c0 -o bad_masking_impl_9; \
+	$(REFLECT) labtests/blur-badA.c0 images-test.c0 -o bad_masking_impl_A; \
+	fi
+
+
+compile_rotatemask:
+	echo "[15-122] Compilation..."
+	echo "============================================="
+	$(CC0D_PIX) imageutil.c0 imageutil-test.c0 -o imageutil-test
+	$(CC0D_PIX) imageutil-sol.c0 rotate.c0 rotate-test.c0 -o rotate-test
+	$(CC0D_PIX) imageutil-sol.c0 rotate.c0 rotate-comp.c0 -o rotate-comp
+	$(CC0D_PIX) imageutil-sol.c0 mask.c0 mask-comp.c0 -o mask-comp
+	$(CC0D_PIX) imageutil-sol.c0 mask.c0 mask-test.c0 -o mask-test
+	$(CC0D_PIX) imageutil-sol.c0 rotate.c0 mask.c0 manipulate.c0 manipulate-test.c0 -o manipulate-test
+
+	if [ -f images-test.c0 ]; then \
+	$(MAKE) compile_rotatemask_tests -is; \
+	fi
+
+compile_rotatemask_tests:
+	$(ROTATE) labtests/mask-good.c0 images-test.c0 -o correct_impls
+
+	if [ -f correct_impls ]; then \
+	$(MASK) labtests/rotate-bad0.c0 images-test.c0 -o bad_tform_impl_0; \
+	$(MASK) labtests/rotate-bad1.c0 images-test.c0 -o bad_tform_impl_1; \
+	$(MASK) labtests/rotate-bad2.c0 images-test.c0 -o bad_tform_impl_2; \
+	$(MASK) labtests/rotate-bad3.c0 images-test.c0 -o bad_tform_impl_3; \
+	$(MASK) labtests/rotate-bad4.c0 images-test.c0 -o bad_tform_impl_4; \
+	$(MASK) labtests/rotate-bad5.c0 images-test.c0 -o bad_tform_impl_5; \
+	$(MASK) labtests/rotate-bad6.c0 images-test.c0 -o bad_tform_impl_6; \
+	$(MASK) labtests/rotate-bad7.c0 images-test.c0 -o bad_tform_impl_7; \
+	$(MASK) labtests/rotate-bad8.c0 images-test.c0 -o bad_tform_impl_8; \
+	$(MASK) labtests/rotate-bad9.c0 images-test.c0 -o bad_tform_impl_9; \
+	$(MASK) labtests/rotate-badA.c0 images-test.c0 -o bad_tform_impl_A; \
+	$(ROTATE) labtests/mask-bad0.c0 images-test.c0 -o bad_masking_impl_0; \
+	$(ROTATE) labtests/mask-bad1.c0 images-test.c0 -o bad_masking_impl_1; \
+	$(ROTATE) labtests/mask-bad2.c0 images-test.c0 -o bad_masking_impl_2; \
+	$(ROTATE) labtests/mask-bad3.c0 images-test.c0 -o bad_masking_impl_3; \
+	$(ROTATE) labtests/mask-bad4.c0 images-test.c0 -o bad_masking_impl_4; \
+	$(ROTATE) labtests/mask-bad5.c0 images-test.c0 -o bad_masking_impl_5; \
+	$(ROTATE) labtests/mask-bad6.c0 images-test.c0 -o bad_masking_impl_6; \
+	$(ROTATE) labtests/mask-bad7.c0 images-test.c0 -o bad_masking_impl_7; \
+	$(ROTATE) labtests/mask-bad8.c0 images-test.c0 -o bad_masking_impl_8; \
+	$(ROTATE) labtests/mask-bad9.c0 images-test.c0 -o bad_masking_impl_9; \
+	$(ROTATE) labtests/mask-badA.c0 images-test.c0 -o bad_masking_impl_A; \
+	fi
+
+grade:
+	echo "[15-122] Grading..."
+	echo "============================================="
+	python grader.py

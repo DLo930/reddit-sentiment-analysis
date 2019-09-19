@@ -1,0 +1,166 @@
+editor* ed(tbuf* B, int row, int col) {
+  editor* E = alloc(editor);
+  E->buffer = B;
+  E->row = row;
+  E->col = col;
+  return E;
+}
+
+editor* ___editor_copy___(editor* E)
+//@requires E != NULL;
+//@requires ___sekret__is_tbuf(E->buffer);
+{
+  editor* E2 = alloc(editor);
+  E2->row = E->row;
+  E2->col = E->col;
+  E2->buffer = alloc(tbuf);
+
+  E2->buffer->start = alloc(dll);
+  dll* p  =  E->buffer->start;
+  dll* p2 = E2->buffer->start;
+  bool done = false;
+  while (!done && p != NULL) {
+    dll* n2 = alloc(dll);
+    n2->prev = p2;
+    n2->data = p->next->data;
+    p2->next = n2;
+    if (p->next == E->buffer->cursor) E2->buffer->cursor = n2;
+    if (p->next == E->buffer->end) {
+      E2->buffer->end = n2;
+      done = true;
+    }
+    p2 = n2;
+    p = p->next;
+  }
+  return E2;
+}
+
+int ___sekret__col__anywhere(tbuf* B)
+//@requires ___sekret__is_tbuf(B);
+{
+  int i = 0;
+  for (dll* p = B->cursor->prev;
+       p != B->start && p->data != '\n';
+       p = p->prev)
+    i++;
+  return i;
+}
+
+bool test_up(tbuf* B, int row, int col) {
+  editor* E = ed(B, row, col);
+  editor* E2 = ___editor_copy___(E);
+  string s = stringify(B);
+
+  //print("buffer: '"); print(stringify(B));
+  //print("', i.e., '");print(stringify(E2->buffer));println("'");
+
+  if (row != 1) // Nothing to do otherwise
+  {
+    row--;
+    int curr_col = col;            // Remember current column
+    tbuf* B2 = E2->buffer;
+
+    B2->cursor = B2->cursor->prev; // Go back at least one character
+    // Go to previous line
+    while (B2->cursor->prev != B2->start && B2->cursor->data != '\n') {
+      B2->cursor = B2->cursor->prev;
+    }
+    col = ___sekret__col__anywhere(B2);
+
+    // Go to original column, if possible
+    while (B2->cursor->prev != B2->start && col > curr_col) {
+      col--;
+      B2->cursor = B2->cursor->prev;
+    }
+    s = stringify(B2);
+  }
+  editor_up(E);
+
+  return E->row == row
+      && E->col == col
+      && E->buffer == B
+      && ___sekret__is_tbuf(B)
+      && string_equal(s, stringify(B));
+}
+
+bool test_down(tbuf* B, int row, int col) {
+  editor* E = ed(B, row, col);
+  editor* E2 = ___editor_copy___(E);
+
+  dll* cursor = E2->buffer->cursor;  // Rememeber current cursor
+
+  // Go to next line or end of buffer
+  bool newline = false;
+  while (!tbuf_at_right(E2->buffer) && !newline) {
+    newline = E2->buffer->cursor->data == '\n';
+    E2->buffer->cursor = E2->buffer->cursor->next;
+  }
+
+  // If there was no next line, restore editor
+  if (!newline) {
+    E2->buffer->cursor = cursor;
+  } else {
+    E2->col = 0;
+    E2->row++;
+    // Go to original column, if possible
+    while (   !tbuf_at_right(E2->buffer)        // Not at end of buffer
+           && E2->col < col                     // not past col
+           && E2->buffer->cursor->data != '\n') // Stop at new line
+      {
+        E2->buffer->cursor = E2->buffer->cursor->next;
+        E2->col++;
+      }
+  }
+  editor_down(E);
+
+  return E->row == E2->row
+      && E->col == E2->col
+      && E->buffer == B
+      && ___sekret__is_tbuf(B)
+      && string_equal(stringify(E2->buffer), stringify(B));
+}
+
+
+int main() {
+  args_t args = args_parse();
+  if (args->argc != 1) error("Wrong number of args");
+  string arg = args->argv[0];
+
+  editor* Al = alloc(editor);
+  editor* Bad = alloc(editor);
+  Bad->buffer = construct(4, 2, 1);
+  Bad->buffer->cursor->next = NULL;
+  Bad->row = 2;
+  Bad->col = 1;
+
+  editor* Ill = alloc(editor);
+  Ill->buffer = construct(4, 2, 1);
+  Ill->row = 1;
+  Ill->col = 2;
+
+  editor* E = alloc(editor);
+  E->buffer = construct(4, 0, 1);
+  E->row = 1;
+  E->col = 0;
+
+         if (string_equal(arg, "up_NULL"))         { editor_up(NULL);
+  } else if (string_equal(arg, "up_alloc"))        { editor_up(Al);
+  } else if (string_equal(arg, "up_badpos"))       { editor_up(Ill);
+  } else if (string_equal(arg, "up_badbuf"))       { editor_up(Bad);
+
+  } else if (string_equal(arg, "down_NULL"))       { editor_down(NULL);
+  } else if (string_equal(arg, "down_alloc"))      { editor_down(Al);
+  } else if (string_equal(arg, "down_badpos"))     { editor_down(Ill);
+  } else if (string_equal(arg, "down_badbuf"))     { editor_down(Bad);
+
+  } else if (string_equal(arg, "up")) {
+    if (!exhaustively_test(0, 10, &test_up)) return 1;
+  } else if (string_equal(arg, "down")) {
+    if (!exhaustively_test(0, 10, &test_down)) return 1;
+
+  } else {
+    error("Bad arg");
+  }
+
+  return 0;
+}

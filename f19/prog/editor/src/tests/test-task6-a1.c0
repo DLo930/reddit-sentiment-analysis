@@ -1,0 +1,22 @@
+#use <conio>
+#use "sol-tbuf.c0"
+
+//EXPECT ANNOTATION FAILURE
+
+int main()
+{
+  bool passed = true;
+  tbuf B = NULL;
+
+  //nullity test
+  if(!(is_tbuf(B) == false)) {
+    passed = false;
+    // println("accepted null as a tbuf");
+  }
+  
+  //report (shunt to annotation failure)
+  if(passed){
+    //@assert false;
+    return 0; 
+  } else return 1;
+}

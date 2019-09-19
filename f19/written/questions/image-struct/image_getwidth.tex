@@ -1,0 +1,39 @@
+Write an implementation for \lstinline'image_getwidth'. Include any necessary
+preconditions and postconditions for the implementation.
+\begin{framed}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+int image_getwidth(image_t IMG)
+//@requires is_image(IMG);
+//@ensures \result > 0;
+{
+  return IMG->width;
+}
+\end{lstlisting}
+\else~\vspace{3.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (b -- image_getwidth)
+TAGS: array, correctness, pointer, safety, struct
+
+Gradescope rubric:
++0.5pts Precondition is is_image(\result)
++0.5pts Postcondition is \result > 0 or IMG->width or equivalent OR consistent with interface
++0.5pts Correctly returns width
+
+Commentary:
+. int image_getwidth(image_t IMG)
+  //@requires is_image(IMG);
+  //@ensures \result > 0;
+  {
+    return IMG->width;
+  }
+. 1/4 pt precondition
+   *** \result != NULL is okay as an ADDITIONAL check, but mark it redundant
+. 1/4 pt postcondition
+. 1/4 pt implementation
+
+. Write a style comment for postconditions such as
+	\result == \length(IMG->data) / IMG->height?
+ENDRUBRIC

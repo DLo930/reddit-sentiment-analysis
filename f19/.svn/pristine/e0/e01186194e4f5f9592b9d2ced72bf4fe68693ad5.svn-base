@@ -1,0 +1,13 @@
+TITLE: How to Do Well on Programming Homeworks
+
+CONTENT (paste into plain-text editor on Piazza):
+=================================================
+
+As we move into the last part of the semester, you'll notice that the programming homework assignments are getting longer, more complex, and more difficult. Instead of telling you exactly what to do and how to do it, the programming assignment writeups will focus more on describing the fundamental concepts and expectations behind the assignment. If you follow these steps, you will probably learn more and do better on these assignments:
+
+<ol>
+<li><strong>Start early.</strong> While in past weeks you might have been able to complete the programming assignments in a day or two, you probably will not be able to do this going forward.</li>
+<li><strong>Read the writeup carefully</strong><strong>. </strong>Don't skip the sections at the beginning and jump to the task descriptions. Don't rely on "folk wisdom" from friends and classmates. If you haven't read or don't understand every section of the writeup, you will have trouble completing the assignment correctly. If you have a question or are stuck on a task, reread the relevant sections of the writeup first.</li>
+<li><strong>Use the search field on Piazza</strong>. Admittedly, the search functionality on Piazza isn't the best, but you should be able to get good results by searching for a single keyword.</li>
+<li><strong>Don't forget about the beginning of the course</strong><strong>.</strong> Remember contracts, loop invariants, and correctness proofs? While you might not be able to completely prove that your code is correct, you should be able to reason through your logic and consider whether the code you've written makes logical sense. "Hacking on the code until it works" is rarely a good strategy for writing correct code.</li>
+</ol>

@@ -1,0 +1,22 @@
+#use <string>
+#use <conio>
+typedef struct list_node genlist; 
+struct list_node {
+  void* data;
+  string tag; // records the actual type of data 
+  genlist* next;
+};//Need to end def of struct with a semicolon
+
+void print_genlist(genlist* L) {
+  for (genlist* p = L; p != NULL; p = p->next) {
+    if (string_equal(p->tag, "an_int")) { //@assert \hastag(int*, p->data); 
+      printint(*(int*)(p->data));
+      println("");
+    } else if (string_equal(p->tag, "a_string")) { //@assert \hastag(string*, p->data); 
+      println(*(string*)(p->data));
+    } else {
+      print(p->tag);
+      error(" is an unknown tag");
+    } 
+  }
+}

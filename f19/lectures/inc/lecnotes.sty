@@ -1,0 +1,119 @@
+\usepackage{../../misc/latex/edition}   % Current semester
+
+% begin palatino.sty
+% copied from palatino.sty, except left ttdefault as CMTT
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+% \renewcommand{\ttdefault}{pcr}
+% end palatino.sty
+
+\usepackage{amsmath,amsthm,amssymb}
+%\usepackage{enumerate}  Use enumitem, diderot doesn't like enumerate
+\usepackage{enumitem}  % control enumerate/itemized lists, used
+\usepackage{etoolbox} % Subsumes ifthen
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{import}  % Like input, but respects subdirectories
+
+\usepackage[breaklinks=true,
+  colorlinks=true,
+  citecolor=blue,
+  linkcolor=blue,
+  urlcolor=blue]{hyperref}
+
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\setlength{\headheight}{14pt}
+\addtolength{\oddsidemargin}{30pt}
+\addtolength{\evensidemargin}{-22pt}
+
+\lhead[\fancyplain{}{\bfseries \thepage}]%
+      {\fancyplain{}{\bfseries Lecture \lecnum: \lectitle}}
+\chead[]{}
+\rhead[\fancyplain{}{\bfseries L\lecnum: \lectitle}]%
+      {\fancyplain{}{\bfseries \thepage}}
+%\lfoot[{\small\scshape Lecture Notes}]{{\small\scshape Lecture Notes}}
+\lfoot{\fancyplain{\small\scshape Lecture Notes}}
+\cfoot[]{}
+%\rfoot[{\small\scshape\lecdate}]{{\small\scshape\lecdate}}
+\rfoot{\fancyplain{\COPYRIGHT}{}}
+
+
+\newcommand{\LECNUM}
+  {\ifnumless{\lecnum}{10}{0\lecnum}{\lecnum}}
+
+
+\title{Lecture \lecnum\\ \lectitle}
+\author{\courseNumber: \courseName{} (\semester)\\ \lecturer}
+\@ifundefined{lecdate}
+  {\date{\lecdate}}
+  {}
+
+% Directories containing code and pictures
+%\newcommand{\code}{code}
+\newcommand{\img}{img}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{exercise}{Exercise}
+\newtheorem{example}{Example}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+
+\newenvironment{Exercise}[1]
+{\begin{exercise}[sample solution on page~\pageref{#1-solved}]%
+    \label{#1}\bgroup\upshape}
+{\egroup\end{exercise}\vspace{-0.5ex}}
+
+\newenvironment{Solution}[1]
+{\par\noindent
+  \textbf{Solution of exercise~\ref{#1}.}~\bgroup\itshape
+  \label{#1-solved}%
+}
+{\egroup\par\bigskip}
+
+\renewenvironment{proof}{\trivlist \item[\hskip \labelsep{\bf
+Proof:}]}{\hfill$\Box$ \endtrivlist}
+\newenvironment{attempt}{\trivlist \item[\hskip \labelsep{\bf
+Proof attempt:}]}{\hfill$\Diamond$ \endtrivlist}
+
+\newcommand{\ednote}[1]{\footnote{\it #1}\message{ednote!}}
+\newenvironment{note}{\begin{quote}\message{note!}\it}{\end{quote}}
+\newcommand{\highlight}[1]{\par%\vspace{1ex}%
+\framebox{\addtolength{\linewidth}{-1em}\begin{minipage}{\linewidth}#1\end{minipage}}}
+%\vspace{1ex}
+
+\newcommand{\m}[1]{\mathsf{#1}}
+
+%% Displays tags in 'answer' mode
+\providecommand{\ismeta}{false}
+\newcommand{\TAGS}[2][0ex]
+{\ifbool{\ismeta}%
+  {%\rule{0em}{0ex}%
+   \marginpar{\vspace*{-5.5ex}\footnotesize%
+   \raisebox{#1}{%
+     \fcolorbox{black}{Gray!25}{%
+       \parbox[t]{2cm}{\raggedright\textbf{TAGS:}\\#2}}}}%
+   \ignorespaces}%
+  {}}%
+\newcommand{\exerciseTAGS}[1]{\TAGS[-10ex]{#1}}
+\newcommand{\chapterTAGS}[1]
+{\ifbool{\ismeta}%
+  {\chead{\fancyplain{%
+   \fcolorbox{black}{Gray!25}{%
+     \parbox[t]{0.985\linewidth}{\raggedright\textbf{TAGS:} #1}}%
+   }}}%
+  {}}%
+
+
+
+%% Macros for rendering C0, C1, C, C0VM listings
+\usepackage{../../misc/latex/c0}
+
+
+% Must be loaded after listings
+\usepackage{tikz}

@@ -1,0 +1,150 @@
+\clearpage
+\Question[3\half]{Contracts in C}\TAGS{c-memory, correctness, safety}
+
+The code below is taken from the lecture notes on binary search trees in
+C0. This is also legal C code (assuming all the right definitions are
+available), but the contracts will not be checked in C.
+
+\begin{lstlisting}
+elem tree_lookup(tree* T, elem x)
+//@requires is_tree(T) && x != NULL;
+//@ensures \result == NULL || elem_compare(\result, x) == 0;
+{
+  if (T == NULL) return NULL;
+  int cmp = elem_compare(x, T->data);
+  if (cmp == 0) {
+    return T->data;
+  } else if (cmp < 0) {
+    return tree_lookup(T->left, x);
+  } else {
+    //@assert cmp > 0;
+    return tree_lookup(T->right, x);
+  }
+}
+
+elem set_lookup(set* B, elem x)
+//@requires is_set(B) && x != NULL;
+//@ensures \result == NULL || elem_compare(\result, x) == 0;
+{
+  return tree_lookup(B->root, x);
+}
+\end{lstlisting}
+
+Rewrite the function in the box on the next page as follows:
+\begin{itemize}
+\item%
+  Insert assignment statements so that all return statements have the form\linebreak[4]
+  \lstinline'return result'. (In other words, use the variable
+  \lstinline'result', defined on the next page, to hold the return value for
+  all cases and use this variable in your postcondition.)
+\item%
+  Insert any necessary C contracts so that, when compiled with the flag
+  \lstinline'-DDEBUG', contracts will be checked as they would be in C0 with
+  the flag \lstinline'-d'.
+\end{itemize}
+Do \emph{not} simplify any contracts even if it is immediately obvious from
+the context that you could do so. You may omit the C0 contracts (lines
+beginning \lstinline'//@') even though in practice we might like to keep them.
+
+\newpage
+\begin{framed}
+\begin{lstlisting}[belowskip=0pt]
+elem tree_lookup(tree* T, elem x)
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  REQUIRES(is_tree(T) && x != NULL);
+\end{lstlisting}
+\else\vspace{0.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+  elem result;
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  if (T == NULL) {
+    result = NULL;
+  } else {
+    int cmp = elem_compare(x, T->data);
+    if (cmp == 0) {
+      result = T->data;
+    } else if (cmp < 0) {
+      result = tree_lookup(T->left, x);
+    } else {
+      ASSERT(cmp > 0);
+      result = tree_lookup(T->right, x);
+    }
+  }
+  ENSURES(result == NULL || elem_compare(result, x) == 0);
+  return result;
+\end{lstlisting}
+\else\vspace{4in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+}
+
+elem set_lookup(set* B, elem x)
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  REQUIRES(is_set(B) && x != NULL);
+\end{lstlisting}
+\else\vspace{0.5in}\fi
+\begin{lstlisting}[aboveskip=0pt, belowskip=0pt]
+  elem result;
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  result = tree_lookup(B->root, x);
+  ENSURES(result == NULL || elem_compare(result, x) == 0);
+  return result
+\end{lstlisting}
+\else\vspace{2in}\fi
+\begin{lstlisting}[aboveskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+TAGS: c-memory, correctness, safety
+
+Gradescope rubric:
++0.5pt tree_lookup: REQUIRES(is_tree(T) && x != NULL); right after left curly brace
++0.5pt tree_lookup: Correct assignments to result variable; return result in correct positions
++0.5pt tree_lookup: ASSERT(cmp != NULL) after last 'else;
++0.5pt tree_lookup: ENSURES(result == NULL || elem_compare(result, x) == 0); before each return
++0.5pt set_lookup: REQUIRES(is_set(T) && x != NULL); right after curly brace
++0.25pt set_lookup: Correct assignments to result variable
++0.5pt set_lookup: ENSURES(result == NULL || elem_compare(result, x) == 0); before return
++0.25pt set_lookup: return result;
+
+Commentary:
+1/2 point for the REQUIRES, 1/2 point for the ASSERT, 1/2 point for the assignments to result and returns, 1/2 point for the ENSURES
+
+elem tree_lookup(tree* T, elem x) {
+  REQUIRES(is_tree(T) && x != NULL);
+  elem result;
+  if (T == NULL) {
+    result = NULL;
+  } else {
+    int cmp = elem_compare(x, T->data);
+    if (cmp == 0) {
+      result = T->data;
+    } else if (cmp < 0) {
+      result = tree_lookup(T->left, x);
+    } else {
+      ASSERT(cmp > 0);
+      result = tree_lookup(T->right, x);
+    }
+  }
+  ENSURES(result == NULL || elem_compare(result, x) == 0);
+  return result;
+}
+
+elem set_lookup(set* B, elem x) {
+  REQUIRES(is_set(B) && x != NULL);
+  elem result;
+  result = tree_lookup(B->root, x);
+  ENSURES(result == NULL || elem_compare(result, x) == 0);
+  return result
+}
+
+ENDRUBRIC

@@ -1,0 +1,92 @@
+\part[2]\TAGS{c-numbers, bit-patterns}
+\bgroup
+\newcommand{\egChars}{\lstinline'1, 2, -1, 4'}
+\newcommand{\egInt}{\lstinline'0x04FF0201'}
+
+For this question, assume that \lstinline'char' is a 1-byte signed
+integer type and that \lstinline'int' is a 4-byte signed integer
+type.
+
+Write the C function \lstinline'condense' which takes a
+\lstinline'char' array of length 4 and packs it into a single
+\lstinline'int'. We want the $0^\text{th}$ character aligned at the
+least significant byte, and the $3^\text{rd}$ character aligned at the
+most significant byte. For example, given %
+\lstinline'F = {'\egChars{}\lstinline'}', \lstinline'condense(F)'
+should return \egInt.
+
+For full credit,
+\begin{itemize}
+\item%
+  Make all casts explicit.
+\item%
+  Do not cast (or otherwise convert types) directly between signed and
+  unsigned types of different sizes.
+\item%
+  Do not rely on the \emph{endianness}\footnote{``Endianness'' refers
+      to the natural storage order of bytes for a particular hardware
+      architecture; you can read about it on Wikipedia, and don't
+      forget to read \emph{Gulliver's Travels} in your no doubt
+      copious spare time.} of your machine. For example,
+  the following code is incorrect:
+\begin{lstlisting}
+int condense(char* F) { return *((int*) F); }
+\end{lstlisting}
+\item%
+  Make sure your solution works for \lstinline'char' arrays containing
+  negative values.
+\item%
+  Write code which is clear and straightforward.
+\end{itemize}
+
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt]
+int condense(char *F) {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  uint32_t x =   (uint32_t)(uint8_t)F[3];
+  x = (x << 8) | (uint32_t)(uint8_t)F[2];
+  x = (x << 8) | (uint32_t)(uint8_t)F[1];
+  x = (x << 8) | (uint32_t)(uint8_t)F[0];
+  return (int32_t)x;
+\end{lstlisting}
+\else\vspace{4in}\fi
+\begin{lstlisting}[belowskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: c-numbers, bit-patterns
+
+Gradescope rubric:
++1pt Correctly got each char from array
++1pt Correctly packed chars into int
+
+
+Commentary:
+Can be solved either with a for loop or just doing the four things.
+   1/2 point for not casting between different types/signednesses
+   simultaneously,
+   1/2 point for not messing up sign extension (the test case 0000FEFE
+   should work, in other words),
+   1/2 point for not having arithmetic involving differently-signed
+   things (like x | y where x is 8 bit and y is 32 bit),
+   1/2 point for getting the shifting right
+
+   Correct solutions should get full marks.  But if any of those four
+   things are off it will be hard to even evaluate whether it's a
+   correct solution without testing
+
+Example solution:
+int condense(char *F) {
+  uint32_t x =   (uint32_t)(uint8_t)F[3];
+  x = (x << 8) | (uint32_t)(uint8_t)F[2];
+  x = (x << 8) | (uint32_t)(uint8_t)F[1];
+  x = (x << 8) | (uint32_t)(uint8_t)F[0];
+  return (int32_t)x;
+}
+ENDRUBRIC
+\egroup

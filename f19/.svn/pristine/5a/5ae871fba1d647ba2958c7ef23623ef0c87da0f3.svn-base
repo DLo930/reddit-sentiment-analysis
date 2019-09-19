@@ -1,0 +1,27 @@
+#use <conio>
+
+bool test_basic() {
+    int[] a = alloc_array(int, 4);
+    int[] b = alloc_array(int, 5);
+    for(int i = 0; i < 4; i++) {
+        a[i] = 5 - i;
+        b[i] = i;
+    }
+    b[4] = 100;
+    int[] intersect = alloc_array(int, 4);
+    int len = unique_intersect(a, 4, b, 5, intersect);
+    if(len != 2) {
+        return false;
+    }
+    if(intersect[0] != 2) return false;
+    if(intersect[1] != 3) return false;
+    return true;
+}
+
+bool run_tests() {
+    bool test1 = test_basic();
+    bool test2 = true;
+    bool test3 = true;
+    test_completed("Basic Tests", test1);
+    return test1 && test2 && test3;
+}

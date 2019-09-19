@@ -1,0 +1,20 @@
+\newpage
+\part[5]
+A standard way of characterizing the runtime of a recursive algorithm is through a \emph{recurrence relation}.  Suppose $T(n)$ is the worst-case runtime of the \verb|mergesort| algorithm on inputs of size $n$.  On lines~\verb|7| and~\verb|8|, the \verb|mergesort| algorithm recursively calls \verb|mergesort| on two subarrays of size approximately $n/2$, and each call takes time at most $T(n/2)$.  Then on line~\verb|9|, it calls \verb|merge|, an algorithm which runs in $O(n)$ time.  Finally, \verb|mergesort| performs constant-time operations on lines~\verb|5| and~\verb|6|.  Putting these together gives us the following recurrence relation for $T(n)$:
+\begin{equation}
+T(n) \leq 2\cdot T(n/2) + L(n),\label{eq:recurrence}
+\end{equation}
+where $L(n) \in O(n)$.  This argument works for all $n$ except $n = 0$ or~$1$, as \verb|mergesort| does not call \verb|merge| or make any recursive calls to \verb|mergesort| in these two cases.  However, in these two cases the algorithm returns immediately, meaning that only a constant amount of work is done.  Thus,
+\begin{equation}
+T(0) = T(1) = C, \label{eq:base-case}
+\end{equation}
+for some constant $C$.  This is known as the ``base case.''
+
+Equation~\ref{eq:recurrence} is a recurrence relation for $T(n)$, meaning an expression which defines $T(n)$ in terms of different values of $T(\cdot)$.  Generally, the goal is to ``solve'' the recurrence, meaning to produce an explicit formula for $T(n)$ which satisfies both Equations~\ref{eq:recurrence} and~\ref{eq:base-case}.  Here, by explicit we mean something of the form $T(n) = n^2$, $T(n) = \log n$, $T(n) = 5$, etc.
+
+
+In this problem, we will study the recurrence relation $T(n) \leq 2\cdot T(n/2) + n$, which is simpler than Equation~\ref{eq:recurrence} but related to it.  Using as the base case $T(1) = 0$, find a solution to this recurrence when $n$ is a power of~$2$, i.e. $n = 2^k$ for some nonnegative integer $k$.  In addition, prove that your solution works.  (Hint, try out small values of $n$ first.)
+\begin{solution}
+\vspace{3in}
+\end{solution}
+

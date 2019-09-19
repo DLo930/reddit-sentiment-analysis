@@ -1,0 +1,252 @@
+LAST: arrays, safety
+TODAY: correctness
+- linear search
+- correctness
+- contract failure and contract exploits
+NEXT: cost, sorting arrays
+
+Secret theme:
+  The hard part isn't doing it
+  The hard part isn't even proving you did it right
+  The hard part is knowing that you correctly said what doing it right was
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] idea of linear search
+[5] basic pre- and post-conditions
+[5] contract for client safety (specification)
+[5] correctness (implementation)
+[5] contract exploits
+[5] limitations of C0 contracts
+[5] unit testing
+
+Review
+======
+- arrays
+- safety of array code
+
+Linear Search
+=============
+- example:
+  . search 5 in [7, 3, 12, 5, 8]
+- find something by looking for it in each place until we find it
+- what should it return?  index, not number!
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i;
+      {
+        if (A[i] == x) return i;
+      }
+    }
+  [if doing review, omit precondition and loop invariant and ask for them]
+- What if x is not in A?  Return something that cannot possibly be a valid index
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i;
+      {
+        if (A[i] == x) return i;
+      }
+      return -1;                       // ADDED
+    }
+  [do not go for n <= \length(A) -- better introduce array segments later]
+
+Client Point of View
+====================
+- how is client likely to use search?
+    int i = search(12, A, 5);
+    if (i != -1) A[i] = 13;
+  how do we know A[i] is safe?
+- add postconditions
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    /*@ensures \result == -1           // ADDED
+            || A[\result] == x         // ADDED
+    @*/                                // ADDED
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i;
+      {
+        if (A[i] == x) return i;
+      }
+      return -1;
+    }
+- client sees only contracts: no guarantee that A[\result] is safe
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    /*@ensures \result == -1
+            || (0 <= \result && \result < n && A[\result] == x)  // EXTENDED
+    @*/
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i;
+      {
+        if (A[i] == x) return i;
+      }
+      return -1;
+    }
+  . we use the short-circuting behavior of && to ensure that A[\result] is safe
+- now it's safe for the client, but here's a much faster implementation:
+      int search(int x, int[] A, int n)
+      //@requires n == \length(A);
+      /*@ensures \result == -1
+              || (0 <= \result && \result < n && A[\result] == x)
+      @*/
+      {
+        return -1;
+      }
+  . this is a CONTRACT EXPLOIT:
+    . satisfies contracts (function is techincally "correct") but does the wrong thing
+
+Contracts for Correctness
+=========================
+- write a better postcondition:
+  . return -1 only if x is not in A[0, n)
+  . notation: A[0,n) = elements of A between index 0 inclusive and n exclusive
+- specification function that checks whether x in A[0, n)
+  . generalize to x in A[lo, hi) -- ARRAY SEGMENT between lo (INCLUSIVE) and hi (EXCLUSIVE)
+    . empty segment if lo == hi
+        bool is_in(int x, int[] A, int lo, int hi)
+        //@requires 0 <= lo && lo <= hi && hi <= \length(A);
+        {
+          if (lo == hi) return false;
+          return A[lo] == x || is_in(x, A, lo+1, hi);
+        }
+    . exercise: check that this code is safe
+- back to search:
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    /*@ensures (\result == -1 && !is_in(x, A, 0, n))            // EXTENDED
+            || (0 <= \result && \result < n && A[\result] == x)
+    @*/
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i;
+      {
+        if (A[i] == x) return i;
+      }
+      return -1;
+    }
+- is it correct?  Wherever it returns, we need to show that postcondition is satisfied
+  . return i:
+      0 <= i    (by LI)
+      i < n     (by loop guard)
+      A[i] == x (by if condition)
+    this is a new way to prove correctness: no use of EXIT
+  . return -1:
+    . operationally, x is NEVER found in A, so it's not in it
+    . turn it into logical argument
+- draw picture of state at iteration i:
+          0               i            n
+         ------------------------------
+      A: |               |            |
+         ------------------------------
+          x not in A[0,i)
+  . x not in A[0,i) -- captures "x hasn't been found yet"
+- turn it into loop invariant:
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    /*@ensures (\result == -1 && !is_in(x, A, 0, n))
+            || (0 <= \result && \result < n && A[\result] == x)
+    @*/
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i;
+      //@loop_invariant !is_in(x, A, 0, i);       // ADDED
+      {
+        if (A[i] == x) return i;
+      }
+      return -1;
+    }
+  [ignore for now requirement of is_in that i <= \length(A)]
+- can we prove it is a real LI?
+  . INIT: !is_in(x, A,0,0) true by definition
+  . PRES:
+    . !is_in(x, A, 0, i) by assumption
+    . to show: !is_in(x, A,0,i')
+    . i' = i+1
+    . so we need to show !is_in(x, A,0,i) && x != A[i]
+    . but what if x == A[i]?
+      - we return out of the function: we don't check the LI next
+      - NEW IDEA: no need for LI to hold if we exit in the middle of a loop
+    . so, if x == A[i], we're fine
+    . if x != A[i], we have !is_in(x, A,0,i) && x != A[i]
+    . so !is_in(x, A,0,i);
+- can we prove the postcondition for return -1?
+  . all we know is at the end of the loop is i >= n: we need i == n
+  . add i <= n as loop invariant:
+      int search(int x, int[] A, int n)
+      //@requires n == \length(A);
+      /*@ensures (\result == -1 && !is_in(x, A, 0, n))
+              || (0 <= \result && \result < n && A[\result] == x)
+      @*/
+      {
+        for (int i = 0; i < n; i++)
+        //@loop_invariant 0 <= i && i <= n;        // EXTENDED
+        //@loop_invariant !is_in(x, A, 0, i);
+        {
+          if (A[i] == x) return i;
+        }
+        return -1;
+      }
+    [this completes the preconditions of is_in, btw]
+    . lower bound (0 <= i) needed for safety
+    . upper bound (i <= n) needed for correctness
+  . now, i == n at end of loop, and therefore !is_in(x, A, 0, n)
+    . add
+      //@assert !is_in(x, A, 0, n);
+    . note that //@assert i == n; is incorrect:
+      . i is out of scope
+  . that's exactly the postcondition for \result == -1
+
+More Contract Exploits
+======================
+- can the client be sure the function does what is intended?
+  i.e., can there other contract exploits?
+- search could modify A (only other way to affect client state other than returning a value)
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    /*@ensures (\result == -1 && !is_in(x, A, 0, n))
+            || (0 <= \result && \result < n && A[\result] == x)
+    @*/
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i && i <= n;
+      //@loop_invariant !is_in(x, A, 0, i);
+      {
+        A[i] = x; return i;      // ADDED
+        if (A[i] == x) return i; // not needed
+      }
+      return -1;
+    }
+  or
+    int search(int x, int[] A, int n)
+    //@requires n == \length(A);
+    /*@ensures (\result == -1 && !is_in(x, A, 0, n))
+            || (0 <= \result && \result < n && A[\result] == x)
+    @*/
+    {
+      for (int i = 0; i < n; i++)
+      //@loop_invariant 0 <= i && i <= n;
+      //@loop_invariant !is_in(x, A, 0, i);
+      {
+        A[i] = x+1;              // ADDED
+        if (A[i] == x) return i; // not needed
+      }
+      return -1;
+    }
+- we cannot check that in C0!
+  . other languages with contracts can (old/new values)
+  . too confusing to 15-122 students!  We took it out
+  . no way to make a copy of array and check in postcondition
+- UNIT TESTS to check this doesn't happen
+- (sometimes, implicit understanding that A is not modified -- comment in text)
+
+Cliff HANGER
+============
+end lecture with these questions:
+- how fast is this code?
+- can we do better if we know the array has certain characteristics?

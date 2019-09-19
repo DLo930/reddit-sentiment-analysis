@@ -1,0 +1,96 @@
+bool is_precstack(dict_t D, stack_t S)
+//@requires D != NULL && S != NULL;
+{
+  stack_t tmp = stack_new();
+
+  while (!stack_empty(S)) {
+    push(tmp, pop(S));
+  }
+
+  int last = -15122;
+  bool outcome = true;
+  while (!stack_empty(tmp)) {
+    string tok = pop(tmp);
+    push(S, tok);
+    int prec = dict_lookup(D, tok);
+
+    if (prec == -1 || prec <= last) outcome = false;
+
+    last = prec;
+  }
+
+  return outcome;
+}
+
+string peek(stack_t S)
+//@requires S != NULL && !stack_empty(S);
+{
+  string x = pop(S);
+  push(S, x);
+  return x;
+}
+
+queue_t parse(dict_t D, queue_t input)
+//@requires D != NULL && input != NULL;
+//@ensures \result == NULL || queue_empty(input);
+{
+  queue_t output = queue_new();
+  stack_t S = stack_new();
+  sstack_t P = sstack_new();
+
+  bool atomic = true;
+  while (!queue_empty(input)) {
+    string tok = deq(input);
+
+    if (atomic) {
+
+      // Atomic mode: require a new parenthesized expression or a number
+
+      if (NULL != parse_int(tok, 10)) {
+        enq(output, tok);
+      } else if (string_equal("(", tok)) {
+        spush(P, S);
+        S = stack_new();
+      } else {
+        return NULL;
+      }
+
+    } else {
+
+      // Operator mode: require a closing parenthesis or a valid operator
+      int i = dict_lookup(D, tok);
+
+      if (string_equal(tok, ")")) {
+        // Closing parenthesis! Pop everything
+        if (sstack_empty(P)) {
+          return NULL;
+        }
+
+        while (!stack_empty(S)) enq(output, pop(S));
+        S = spop(P);
+
+      } else if (i >= 0) {
+        // Pop only until you reach a valid string
+        while (!stack_empty(S) && dict_lookup(D, peek(S)) >= i) {
+          enq(output, pop(S));
+        }
+        push(S, tok);
+
+      } else {
+        // Invalid operator
+        return NULL;
+      }
+    }
+
+    // Switch mode
+    atomic = !atomic;
+  }
+
+  if (atomic || !sstack_empty(P)) return NULL;
+
+  // Push remaining operators onto the output queue
+  while (!stack_empty(S)) enq(output, pop(S));
+
+  // Copy the output back onto the input queue
+  return output;
+}

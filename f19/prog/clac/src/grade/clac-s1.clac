@@ -1,0 +1,71 @@
+: comment arithmetic operators ;
+: > swap < ;
+: <= > ! ;
+: >= < ! ;
+: != = ! ;
+
+: dup 1 pick ; 
+: ! if 0 1 skip 1 ;
+
+: comment Logical operators ;
+: istrue 0 != ;
+: isfalse 0 = ;
+
+: drop1put1 drop 1 ;
+: drop1put0 drop 0 ;
+: drop2put1 drop drop 1 ;
+
+: || if drop1put1 1 skip istrue ;
+: && if istrue 1 skip drop1put0 ;
+: ^ if isfalse 1 skip istrue ;
+
+: odd 2 % ;
+: even odd ! ;
+
+: fact dup 0 <= if drop1put1 1 skip factstep ;
+: factstep dup 1 - fact * ;
+
+: comment exponential function x y exp is x^y ;
+: exp dup 1 < if drop2put1 1 skip expstep ;
+: expstep 1 - swap dup rot exp * ;
+
+: swapdup swap dup ;
+: swapdrop swap drop ;
+: 1rot 1 rot ;
+
+: fastexprec dup 1 < if drop2put1 1 skip fastexpsteprec ;
+: fastexpsteprec dup even if 1rot 1 skip swapdup dup * rot 2 / fastexprec * ;
+
+: fastexp 1 fastexploop drop swap drop ;
+: fastexploop swap dup 0 > if noop fastexpbody ;
+: fastexpbody dup odd if fastexpodd noop 2 / rot dup * rot rot swap fastexploop ;
+: fastexpodd rot rot swap dup rot * rot ;
+
+: noop ;
+
+: comment integer square root ;
+: sqrt dup 0 1 sqrtloop ;
+: sqrtloop dup * rot > if swapdrop 1 skip sqrtbody ;
+: sqrtbody swap dup rot 1 + dup 1 + sqrtloop ;
+
+: comment standard recursive fib ;
+: comment n fib --> fib(n) ;
+: fib dup 2 < if drop1put1 1 skip fibrec ;
+: fibrec 1 - dup 1 - fib swap fib + ;
+
+: comment iterative fib ;
+: comment it would be nice with invariants ;
+: fastfib 1 1 rot fastfibloop drop swap drop ;
+: fastfibloop dup 2 >= if noop noop fastfibbody ;
+: fastfibbody 1 - rot rot dup rot + rot fastfibloop ;
+
+: comment x y 2dup --> x y x y ;
+: 2dup swap dup rot dup rot swap ;
+: = 2dup <= if >= 1 skip 0 ;
+
+5 fact
+2 3 exp
+26 sqrt
+10 fib
+11 fastfib
+- - - -

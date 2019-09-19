@@ -1,0 +1,16 @@
+---
+general:
+  name: lab14
+  description: ''
+  display_name: 'Lab 14: PasswordLab'
+  handin_filename: handin.c
+  handin_directory: handin
+  max_grace_days: 0
+  handout: handout-14.tgz
+  writeup: lab14.pdf
+  max_submissions: -1
+  disable_handins: true
+  max_size: 2
+  has_svn: false
+  category_name: Labs
+problems: []

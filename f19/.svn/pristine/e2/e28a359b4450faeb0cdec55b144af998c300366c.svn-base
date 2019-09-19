@@ -1,0 +1,41 @@
+#use <conio>
+
+int main () {
+  string_bundle dict = read_words("texts/news_vocab_sorted.txt");
+  string[] D = string_bundle_array(dict);
+  int L = string_bundle_length(dict);
+  int[] A = alloc_array(int, L);
+  int x = count_vocab(D, A, L, "texts/twitter_200k.txt", true);
+
+  println("These words appeared 128 times in the Twitter corpus: ");
+  
+  int max = 0;
+  int maxi = 0;
+  int singletons = 0;
+  for (int i = 0; i < L; i++) 
+    //@loop_invariant 0 <= i;
+    {
+      if (A[i] > max) {
+        max = A[i];
+        maxi = i;
+      } 
+
+      if (A[i] == 128) {
+        print(D[i]);
+        print(" ");
+      }
+      
+      if (A[i] == 1) {
+        singletons++;
+      }
+    }
+
+  println(""); println("");
+  print("There are "); printint(singletons); 
+  println(" singletons in the corpus."); println("");
+  print("This was the most-used word in the Twitter corpus: ");
+  print(D[maxi]); println("");
+  print("It was used "); printint(A[maxi]); println(" times.");
+
+  return 0;
+}

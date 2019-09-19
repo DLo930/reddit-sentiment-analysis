@@ -1,0 +1,40 @@
+\part[0\half]~\vspace{-2ex}
+\begin{lstlisting}[numbers=left]
+while (x == 2*y)[*\label{l:lpres-yes7-lg}*]
+//@loop_invariant i == 4*j;[*\label{l:lpres-yes7-LI}*]
+{
+  i = i+2*x;[*\label{l:lpres-yes7-seti}*]
+  j = j+y;[*\label{l:lpres-yes7-setj}*]
+  x = f(i);[*\label{l:lpres-yes7-setx}*]
+}
+\end{lstlisting}
+\begin{framed}
+\ifprintanswers{\color{\answerColor}
+  ALWAYS PRESERVED.
+
+  \begin{itemize}
+  \item \lstinline'i`' = \lstinline'i + 2*x' by line~\ref{l:lpres-yes7-seti}
+  \item \lstinline'i`' = \lstinline'i + 4*y' by line~\ref{l:lpres-yes7-lg}
+  \item \lstinline'i`' = \lstinline'4*j + 4*y' by line~\ref{l:lpres-yes7-LI}
+  \item \lstinline'j`' = \lstinline'j + y' by line~\ref{l:lpres-yes7-setj}
+  \item so \lstinline'i` == 4*j`'
+  \end{itemize}
+}\else~\vspace{2.5in}\fi
+\end{framed}
+
+\RUBRIC
+Part (<y7>)
+
+Gradescope rubric:
++ 0.25 pts ALWAYS PRESERVED
++ 0.25 pts Valid proof
+
+Commentary:
+The loop invariant is always preserved.
+  - i' = i + 2*x             (line 4)
+  - i + 2*x = 4*j + 2*x      (line 2)
+  - 4*j + 2*x = 4*j + 4*y    (line 1)
+  - 4*j + 4*y = 4*(j + y)    (distributivity)
+  - 4*(j + y) = 4*j'         (line 5)
+  - i' = 4*j'                (transitivity, the last 5 facts)
+ENDRUBRIC

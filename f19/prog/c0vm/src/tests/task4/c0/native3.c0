@@ -1,0 +1,17 @@
+#use <conio>
+
+int sum()
+{
+  return 15122;
+}
+
+int main()
+{
+  int j;
+  j = sum();
+  j += 4401;
+  bool k = true;
+  printbool(k);
+  return 0;
+}
+

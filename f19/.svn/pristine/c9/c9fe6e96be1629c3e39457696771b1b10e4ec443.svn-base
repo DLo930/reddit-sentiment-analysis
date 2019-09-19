@@ -1,0 +1,20 @@
+int fast_gcd(int x, int y)
+//@requires x > 0 && y > 0;
+//@ensures \result == gcd(x, y);
+{
+    int a = x;
+    int b = y;
+    while (a != b)
+    //@loop_invariant a > 0 && b > 0;
+    //@loop_invariant gcd(a, b) == gcd(x, y);
+    {
+        if (a > b) {
+            a = a - b;
+        }
+        else {
+            b = b - a;
+        }
+    }
+    return a;
+}
+

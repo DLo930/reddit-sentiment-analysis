@@ -1,0 +1,31 @@
+#use <conio>
+#use "sol-gapbuf.c0"
+
+//EXPECT ZERO (correctness)
+
+int main()
+{
+  bool passed = true;
+  gapbuf G = gapbuf_new(16);
+  
+  //is a gapbuff
+  if(!(is_gapbuf_(G) == true)){
+    passed = false;
+    // error("failed to produce a valid gapbuf");
+  }
+  
+  //is empty
+  if(!(gapbuf_empty_(G) == true)){
+    passed = false;
+    // error("failed to produce an empty gapbuf");
+  }
+  
+  //right length
+  if(!(G->limit == 16)){
+    passed = false;
+    // error("wrong size...");
+  }
+  
+  //report
+  if(passed) return 0; else return 1;
+}

@@ -1,0 +1,81 @@
+\bgroup
+\newcommand{\egChars}{\lstinline'1, 2, 3, 4'}
+\newcommand{\egInt}{\lstinline'0x01020304'}
+
+\part[2]\TAGS{c-numbers, bit-patterns}%
+For this question, assume that \lstinline'char' is a 1-byte signed
+integer type and that \lstinline'int' is a 4-byte signed integer
+type.
+
+Write the C function \lstinline'condense' which takes a
+\lstinline'char' array of length 4 and packs it into a single
+\lstinline'int'. We want the $0^\text{th}$ character aligned at
+the most significant byte, and the $3^\text{rd}$ character
+aligned at the least significant byte. For example, given
+\lstinline'F = {'\egChars{}\lstinline'}', \lstinline'condense(F)'
+should return \egInt.
+
+For full credit,
+\begin{itemize}
+\item%
+  Make all casts explicit.
+\item%
+  Do not cast (or otherwise convert types) directly between signed and
+  unsigned types of different sizes.
+\item%
+  Do not rely on the \emph{endianness}\footnote{``Endianness'' refers
+    to the natural storage order of bytes for a particular hardware
+    architecture; you can read about it on Wikipedia, and don't forget
+    to read \emph{Gulliver's Travels} in your no doubt copious spare
+    time.} of your machine. For example, the following code is
+  incorrect:
+\begin{lstlisting}
+int condense(char* F) { return *((int*) F); }
+\end{lstlisting}
+\item%
+  Make sure your solution works for \lstinline'char' arrays containing
+  negative values.
+\item%
+  Write code which is clear and straightforward.
+\end{itemize}
+
+\begin{framed}
+\begin{lstlisting}[aboveskip=0pt]
+int condense(char *F) {
+\end{lstlisting}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+  int c0 = ((int) F[0]) & 0xFF;
+  int c1 = ((int) F[1]) & 0xFF;
+  int c2 = ((int) F[2]) & 0xFF;
+  int c3 = ((int) F[3]) & 0xFF;
+
+  return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
+\end{lstlisting}
+\else\vspace{4in}\fi
+\begin{lstlisting}[belowskip=0pt]
+}
+\end{lstlisting}
+\end{framed}
+
+\RUBRIC
+Part (b)
+TAGS: c-numbers, bit-patterns
+
+Gradescope rubric:
++1pt Correctly got each char from array
++1pt Correctly packed chars into int
+
+
+Commentary:
+
+int condense(char* F) {
+  int c0 = ((int) F[0]) & 0xFF;
+  int c1 = ((int) F[1]) & 0xFF;
+  int c2 = ((int) F[2]) & 0xFF;
+  int c3 = ((int) F[3]) & 0xFF;
+
+  return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
+}
+ENDRUBRIC
+\egroup

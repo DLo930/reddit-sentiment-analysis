@@ -1,0 +1,44 @@
+\enlargethispage{5ex}
+Write an implementation for \lstinline'image_setpixel', assuming
+pixels are stored the same way they were stored in the programming
+assignment.  Include any necessary preconditions and postconditions
+for the implementation.
+\begin{framed}
+\ifprintanswers
+\begin{lstlisting}[basicstyle=\basicstyle\color{\answerColor}]
+void image_setpixel(image_t IMG, int row, int col, pixel_t P)
+//@requires is_image(IMG);
+//@requires 0 <= row && row < image_getheight(IMG);
+//@requires 0 <= col && col < image_getwidth(IMG);
+{
+    IMG->data[row*(IMG->width) + col] = P;
+}
+\end{lstlisting}
+\else~\vspace{3.6in}\fi
+\end{framed}
+
+\RUBRIC
+Part (b -- image_setpixel)
+TAGS: correctness, pointer, safety, struct
+
+Gradescope rubric:
++0.25pts is_image(IMG) precondition
++0.25pts bounds checks are present (0 <= row && row < IMG->height, etc)
++0.5pts Consistent with interface contracts
++0.5pts Implementation code is correct
+
+Commentary:
+  . void image_setpixel(image_t IMG, int row, int col, pixel_t P)
+    //@requires is_image(IMG);
+    //@requires 0 <= row && row < image_getheight(IMG);
+    //@requires 0 <= col && col < image_getwidth(IMG);
+    {
+        IMG->data[row*(IMG->width) + col] = P;
+    }
+  . 1/4 point for is_image(IMG) precondition
+      *** IMG != NULL is okay as an ADDITIONAL check, but mark it redundant
+  . 1/4 point for repeating the bounds
+      *** IMG->width instead of image_getwidth(IMG), etc is OK
+  . 1/4 point for implementation
+
+ENDRUBRIC

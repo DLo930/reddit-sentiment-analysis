@@ -1,0 +1,145 @@
+/*
+ * A text buffer is a doubly linked list (dll), where one of the
+ * elements in the dll is designated as containing the point.  The
+ * list is terminated with dummy nodes whose contents are never
+ * inspected.
+ * 
+ * 15-122 Principles of Imperative Computation
+ */
+
+typedef struct list_node* dll;
+struct list_node {
+  elem data; /* this is a gap buffer (fixed-size of 16 bytes) */
+  dll next;
+  dll prev;
+};
+
+typedef struct text_buffer* tbuf;
+struct text_buffer {
+  dll start; /* the fist node of the list (on the left)  */
+  dll point; /* the current node (where the cursor is)   */
+  dll end;   /* the last node of the list (on the right) */
+};
+
+/* INTERFACE */
+
+bool is_linked(tbuf B);     /* Checks if the list is a well-formed dll */
+
+bool tbuf_at_left(tbuf B);  /* Returns true if the point is the        */
+                            /*   first (non-terminal) node of the list */
+bool tbuf_at_right(tbuf B); /* Returns true if the point is the        */
+                            /*   last (non-terminal) node of the list  */
+
+void tbuf_forward(tbuf B);      /* Moves the point forward, to the right  */
+void tbuf_backward(tbuf B);     /* Moves the point backward, to the left  */
+void tbuf_delete_point(tbuf B); /* Remove the point node from the list    */
+
+/* IMPLEMENTATION */
+
+// Floyd's algorithm, but just yes-or-no, is there a cycle?
+
+bool has_forward_cycle(tbuf B)
+//@requires B->start != NULL;
+{
+  dll hare = B->start;
+  dll tortoise = B->start ;
+  while ( hare != NULL && hare->next != NULL ) {
+    tortoise = tortoise->next;
+    hare = hare->next->next;
+    if ( hare == tortoise ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool has_backward_cycle(tbuf B)
+//@requires B->end != NULL;
+{
+  dll hare = B->end;
+  dll tortoise = B->end ;
+  while ( hare != NULL && hare->prev != NULL ) {
+    tortoise = tortoise->prev;
+    hare = hare->prev->prev;
+    if ( hare == tortoise ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool validate_links(tbuf B)
+//@requires B != NULL ;
+//@requires B->start != NULL ;
+{
+  dll p = B->start;
+  bool point_seen = false;
+  while ( p != B->end && p->next != NULL && p->next->prev == p ) 
+    //@loop_invariant p == B->end || p != NULL ;
+    {
+    if ( p == B->point ) {
+      point_seen = true;
+    }
+    p = p->next;
+    }
+  return point_seen && p == B->end;
+}    
+
+bool is_linked(tbuf B)     /* Checks if the list is a well-formed dll */
+{
+  return B != NULL 
+    && B->point != NULL && B->point != B->start && B->point != B->end 
+    && B->start != NULL && B->end != NULL && B->start != B->end 
+    && !has_forward_cycle(B) && !has_backward_cycle(B) && validate_links(B);
+}
+
+bool tbuf_at_left(tbuf B)  /* Returns true if the point is the        */
+                            /*   first (non-terminal) node of the list */
+//@requires is_linked(B) ;
+//@ensures is_linked(B) ;
+{
+  return B->point == B->start->next;
+}
+
+bool tbuf_at_right(tbuf B) /* Returns true if the point is the        */
+                            /*   last (non-terminal) node of the list  */
+//@requires is_linked(B) ;
+//@ensures is_linked(B) ;
+{
+  return B->point == B->end->prev;
+}
+
+void tbuf_forward(tbuf B)      /* Moves the point forward, to the right  */
+//@requires is_linked(B) ;
+//@requires !tbuf_at_right(B) ;
+//@ensures is_linked(B) ;
+{
+  B->point = B->point->next;
+}
+
+void tbuf_backward(tbuf B)     /* Moves the point backward, to the left  */
+//@requires is_linked(B) ;
+//@requires !tbuf_at_left(B) ;
+//@ensures is_linked(B) ;
+{
+  B->point = B->point->prev;
+}
+
+void tbuf_delete_point(tbuf B) /* Remove the point node from the list    */
+//@requires is_linked(B) ;
+//@requires ! ( tbuf_at_right(B) && tbuf_at_left(B) ) ;
+//@ensures is_linked(B) ;
+{
+  dll point = B->point;
+  dll next = point->next;
+  dll prev = point->prev;
+  prev->next = next;
+  next->prev = prev;
+  if ( next == B->end ) {
+    B->point = prev;
+  }
+  else {
+    B->point = next;
+  }
+}
+  

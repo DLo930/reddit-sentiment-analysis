@@ -1,0 +1,145 @@
+\section*{Finding collisions in hash functions}
+
+\bgroup
+\input{asciichart.tex}
+
+Recall that a hash function $h(k)$ takes a key $k$ as its argument and
+returns some integer, a \emph{hash value}; we can then use
+$\textrm{abs}(h(k) \% m)$ as an index into our hash table.  In this
+lab you will be examining various hash functions and exploiting their
+inefficiencies to make them collide.
+
+It will be convenient to will denote a string of length $n$ (for $n>0$) as
+$s_0s_1s_2...s_{n-2}s_{n-1}$, where $s_i$ is the ASCII value of
+character $i$ in string $s$.  (A partial ASCII table is given to the
+right.)  We define four hash functions as follows:
+
+\begin{description}
+\labelwidth=1em
+\item\lstinline'hash_add':
+$h(s) = s_0 + s_1 + s_2 + \dots + s_{n-2} + s_{n-1}$
+
+\item\lstinline'hash_mul32':
+
+\hspace*{-1.9em}%
+$h(s) = ( \dots ((s_0 \times 32 + s_1) \times 32 + s_2) \times 32 \dots + s_{n-2}) \times 32 + s_{n-1}$
+
+\item\lstinline'hash_mul31':
+
+\hspace*{-1.9em}%
+$h(s) = ( \dots ((s_0 \times 31 + s_1) \times 31 + s_2) \times 31 \dots + s_{n-2}) \times 31 + s_{n-1}$
+
+\item\lstinline'hash_lcg':
+
+$h(s) = f(f( \dots f(f(f(s_0) + s_1) + s_2) \dots + s_{n-2}) + s_{n-1})$
+
+\hspace*{-1.9em}%
+where $f(x) = 1664525 \times x + 1013904223$
+\end{description}
+
+\medskip
+These four hash functions have been implemented for you and can be run
+from the command line like this, for example:
+
+\begin{lstlisting}[language={[coin]C}]
+% hash_add
+Enter a string to hash: bar
+   hash value = 309
+   hashes to index 309 in a table of size 1024
+Another? (empty line quits):
+\end{lstlisting}
+Note that the command line hashing tool also reports where the element
+with the given key will hash to given a table size of 1024. This is
+important because hash tables have a limited size, so we want to
+minimize collisions within said size.
+\egroup
+
+\newpage
+The first exercise requires you to mathematically reverse-engineer one of the
+simpler hash functions:
+
+\begin{part}\TAGS{hashing, string}
+  Find three or more strings, each string containing three or more
+  characters, that would always collide because they have the same
+  hash value using \lstinline'hash_add'.
+
+\onePT
+\end{part}
+
+\begin{solution}
+Example Solution: ADG, BDF, CDE\\
+Strategy: add to one character while subtracting from the other.
+\end{solution}
+
+Now, let's work through a more complicated real-world example: hashing
+an entire dictionary. We would like to know which hashing function
+would be the best to hash the Scrabble dictionary. We define a hashing
+function to be ``better'' based on how efficiently it spreads out the
+words over the buckets. Obviously, this depends on the size of our
+hash table: if we have a smaller hash table, there will naturally be
+more collisions.  That's why we can use a visualizer (implemented for
+you in file \lstinline'visualizer.c0') to see how many words hash to
+each bucket for a given hash function.
+
+\begin{part}\TAGS{hashing}
+  Implement your own version of \lstinline'hash_mul32' in
+  \lstinline'hash-a.c0' so that the function
+  \lstinline'hash_string(s)' returns an integer representing the hash
+  value for \lstinline's' using the formula given on the previous
+  page. The
+  \href{http://c0.typesafety.net/doc/c0-libraries.pdf}{string library}
+  may be helpful in this.  You can compile your code and run it with
+  the following command:
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle,
+                   belowskip=0pt]
+  % cc0 hash-a.c0 hash-dictionary.c0 visualizer.c0
+  % ./a.out -o mul32.png
+  % display mul32.png
+\end{lstlisting}
+This will output a graphical visualization of your hash function on
+the dictionary for a table of size 1024, with the vertical lines
+showing how many values hashed to that index in the table.  If you are
+ssh'ing remember to ssh with \lstinline'-Y' or \lstinline'-X'! You can
+run your program with the \lstinline'-n' flag followed by a different
+table size if you like.  You can see just how ineffective
+\lstinline'hash_mul32' is!
+\end{part}
+
+\begin{solution}
+\begin{lstlisting}[language={C}]
+int hash(string s) {
+    int len = string_length(s);
+    if (len == 0) {
+        return 0;
+    }
+    char c = string_charat(s, len-1);
+    return char_ord(c) + 32*hash(string_sub(s, 0, len-1));
+}
+\end{lstlisting}
+\end{solution}
+
+\begin{part}\TAGS{hashing}
+  Now, similarly implement \lstinline'hash_lcg' in
+  \lstinline'hash-b.c0', and compile it for the dictionary:
+\begin{lstlisting}[language={[coin]C}, basicstyle=\smallbasicstyle,
+                   belowskip=0pt]
+  % cc0 hash-b.c0 hash-dictionary.c0 visualizer.c0
+\end{lstlisting}
+Run it like above to see how well it hashes the dictionary. Compare
+this to \lstinline'hash_mul32'.
+
+\twoPT
+\end{part}
+
+\begin{solution}
+\begin{lstlisting}[language={C}]
+int hash(string s) {
+    int len = string_length(s);
+    if (len == 0) {
+        return 0;
+    }
+    char c = string_charat(s, len-1);
+    return 166425*(char_ord(c) + hash(string_sub(s, 0, len-1))) + 1013904223;
+}
+\end{lstlisting}
+\end{solution}

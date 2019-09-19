@@ -1,0 +1,19 @@
+#use <util>
+#use <conio>
+
+int main() {
+  // Run some edge cases (check for contract errors only)
+  gcd(1, 1); 
+  gcd(1, int_max());
+  gcd(int_max(), int_max());
+  gcd(int_max(), int_max() - 1);
+
+  // Test some regular cases (check for contract errors & exploits)
+  assert(gcd(2, 5) == 1);
+  assert(gcd(19, 21) == 1);
+  assert(gcd(81, 9) == 9);
+  assert(gcd(16, 100) == 4);
+
+  println("All tests passed!");
+  return 0;
+}

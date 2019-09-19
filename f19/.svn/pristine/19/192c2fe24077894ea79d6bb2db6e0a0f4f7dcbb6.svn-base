@@ -1,0 +1,280 @@
+LAST: trees
+TODAY:
+- self-balancing trees (AVL trees, rotations)
+- temporarily breaking invariants
+- space-time tradeoff
+NEXT: worklists revisited
+
+Important concepts (5 = highest, 1 = lowest)
+============================================
+[5] BST by themselves don't guarantee O(log n) operations
+[5] balanced trees
+[4] characteristics of new balance invariants
+[2] bad balance invariant
+[5] AVL trees (height invariant, violations, lots of examples)
+[5] rotations (single and double)
+[3] height analysis
+[5] space-time tradeoff in implementation
+[2] other parts of code
+
+Cost of BST operations
+======================
+- what is the cost of lookup/insert/find_min in a BST? [take show of hands]
+  . O(log n) ?  only if derived from array (or lucky)
+  . O(n) ?      [ask for insertion sequence that leads to it]
+    . if sequence is sorted, tree degenerates into list
+- can we come up with a cost parameter that works in all cases?
+  . HEIGHT = length of longest path from root to a leaf
+      H(empty) = 0
+      H(node(left, data, right)) = 1 + max(H(left), H(right))
+  . then lookup/insert/find_min are in O(h)
+  . but h can be in O(log n) or in O(n)
+- we have NOT achieved our goal of O(log n) insert/lookup/find_min!
+  . goal of this lecture: get there
+
+Balanced trees
+==============
+- ask for a "better" tree with same nodes as tree from sorted sequence above
+- a tree is BALANCED if h is in O(log n)
+  . lookup is guaranteed to be O(log n)
+- new goal: make sure that tree remains balanced (and is a BST) as we insert new elements
+  . trees with this property are called SELF-BALANCING
+  . there are tons of them
+  . we will look at the very first proposal -- AVL trees
+    . by G.M. Adelson-Velskii and E.M. Landis, 1962
+- just asking that its height be in O(log n) is too vague
+- we want algorithmically checkable constraints that
+  1) guarantee that h is in O(log n)
+  2) are cheap to maintain -- at most O(log n)
+- we need a new data structure invariant (in addition to ordering invariant)
+  . we call it a BALANCE INVARIANT
+  . after each BST insertion, make adjustments to maintain balance invariant
+- note that BSTs satisfy (2) -- vacuously -- but not (1)
+
+Bad balance invariant
+=====================
+- tree looks like this:
+       /\
+      /  \
+     /  __\
+    /__/
+  . obviously satisfies (1)
+- does not satisfy (2)
+       42
+      /  \
+     9   15122
+    / \
+   8  31
+ . add 2 [ask for resulting tree]
+ . we need to get to
+       31
+      /  \
+     8   15122
+    / \    /
+   2   9  42
+ . we have to change all pointers in the tree -- certainly O(n)
+
+AVL trees
+=========
+- AVL invariant (usually called height or balance invariant):
+    at every node, the heights of the left and right subtrees differ by at most 1
+- AVL trees satisfy
+  . the ordering invariant AND
+  . the height invariant
+            x    ^      then either height(L) = h-1 = height(R)
+           / \   |h              or height(L) = h-1 and height(R) = h-2
+          L   R  v               or height(L) = h-2 and height(R) = h-1
+
+  and   L < x < R
+- in the next examples, have the following 3 options on the left of the board
+             x  (h)         |          x  (h)         |          x  (h)
+           /   \            |        /   \            |        /   \
+    (h-1) /\   /\ (h-1)     | (h-2) /\   /\ (h-1)     | (h-1) /\   /\ (h-2)
+         /  \ /  \          |       --  /  \          |      /  \  --
+         ---- ----          |           ----          |      ----
+- examples
+        10      ? YES
+       /  \
+      5   15
+
+        10      ? YES
+       /  \
+      5   15
+            \
+            20
+
+        10      ? NO: VIOLATION at 15
+      /    \
+     5      15*
+      \       \
+       7       20
+                \
+                 25
+
+        10      ? YES
+      /    \
+     5      15
+      \     / \
+       7   12  20
+                \
+                 25
+
+        10*     ? NO: violation at 10 and 15
+      /    \
+     5      15*
+      \     / \
+       7   12  20
+               / \
+              17  25
+                   \
+                    30
+
+        10      ? YES -- note that not all root-leaf paths have height h or h-1
+      /    \
+     5      15
+    / \     / \
+   3   7   12  20
+      /   /    / \
+     6   11   17  25
+                   \
+                    30
+
+- does an AVL tree satisfy the requirements?
+  (1) yes -- current hw explores just that
+  (2) yes -- restoring height invariant will have cost O(1)
+
+Rotations
+=========
+- strategy
+  . insert as in BSTs
+    . preserves order invariant
+  . then fix height invariant violations if any
+    . always fix the LOWEST VIOLATION (closest to a leaf)
+    . that will take care of all other violations (see height analysis later)
+  . this is a frequent principle
+    . of 2 invariants, satisfy one (ordering) and temporarily violate the other (height)
+    . then patch the broken invariant (cheaply)
+- example 1:
+       10                 10*
+         \     add 20       \
+          15                 15
+                               \
+                                20
+  . violation at 10
+  . how to fix it?  [audience participation]
+       15
+      /  \
+    10     20
+  . this operation is called a (LEFT) ROTATION (at 10)
+- example 2:
+           10                  10*                         15
+          /  \                /  \                        /  \
+         5    15    add 20   5    15     rotate left    10    17
+             /  \                /  \                  /  \     \
+            12  17              12  17                5   12    20
+                                      \
+                                      20
+- observations:
+  . if violation happened, the tree grew
+  . rotation brings height back to what it was
+
+- general pattern
+          x      rotate left      y
+         / \     ----------->    / \
+        A   y                   x   C
+           / \                 / \
+          B   C               A   B
+     (A<x<B<y<C)             (A<x<B<y<C)
+  . order invariant is preserved
+  . when will it be useful? [point out without going deep into details]
+    . when C has grown too deep after an insertion
+      . when A is shallow (height h-1) and C is deep (h) [and B is h-1]
+      . we have just inserted element into C which caused violation at x
+      . resulting tree satisfies height invariant
+- symmetric operation is called a RIGHT ROTATION
+  . when A has grown too deep after an insertion
+
+- Example 3:
+       10                 10*
+         \     add 12       \
+          15                 15
+                            /
+                           12
+  . how to fix it?  [audience participation]
+       12
+      /  \
+    10    15
+  . this operation is called a DOUBLE ROTATION (at 10)
+  . can also be viewed as a right rotation at 15 followed by a left rotation at 10
+    . convenient when coding
+       10*                 10*                        12
+         \                   \                       /  \
+          15  rotate right    12    rotate left    10    15
+         /                      \
+        12                      15
+- general patterns
+          x      double rotate      y       double rotate      z
+         / \     ------------->   /   \    <-------------     / \
+        A   z      right/left    x     z     left/right      x   D
+           / \                  / \   / \                   / \
+          y   D                A   B C   D                 A   y
+         / \                                                  / \
+        B   C                                                B   C
+    (A<x<B<y<C<z<D)          (A<x<B<y<C<z<D)            (A<x<B<y<C<z<D)
+  . useful when B or C have grown too deep after insertion
+
+Height analysis [use slides -- do only if time]
+===============
+- explore various ways a violation could occur focusing on heights
+
+Implementation [highlights]
+==============
+- start from BST library in avldict-template.c0
+- do global search&replace: bst --> avl
+- update avl_insert
+        ...
+        else if (cmp < 0) {       // Go left
+          T->left = avl_insert(T->left, e);
+          T = rebalance_left(T);                  // ADDED
+        }
+        else { //@assert cmp > 0; // Go right
+          T->right = avl_insert(T->right, e);
+          T = rebalance_right(T);                 // ADDED
+        }
+        ...
+- switch to avldict.c0 and show rebalance_left
+  . point to calls to height
+  . implement recursive definition of height
+      int height(tree* T)
+      //@requires is_tree(T);
+      //@ensures \result >= 0;
+      {
+        if (T == NULL) return 0;
+        return 1 + max(height(T->left), height(T->right));
+      }
+  . what is the cost?  -- O(n)
+  . no way we can fix height invariant cheaply this way
+- alternatives [audience participation]
+  . height field in struct tree node
+  . display height function -- now O(1)
+  . this is an example of SPACE-TIME TRADEOFF
+- updates to DS invariant (is_avl)
+  . height fields are correct (is_specified_height)
+  . height invariant holds (is_balanced)
+- implement rotate_left [if time, generally no time]
+      tree* rotate_left(tree* T)
+      //@requires T != NULL && T->right != NULL;
+      //@requires is_specified_height(T->left);
+      //@requires is_specified_height(T->right);
+      //@ensures is_specified_height(\result);
+      {
+        tree* temp = T->right;
+        T->right = T->right->left;
+        temp->left = T;
+        fix_height(T);
+        fix_height(temp);
+        return temp;
+      }
+- point out that lookup is unchanged
+- point out that lowest violation handled by the fact that insert is recursive
+- rest of the code is for students to understand on their own
