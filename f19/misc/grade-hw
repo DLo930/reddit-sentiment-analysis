@@ -1,2 +1,0 @@
-#!/bin/bash
-rlwrap -f ids.txt python grade-hw.py -nochecksum

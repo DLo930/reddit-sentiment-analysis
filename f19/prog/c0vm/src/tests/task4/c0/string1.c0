@@ -1,7 +1,0 @@
-#use <conio>
-#use <string>
-
-int main () {
-  string s = "pfenning";
-  return string_length(s);
-}

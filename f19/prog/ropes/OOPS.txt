@@ -1,6 +1,0 @@
-We say in the writeup rope_new has to be O(1), but string_length is O(n). What to do?
-
-One buggy implementations isn't caught by the autograder:
-reduce3.c1. It's something of an pathalogical case but is probably
-worth catching; we'll just need some differently-structured big test
-cases.

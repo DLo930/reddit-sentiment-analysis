@@ -1,1 +1,0 @@
-../editor/README.txt

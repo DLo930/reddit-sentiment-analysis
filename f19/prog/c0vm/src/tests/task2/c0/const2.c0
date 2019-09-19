@@ -1,4 +1,0 @@
-int main() {
-  int x = 15122;
-  return x * x;
-}

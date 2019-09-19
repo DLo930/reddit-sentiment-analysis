@@ -1,6 +1,0 @@
-int main() {
-  int x = 15122;
-  int y = 21127;
-  int z = 4401;
-  return (x + y) - z;
-}

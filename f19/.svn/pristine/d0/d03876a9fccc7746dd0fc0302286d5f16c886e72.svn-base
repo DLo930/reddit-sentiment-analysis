@@ -1,5 +1,0 @@
-//EXPECT ANNOTATION FAILURE
-int main() {
-  gapbuf_insert(NULL, 'f');
-  return 0;
-}

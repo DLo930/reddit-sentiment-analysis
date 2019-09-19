@@ -1,9 +1,0 @@
-#use <conio>
-
-int main()
-{
-  int *a = alloc(int);
-  int ** c = NULL;
-  *c = a;
-  return 0;
-}

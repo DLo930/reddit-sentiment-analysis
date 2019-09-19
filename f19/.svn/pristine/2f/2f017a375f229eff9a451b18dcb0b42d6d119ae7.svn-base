@@ -1,8 +1,0 @@
-#use <conio>
-#use <string>
-
-string pfenning() { return "pfenning"; }
-
-int main () {
-  return string_length(pfenning());
-}

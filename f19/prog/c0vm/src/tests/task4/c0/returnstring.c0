@@ -1,9 +1,0 @@
-#use <conio>
-#use <string>
-
-string pfenning() { return "pfenning"; }
-
-int main () {
-  string s = pfenning();
-  return 4;
-}

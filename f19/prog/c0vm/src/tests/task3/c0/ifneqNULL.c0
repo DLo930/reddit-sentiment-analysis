@@ -1,4 +1,0 @@
-int main() {
-  if (NULL != NULL) return 1;
-  return 0;
-}

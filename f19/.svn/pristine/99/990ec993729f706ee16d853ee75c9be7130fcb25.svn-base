@@ -1,7 +1,0 @@
-int main () {
-  int i; 
-  int product = 1;
-  for (i = 15; i <= 28; i++) 
-    product *= i;
-  return product;
-}

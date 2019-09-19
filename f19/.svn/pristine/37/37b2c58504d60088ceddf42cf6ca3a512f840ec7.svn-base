@@ -1,7 +1,0 @@
-
-int main()
-{
-  if (((~0) << 31) * 2 == 0) return 0;
-  return 1;
-}
-

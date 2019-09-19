@@ -1,1 +1,0 @@
-LAB_DIR:=testing

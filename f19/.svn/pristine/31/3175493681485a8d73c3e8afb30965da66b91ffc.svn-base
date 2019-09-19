@@ -1,9 +1,0 @@
-\documentclass[lab]{inc/122handout}
-\newcommand{\why}{Labor day}
-%\newcommand{\why}{Martin Luther King day}
-\mfcsnumber{2: \why{} (no classes)}
-\mfcsdate{\formatdate{2}{9}{\YEAR}} % day-month-year
-
-\begin{document}
-\bf No lab this week: \textcolor{red}{\why}
-\end{document}

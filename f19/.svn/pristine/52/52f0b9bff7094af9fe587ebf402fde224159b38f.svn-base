@@ -1,8 +1,0 @@
-int main()
-{
-  int* i = alloc(int);
-  int* j = alloc(int);
-  if (i == j)
-    return 1;
-  return 0;
-}

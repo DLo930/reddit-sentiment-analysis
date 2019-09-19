@@ -1,5 +1,0 @@
-: comment log : S, n => S, log n ;
-: dup 1 pick ;
-: log -1 swap log_ret? ;
-: log_ret? dup if log_body 1 skip drop ;
-: log_body swap 1 + swap 2 / log_ret? ;

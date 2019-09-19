@@ -1,8 +1,0 @@
-#use <conio>
-
-int main()
-{
-	make_pixel(-1, -1, -1, -1);
-	println("EXPECTED ANNOTATION FAILURE");
-	return 0;
-}

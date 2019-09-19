@@ -1,7 +1,0 @@
-int countdown(int n) {
-  if (n <= 0) error("Whoops");
-  return countdown(n-1);
-}
-int main () {
-  return countdown(15);
-}

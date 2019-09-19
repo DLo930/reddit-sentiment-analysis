@@ -1,6 +1,0 @@
-int main() {
-  string s1 = "This is an error message";
-  string s2 = "This is another error message";
-  string s3 = "This is a final error message";
-  error(s2);
-}

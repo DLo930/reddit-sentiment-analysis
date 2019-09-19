@@ -1,6 +1,0 @@
-// Applies maskwidth*maskwidth mask to width*height image
-int[] apply_mask(pixel_t[] pixels, int width, int height,
-                 int[] mask, int maskwidth)
-{
-
-}

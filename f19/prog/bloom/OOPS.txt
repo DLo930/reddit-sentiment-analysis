@@ -1,5 +1,0 @@
-We should use the field "capacity" or the field "limit" consistent.y
-Probably "limit" since in bloom2 it's not a capacity, it's a limit.
-
-We should add SPECIFIC LANGUAGE about edge cases to this writeup
-SPECIFICALLY in the context of bloom_new.

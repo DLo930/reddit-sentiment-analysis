@@ -1,8 +1,0 @@
-#use <conio>
-
-int main()
-{
-	get_index(-1,2,5,6);
-	println("EXPECTED ANNOTATION FAILURE");
-	return 0;
-}

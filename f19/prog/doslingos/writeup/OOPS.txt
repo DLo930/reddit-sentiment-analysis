@@ -1,2 +1,0 @@
-Add a simple question on privacy: e.g., find something inappropriate about
-somebody by combining 2 searches on (supposedly) anonymized data.

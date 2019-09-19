@@ -1,2 +1,0 @@
-   images/g5-remove-green.png      - result of remove_green()
-   images/g5-remove-green-bug.png  - result of a buggy remove_green()

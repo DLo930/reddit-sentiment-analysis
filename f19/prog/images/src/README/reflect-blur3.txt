@@ -1,3 +1,0 @@
-   blur-slightly-mask.txt          - 3x3 blur mask
-   blur-mask.txt                   - 5x5 blur mask
-   blur-more-mask.txt              - 5x5 blur mask

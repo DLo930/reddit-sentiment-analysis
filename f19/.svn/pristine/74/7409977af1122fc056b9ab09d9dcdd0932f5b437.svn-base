@@ -1,9 +1,0 @@
-int main() 
-{
-  int x = 15122;
-  int y = 15122;
-  int z = 15122;
-  if (x >= y) 
-    z = z + 1;
-  return z;
-}

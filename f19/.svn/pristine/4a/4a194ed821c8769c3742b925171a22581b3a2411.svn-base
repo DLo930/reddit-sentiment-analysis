@@ -1,6 +1,0 @@
-int gcd (int x, int y)
-//@requires x > 0 && y > 0;
-//@ensures 0 < \result && x % \result == 0 && y % \result == 0;
-{
-  return 1;
-}

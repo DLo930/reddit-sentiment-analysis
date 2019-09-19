@@ -1,4 +1,0 @@
-int main() {
-  "Lorem ipsum dolor sit amet";
-  error("This is an error"); 
-}

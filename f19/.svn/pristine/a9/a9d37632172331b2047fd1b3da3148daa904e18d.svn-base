@@ -1,6 +1,0 @@
-int main() {
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis diam neque. Aliquam vehicula rhoncus turpis ut tristique. Nulla sollicitudin, tortor lacinia tincidunt egestas, massa erat viverra metus, in porttitor ipsum lorem ac risus.";
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis diam neque. Aliquam vehicula rhoncus turpis ut tristique. Nulla sollicitudin, tortor lacinia tincidunt egestas, massa erat viverra metus, in porttitor ipsum lorem ac risus.";
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quis diam neque. Aliquam vehicula rhoncus turpis ut tristique. Nulla sollicitudin, tortor lacinia tincidunt egestas, massa erat viverra metus, in porttitor ipsum lorem ac risus. Proin tellus neque, imperdiet non sodales.";
-  error("This is an error"); 
-}

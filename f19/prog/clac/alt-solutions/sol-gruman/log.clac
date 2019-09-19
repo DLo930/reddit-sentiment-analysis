@@ -1,5 +1,0 @@
-: log 0 swap log2 drop ;
-: log2 2 / dup if noop add log2 ;
-: add swap 1 + swap ;
-: noop ;
-: dup 1 pick ;

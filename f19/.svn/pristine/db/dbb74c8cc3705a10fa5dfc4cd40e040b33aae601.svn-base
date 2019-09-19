@@ -1,8 +1,0 @@
-@Book{kernighan88book,
-  author = 	 "Brian W. Kernighan and Dennis M. Ritchie",
-  title = 	 "The C Programming Language",
-  publisher = 	 "Prentice Hall",
-  year = 	 1988,
-  edition = 	 "Second edition"
-}
-

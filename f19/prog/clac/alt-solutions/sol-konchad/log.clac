@@ -1,6 +1,0 @@
-: nothing ;
-: dup 1 pick ;
-: d2 2 / ;
-: prelog dup if -1 swap 1 drop swap 1 + swap d2 dup if 0 prelog nothing ;
-: log prelog drop ;
-

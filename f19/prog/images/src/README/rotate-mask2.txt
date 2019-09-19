@@ -1,2 +1,0 @@
-   rotate.c0             - Task 3
-   mask.c0               - Task 4

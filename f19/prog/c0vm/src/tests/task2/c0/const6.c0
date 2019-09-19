@@ -1,8 +1,0 @@
-int main() {
-  int w = 21127;
-  int x = 15122;
-  int y = 4401;
-  int z = w + x + y;
-  y = z + z;
-  return y;
-}

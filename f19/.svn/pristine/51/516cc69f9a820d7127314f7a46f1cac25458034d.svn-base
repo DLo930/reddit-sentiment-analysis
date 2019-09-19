@@ -1,8 +1,0 @@
-#use <conio>
-
-int main()
-{
-  char* c = NULL;
-  char a = *c;
-  return 0;
-}

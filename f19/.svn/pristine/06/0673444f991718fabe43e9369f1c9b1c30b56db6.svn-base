@@ -1,7 +1,0 @@
-#use <conio>
-
-typedef int elem;
-
-void print_elem(int x) {
-  printint(x);
-}

@@ -1,4 +1,0 @@
-pixel_t[] quantize(pixel_t[] pixels, int width, int height, int q_level)
-{
-
-}

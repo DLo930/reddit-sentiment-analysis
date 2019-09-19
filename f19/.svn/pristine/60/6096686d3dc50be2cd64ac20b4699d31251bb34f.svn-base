@@ -1,3 +1,0 @@
-   rotate-main.c0        - Runs rotate()
-   maskblur-main.c0      - Runs apply_mask() to do bluring
-   maskedge-main.c0      - Runs apply_mask() to do edge detection

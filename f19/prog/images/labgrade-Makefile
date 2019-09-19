@@ -1,6 +1,0 @@
-lab:
-	echo "Lab grader"
-	tar -mkxf autograde.tar
-	$(MAKE) compile_$(VERSION)_tests -is
-	python labgrader.py
-

@@ -1,3 +1,0 @@
-int main() {
-  return *alloc(char) == '\0' ? 0 : 1;
-}

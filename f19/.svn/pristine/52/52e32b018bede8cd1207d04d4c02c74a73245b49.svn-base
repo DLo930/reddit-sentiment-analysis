@@ -1,9 +1,0 @@
-\documentclass[recitation]{inc/122handout}
-\mfcsnumber{9: Rotating Rotation}
-\mfcsdate{\formatdate{25}{10}{\YEAR}} % day-month-year
-
-\begin{document}
-\inputQuestion{bst}
-\inputQuestion{balanced-bst}
-\inputQuestion{avl}
-\end{document}

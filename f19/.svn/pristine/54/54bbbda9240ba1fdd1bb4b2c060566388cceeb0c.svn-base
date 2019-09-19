@@ -1,5 +1,0 @@
-//EXPECT ANNOTATION FAILURE
-int main() {
-  assert(is_gapbuf(alloc(struct gap_buffer))); 
-  return 0;
-}

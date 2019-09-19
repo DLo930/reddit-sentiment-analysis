@@ -1,3 +1,0 @@
-   images/carnegie-reflect.png     - result of reflect()
-   images/scs-blur-slightly.png    - result of blur with blur-slightly-mask.txt
-   images/scs-blur.png             - result of maskblur with mask blur-mask.txt

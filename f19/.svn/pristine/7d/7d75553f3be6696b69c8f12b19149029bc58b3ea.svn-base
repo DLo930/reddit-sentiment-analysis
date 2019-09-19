@@ -1,6 +1,0 @@
-// Reflects width*height image passed as input
-pixel_t[] reflect(pixel_t[] pixels, int width, int height)
-{
-  // Write me!
-  return alloc_array(pixel_t, 1);
-}

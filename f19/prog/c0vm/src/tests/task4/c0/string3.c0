@@ -1,9 +1,0 @@
-#use <conio>
-#use <string>
-
-int main () {
-  string s = "pfenning";
-  if (string_charat(s,3)==string_charat(s,4))
-    return 0;
-  return 1;
-}

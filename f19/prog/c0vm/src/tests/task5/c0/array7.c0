@@ -1,9 +1,0 @@
-
-int main()
-{
-  int []A = alloc_array(int, 5);
-  A[1] = ~0;
-  if (A[1] == ((1 << 31) >> 31)) return 0;
-  return 1;
-}
-

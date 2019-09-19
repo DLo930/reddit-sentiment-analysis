@@ -1,3 +1,0 @@
-int main() {
-  return 0x76543210 * 0x89ABCDEF;
-}

@@ -1,4 +1,0 @@
-int main() {
-  string s = "This is a good error";
-  error(s);
-}

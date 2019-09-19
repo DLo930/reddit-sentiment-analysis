@@ -1,9 +1,0 @@
-\nocite{kernighan88book}  % Placeholder
-\cleardoublepage
-\addcontentsline{toc}{chapter}{Bibliography}
-\bibliographystyle{plain}
-\bibliography{inc/references}
-
-\cleardoublepage
-\addcontentsline{toc}{chapter}{Index}
-\printindex

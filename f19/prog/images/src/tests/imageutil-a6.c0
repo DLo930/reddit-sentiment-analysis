@@ -1,8 +1,0 @@
-#use <conio>
-
-int main()
-{
-	get_column(5*9,5,9);
-	println("EXPECTED ANNOTATION FAILURE");
-	return 0;
-}

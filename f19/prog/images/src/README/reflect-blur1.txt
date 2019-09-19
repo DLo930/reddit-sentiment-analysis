@@ -1,2 +1,0 @@
-   reflect-main.c0       - Runs reflect()
-   blur-main.c0          - Runs blur()

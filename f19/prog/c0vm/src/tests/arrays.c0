@@ -1,7 +1,0 @@
-#use <conio>
-
-int main() {
-    int[] A = alloc_array(int, 5);
-    printint(A[3]);
-    return 0;
-}
